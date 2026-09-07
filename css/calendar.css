@@ -1,0 +1,875 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap');
+
+/* =============================================================
+   CALENDAR.CSS — Muted cozy palette
+============================================================= */
+
+:root {
+  /* Saison-Akzente für den Hero-Bereich (Sommer nutzt --sage-dark) */
+  --season-spring: #6f9463;
+  --season-autumn: #8a5233;
+  --season-winter: #4a5b6b;
+
+  /* Geburtstags-Akzent */
+  --birthday-accent: #c4507a;
+}
+
+.cal-nav { display: flex; gap: 8px; }
+
+#calendar-grid {
+  display: grid;
+  grid-template-columns: 2.5rem repeat(7, minmax(0, 1fr));
+  grid-auto-rows: minmax(110px, auto);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.cal-day-name {
+  background: var(--surface-2);
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  padding: 12px 0;
+}
+.cal-kw-head { grid-row: 1; font-size: 10px; }
+.cal-kw-cell {
+  background: var(--surface-3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+
+.cal-day {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background var(--transition);
+  min-height: 110px;
+  min-width: 0;
+}
+.cal-day:hover { background: var(--surface-2); }
+.cal-day.other-month { background: var(--surface-3); }
+.cal-day.other-month .cal-day-num { color: var(--text-3); }
+.cal-day.is-today {
+  border: 2px solid var(--sage);
+  background: var(--surface);
+}
+.cal-day.is-today .cal-day-num { color: var(--sage-dark); font-weight: 700; }
+.cal-day.is-today:hover { background: var(--sage-bg); }
+.cal-day.weekend { background: color-mix(in srgb, var(--surface) 88%, var(--surface-3) 12%); }
+[data-theme-family="dark"] .cal-day.weekend { background: color-mix(in srgb, var(--surface) 92%, var(--bg-2) 8%); }
+
+.cal-day-num { font-size: 13px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; flex-shrink: 0; }
+.cal-items { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow: hidden; min-width: 0; }
+
+.cal-event-pill {
+  min-width: 0;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--sage-bg);
+  color: var(--sage-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid var(--sage);
+}
+.cal-event-pill.countdown-pill {
+  background: var(--prio-1-bg);
+  color: var(--prio-1);
+  border-left-color: var(--prio-1);
+}
+
+.cal-task-pill {
+  min-width: 0;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid;
+}
+.cal-task-pill.prio-1 { background: var(--prio-1-bg); color: var(--prio-1); border-left-color: var(--prio-1); }
+.cal-task-pill.prio-2 { background: var(--prio-2-bg); color: var(--prio-2); border-left-color: var(--prio-2); }
+.cal-task-pill.prio-3 { background: var(--prio-3-bg); color: var(--prio-3); border-left-color: var(--prio-3); }
+.cal-more {
+  min-width: 0; font-size: 10px; color: var(--text-3); padding: 1px 0; }
+
+.cal-day-section-head {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-bottom: 6px;
+  margin-top: 4px;
+}
+.cal-day-ev-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cal-day-ev-row:last-child { border-bottom: none; }
+.cal-day-ev-left { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.cal-day-ev-title { font-size: 13.5px; color: var(--text); }
+.cal-day-ev-notes { font-size: 12px; color: var(--text-3); }
+.cal-day-ev-row .task-delete { opacity: 1; font-size: 12px; }
+
+/* =========================
+   MULTI-DAY SPAN EVENTS
+========================= */
+
+/* Continuous bar in large calendar */
+.cal-event-pill.cal-span {
+  border-left: none;
+  border-radius: 0;
+  margin-left: -12px;
+  margin-right: -12px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  color: var(--sage-dark);
+  font-weight: 500;
+  position: relative;
+}
+.cal-event-pill.cal-span.countdown-pill {
+  background: color-mix(in srgb, var(--prio-1) 13%, transparent);
+  color: var(--prio-1);
+}
+.cal-event-pill.cal-span.cal-span-start {
+  border-radius: 999px 0 0 999px;
+  margin-left: 0;
+  padding-left: 8px;
+  border-left: 3px solid var(--sage);
+}
+.cal-event-pill.cal-span.cal-span-end {
+  border-radius: 0 999px 999px 0;
+  margin-right: 0;
+}
+.cal-event-pill.cal-span.cal-span-single {
+  border-radius: 999px;
+  margin-left: 0;
+  margin-right: 0;
+  border-left: 3px solid var(--sage);
+}
+.cal-event-pill.cal-span.cal-span-mid {
+  color: transparent; /* hide text on middle days */
+}
+.cal-event-pill.cal-span.countdown-pill.cal-span-start { border-left-color: var(--prio-1); }
+
+/* Day modal: range label and status badge */
+.cal-day-ev-range {
+  font-size: 10.5px;
+  font-family: var(--mono);
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 2px;
+  align-self: flex-start;
+}
+.cal-day-ev-status {
+  font-size: 10.5px;
+  color: var(--prio-1);
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+/* Task pill for completed */
+.cal-task-pill--done { opacity: 0.45; text-decoration: line-through; }
+.cal-day-section-head--done { opacity: 0.55; }
+.cal-day-ev-row--done { opacity: 0.5; }
+.cal-task-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+.cal-task-dot[data-prio="1"] { background: var(--prio-1); }
+.cal-task-dot[data-prio="2"] { background: var(--prio-2); }
+.cal-task-dot[data-prio="3"] { background: var(--prio-3); }
+
+/* =============================================================
+   INDIVIDUELLE TERMINFARBEN — Color Picker im Termin-Modal
+   Picker selbst: siehe .hub-color-* in main.css (hub-weit geteilt)
+============================================================= */
+.event-color-reset { font-size: 12px; padding: 6px 12px; flex-shrink: 0; }
+
+/* Farb-Punkt vor Termintitel im Tages-Modal */
+.cal-day-ev-color-dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  margin-right: 7px;
+  flex-shrink: 0;
+}
+
+/* =============================================================
+   WIEDERHOLENDE TERMINE — Recurrence UI im Termin-Modal
+============================================================= */
+#event-modal-recur-locked-hint {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.recur-interval-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.recur-interval-row span { font-size: 13px; color: var(--text-2); flex-shrink: 0; }
+.recur-interval-input { width: 64px; flex: none; }
+.recur-unit-select { flex: 1; }
+
+.recur-weekday-row { display: flex; gap: 5px; margin-bottom: 12px; flex-wrap: wrap; }
+.recur-wd-btn {
+  width: 36px; height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.recur-wd-btn:hover { background: var(--accent-soft); color: var(--text); }
+.recur-wd-btn.active { background: var(--sage); color: var(--sage-fg); border-color: var(--sage); font-weight: 600; }
+
+.recur-end-group { display: flex; flex-direction: column; gap: 8px; }
+.recur-end-option { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+.recur-end-option input[type="radio"] { accent-color: var(--sage); flex-shrink: 0; }
+.recur-end-date, .recur-end-count-input { width: 150px; padding: 6px 10px; font-size: 13px; }
+
+/* =============================================================
+   WIEDERHOLUNGS-UMFANG MODAL (Bearbeiten/Löschen von Serien)
+============================================================= */
+.recur-scope-options { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 4px; }
+.recur-scope-btn {
+  width: 100%; text-align: left;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px; font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+
+
+/* =============================================================
+   CALENDAR-MONTHPLANER.CSS
+   Phase 1: Grundgerüst — Saisonaler Header, Banner, Info-Karte,
+   responsive Sidebar (Countdowns, Ziele, Geburtstage, Feiertage,
+   Statistik). Nutzt ausschließlich CSS-Variablen aus main.css.
+   Abhängigkeiten: main.css (:root), calendar.css
+============================================================= */
+
+#view-calendar .dash-content { margin: 0; }
+
+/* =============================================================
+   HERO — eine einzige Komponente: saisonales Hintergrundbild,
+   darauf als Ebenen Monat/Jahr, Saison-Badge, Beschreibungstext
+   und die schwebende Wetterkarte. Kein separater Banner-Container.
+   Vorbereitet für spätere Bild-Integration je Jahreszeit über
+   .cal-hero[data-season="..."] { background-image: url('...'); }
+============================================================= */
+.cal-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 215px;
+  padding: 22px 28px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  background: var(--surface);
+  animation: fadeIn var(--transition-slow) ease;
+  flex-shrink: 0;
+}
+
+/* Foto + Aufhell-Verlauf liegen zusammen in ::before (nicht mehr als
+   background-image von .cal-hero selbst). Grund: overflow:hidden clippt
+   Kind-Elemente an der Padding-Box, nicht an der Border-Box — ein
+   background-image direkt auf .cal-hero würde am äußersten 1px-Rand
+   unter der (halbtransparenten) Border ungetönt durchscheinen. Liegt
+   das Foto stattdessen in ::before, bleibt am Rand nur die normale
+   --surface-Kartenfläche sichtbar (wie bei jeder anderen Karte im Hub) —
+   kein Foto, kein Durchscheinen, kein Sonderfall im Darkmode.
+   inset:-1px + border-radius:inherit fangen zusätzlich Rundungs-/
+   Antialiasing-Kanten ab. */
+.cal-hero::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(100deg,
+      color-mix(in srgb, var(--surface) 90%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 72%, transparent) 20%,
+      color-mix(in srgb, var(--surface) 46%, transparent) 38%,
+      color-mix(in srgb, var(--surface) 24%, transparent) 55%,
+      color-mix(in srgb, var(--surface) 12%, transparent) 75%,
+      color-mix(in srgb, var(--surface) 8%, transparent) 100%
+    ),
+    var(--cal-hero-img);
+  background-size: auto, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+[data-theme-family="dark"] .cal-hero::before {
+  background-image:
+    linear-gradient(100deg,
+      color-mix(in srgb, var(--bg) 90%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 20%,
+      color-mix(in srgb, var(--bg) 46%, transparent) 38%,
+      color-mix(in srgb, var(--bg) 24%, transparent) 55%,
+      color-mix(in srgb, var(--bg) 12%, transparent) 75%,
+      color-mix(in srgb, var(--bg) 8%, transparent) 100%
+    ),
+    var(--cal-hero-img);
+}
+
+/* Sehr dezenter, weicher Glow direkt hinter Monat/Saison/Spruch —
+   kein Kasten, keine Kante, wirkt wie sanftes Eigenlicht des Fotos. */
+.cal-hero::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10%;
+  width: 65%;
+  height: 160%;
+  transform: translateY(-50%);
+  background: radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--surface) 40%, transparent) 0%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(2px);
+}
+[data-theme-family="dark"] .cal-hero::after {
+  background: radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--bg) 45%, transparent) 0%, transparent 72%);
+}
+
+.cal-hero-spring  { --cal-hero-img: url('../assets/calendar/spring.png'); }
+.cal-hero-summer  { --cal-hero-img: url('../assets/calendar/summer.png'); }
+.cal-hero-autumn  { --cal-hero-img: url('../assets/calendar/fall.png'); }
+.cal-hero-winter  { --cal-hero-img: url('../assets/calendar/winter.png'); }
+[data-theme-family="dark"] .cal-hero { box-shadow: var(--shadow-md); }
+
+/* ── Textebene (Monat, Saison-Badge, Satz) ───────────────────── */
+#cal-hero-text {
+  position: relative;
+  z-index: 1;
+  max-width: 52%;
+}
+
+/* Monat/Jahr: groß, saisonal eingefärbt statt schwarz */
+#cal-hero-text .view-title {
+  margin: 0 0 10px;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+}
+.cal-hero-spring #cal-hero-text .view-title { color: var(--season-spring); }
+.cal-hero-summer #cal-hero-text .view-title { color: var(--sage-dark); }
+.cal-hero-autumn #cal-hero-text .view-title { color: var(--season-autumn); }
+.cal-hero-winter #cal-hero-text .view-title { color: var(--season-winter); }
+
+/* Saison-Badge: schlicht, ohne Pillen-Hintergrund, Name vor Symbol */
+.cal-season-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-2);
+  margin-bottom: 10px;
+}
+.cal-hero-spring .cal-season-tag { color: var(--season-spring); }
+.cal-hero-summer .cal-season-tag { color: var(--sage-dark); }
+.cal-hero-autumn .cal-season-tag { color: var(--season-autumn); }
+.cal-hero-winter .cal-season-tag { color: var(--season-winter); }
+
+/* Spruch: bricht innerhalb der Textspalte um, Schreibschrift für
+   einen handschriftlichen, persönlichen Eindruck (wie im Mockup) */
+#cal-season-sentence {
+  font-family: 'Caveat', var(--font), cursive;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-3);
+  max-width: 260px;
+  overflow-wrap: break-word;
+}
+
+/* ── Wetterkarte — schwebt oben rechts im Hero, vollständig sichtbar ── */
+#cal-info-card {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 210px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px;
+}
+.cal-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.cal-info-icon {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.cal-info-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.cal-info-main { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-info-sub  { font-size: 11.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-info-divider { height: 1px; background: var(--border); margin: 0; }
+
+/* =============================================================
+   LAYOUT — #cal-body ist die oberste Grid-Ebene: links Hero +
+   Monatsansicht (#cal-main), rechts die Monatsplaner-Karte
+   (#cal-sidebar) — beide beginnen auf derselben Höhe. Der Hero
+   gehört ausschließlich zu #cal-main und ist dadurch automatisch
+   nur so breit wie die Kalenderspalte.
+============================================================= */
+#cal-body {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* =============================================================
+   RECHTE SPALTE — Navigation liegt außerhalb der großen Karte,
+   direkt darunter beginnt die Monatsplaner-Karte (.dash-content)
+   mit eigener Überschrift und den einzelnen Feature-Karten (.panel)
+============================================================= */
+#cal-sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#cal-sidebar-col .cal-nav-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cal-sidebar-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+#cal-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cal-side-card { animation: fadeIn var(--transition-slow) ease; }
+.cal-side-card.hidden { display: none; }
+
+.cal-side-body { padding: 6px 16px 14px; }
+
+.cal-side-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+.cal-side-row:last-child { border-bottom: none; }
+
+.cal-side-row-title {
+  font-size: 12.5px;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-side-row-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  border-radius: 6px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+
+/* =============================================================
+   RESPONSIVE
+============================================================= */
+@media (max-width: 1180px) {
+  #cal-body { grid-template-columns: 1fr 240px; }
+}
+
+@media (max-width: 860px) {
+  #cal-body { grid-template-columns: 1fr; }
+  .cal-hero { height: auto; min-height: 190px; }
+  #cal-hero-text { max-width: 100%; }
+  #cal-info-card { position: static; width: 100%; margin-top: 14px; }
+}
+
+/* =============================================================
+   MOBILE (≤480px, gleiche Phone-Schwelle wie #mobile-bottom-nav in
+   main.css) — Hero wird zur kompakten Kopfzeile statt hoher Fotokarte,
+   die Wetterkarte zur horizontalen Streifen-Reihe (gleiches Muster wie
+   die Aufgaben-Kachel im Today-Tab). Die Monatsansicht bleibt eine
+   vollständige 7-Spalten-Woche statt horizontal zu scrollen, damit die
+   Wochenstruktur erhalten bleibt — Termine/Aufgaben/Geburtstage werden
+   dafür zu reinen Farbpunkten, weil laufender Text bei ~45px Spalten-
+   breite ohnehin nicht mehr lesbar wäre. Details liefert weiterhin das
+   Tagesmodal beim Antippen (siehe calendar.md: Tagesansicht).
+============================================================= */
+@media (max-width: 480px) {
+  .cal-hero { padding: 14px 14px 12px; min-height: 0; margin-bottom: 12px; }
+  #cal-hero-text .view-title { font-size: 25px; margin-bottom: 5px; }
+  .cal-season-tag { font-size: 11.5px; margin-bottom: 5px; }
+  #cal-season-sentence { font-size: 13.5px; max-width: 100%; }
+
+  /* Wetterkarte: drei gestapelte Zeilen → eine kompakte horizontale
+     Streifen-Reihe (Icon + Wert je Spalte), spart deutlich Höhe. */
+  #cal-info-card { flex-direction: row; padding: 8px 2px; gap: 0; }
+  .cal-info-row { flex: 1; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 2px 0; }
+  .cal-info-divider { width: 1px; height: auto; align-self: stretch; }
+  .cal-info-icon { width: 20px; height: 20px; font-size: 15px; }
+  .cal-info-main { font-size: 11px; white-space: normal; }
+  .cal-info-sub { font-size: 9px; white-space: normal; line-height: 1.25; }
+
+  /* Monatsraster: kompaktere Zellen, engere Kopfzeile. */
+  #calendar-grid { grid-template-columns: 1.4rem repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(48px, auto); border-radius: var(--radius-sm); }
+  .cal-day-name { font-size: 9px; padding: 6px 0; }
+  .cal-kw-cell  { font-size: 9px; padding-top: 6px; }
+  .cal-day { padding: 4px 3px; min-height: 48px; gap: 2px; }
+  .cal-day-num { font-size: 11px; margin-bottom: 2px; }
+
+  /* Termine/Aufgaben/Geburtstage/Feiertage werden zu Farbpunkten statt
+     Text-Pillen — bei dieser Spaltenbreite wäre laufender Text ohnehin
+     nur noch Rauschen. Mehrtägige Termine bleiben als schmaler
+     durchgehender Streifen erkennbar (Kernprinzip "Balken" bleibt). */
+  .cal-items { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 3px; }
+  .cal-event-pill,
+  .cal-task-pill,
+  .cal-holiday-pill,
+  .cal-birthday-cal-pill {
+    width: 6px; height: 6px; min-width: 0; flex: 0 0 auto;
+    padding: 0; margin: 0; border: none; border-radius: 50%;
+    font-size: 0; line-height: 0; overflow: hidden;
+    background: var(--sage);
+  }
+  .cal-event-pill.countdown-pill  { background: var(--prio-1); }
+  .cal-task-pill.prio-1           { background: var(--prio-1); }
+  .cal-task-pill.prio-2           { background: var(--prio-2); }
+  .cal-task-pill.prio-3           { background: var(--prio-3); }
+  .cal-task-pill--done            { opacity: 0.4; }
+  .cal-holiday-pill               { background: var(--amber); }
+  .cal-birthday-cal-pill          { background: var(--birthday-accent); }
+  .cal-birthday-reminder-pill     { opacity: 0.5; }
+
+  .cal-event-pill.cal-span {
+    flex-basis: 100%; width: auto; height: 4px;
+    margin: 0 -3px; border-radius: 0;
+  }
+  .cal-event-pill.cal-span.cal-span-start  { border-radius: 99px 0 0 99px; margin-left: 0; }
+  .cal-event-pill.cal-span.cal-span-end    { border-radius: 0 99px 99px 0; margin-right: 0; }
+  .cal-event-pill.cal-span.cal-span-single { border-radius: 99px; margin: 0; }
+
+  /* "+N weitere" ergibt bei reiner Punktdarstellung keinen Sinn mehr —
+     das Tagesmodal zeigt beim Antippen ohnehin die vollständige Liste. */
+  .cal-more { display: none; }
+}
+
+/* =============================================================
+   PHASE 2 — GEBURTSTAGE
+============================================================= */
+.cal-birthday-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cal-birthday-item:last-child { border-bottom: none; }
+.cal-birthday-name {
+  font-size: 12.5px;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-birthday-age {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  border-radius: 6px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.cal-side-empty-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 4px 0 6px;
+}
+
+.cal-birthdays-manage-btn {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-3);
+  font-size: 11px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+.cal-birthdays-manage-btn:hover { background: var(--accent-soft); color: var(--text); }
+
+.cal-birthday-manage-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 4px;
+}
+.cal-birthday-manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cal-birthday-manage-row:last-child { border-bottom: none; }
+.cal-birthday-manage-info { font-size: 13px; color: var(--text-2); }
+
+/* =============================================================
+   PHASE 3 — FEIERTAGE
+============================================================= */
+.cal-day.is-holiday { background: color-mix(in srgb, var(--surface) 92%, var(--amber) 8%); }
+[data-theme-family="dark"] .cal-day.is-holiday { background: color-mix(in srgb, var(--surface) 90%, var(--amber) 10%); }
+.cal-day.is-holiday.is-today { background: var(--surface); }
+
+.cal-holiday-pill {
+  min-width: 0;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--amber) 15%, transparent);
+  color: #8a5c30;
+  border-left: 2px solid var(--amber);
+}
+[data-theme-family="dark"] .cal-holiday-pill { color: #d9a866; }
+
+/* =============================================================
+   PHASE 6 — GEBURTSTAGE IM KALENDER + ERINNERUNGEN
+   Eigene, freundliche Farbgebung (Rosé), abgegrenzt von Feiertagen
+   (Amber), Terminen (Salbei) und Aufgaben (Prio-Farben).
+============================================================= */
+.cal-birthday-cal-pill {
+  min-width: 0;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--birthday-accent) 14%, transparent);
+  color: #a8447a;
+  border-left: 2px solid var(--birthday-accent);
+}
+[data-theme-family="dark"] .cal-birthday-cal-pill { color: #e08fb3; }
+
+/* Erinnerungs-Pill: dieselbe Farbfamilie, aber deutlich dezenter —
+   auf den ersten Blick erkennbar als Vorankündigung, nicht als der
+   eigentliche Geburtstag. */
+.cal-birthday-reminder-pill {
+  background: color-mix(in srgb, var(--birthday-accent) 6%, transparent);
+  color: #b87196;
+  border-left-color: color-mix(in srgb, var(--birthday-accent) 45%, transparent);
+  font-style: italic;
+}
+[data-theme-family="dark"] .cal-birthday-reminder-pill { color: #c9a0b7; }
+
+#cal-settings-btn {
+  width: 24px; height: 24px;
+  font-size: 12px;
+}
+
+/* =============================================================
+   PHASE 4 — MONATSZIELE
+============================================================= */
+.cal-goal-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cal-goal-row:last-child { border-bottom: none; }
+.cal-goal-checkbox {
+  accent-color: var(--sage);
+  width: 15px; height: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.cal-goal-text {
+  font-size: 12.5px;
+  color: var(--text-2);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-goal-text--done { text-decoration: line-through; color: var(--text-3); }
+
+.cal-goal-add-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cal-goal-add-input {
+  flex: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 12px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.cal-goal-add-input:focus { border-color: var(--sage); background: var(--surface); }
+.cal-goal-add-btn {
+  width: 26px; height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.cal-goal-add-btn:hover { background: var(--sage); color: var(--sage-fg); border-color: var(--sage); }
+
+/* =============================================================
+   EINSTELLUNGS-MODAL — Anzeige-Schalter & Erinnerungen
+============================================================= */
+.cal-settings-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-3);
+  margin: 18px 0 8px;
+}
+.cal-settings-section-label:first-of-type { margin-top: 4px; }
+
+.cal-settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cal-settings-toggle-row:last-of-type { border-bottom: none; }
+.cal-settings-toggle-row span { font-size: 13px; color: var(--text-2); }
+
+/* =============================================================
+   MONATSSTATISTIK — 3 gleich große Kacheln statt Zeilenliste
+============================================================= */
+.cal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.cal-stats-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.cal-stats-tile-icon { font-size: 16px; line-height: 1; }
+.cal-stats-tile-value {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+.cal-stats-tile-label {
+  font-size: 10px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* -- Weiche Hover-Effekte auf den Sidebar-Zeilen -- */
+.cal-side-row, .cal-goal-row, .cal-birthday-item {
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+.cal-side-row:hover, .cal-goal-row:hover, .cal-birthday-item:hover {
+  background: var(--accent-soft);
+}
+
+/* -- Fluessiger Uebergang beim Monatswechsel -- */
+@keyframes calGridFade {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#calendar-grid.cal-fade { animation: calGridFade 220ms ease; }

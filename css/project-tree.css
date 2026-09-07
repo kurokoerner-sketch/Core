@@ -1,0 +1,195 @@
+/* =============================================================
+   PROJECT-TREE.CSS  (v3 — PNG-Bäume)
+   Zuständig NUR für die Baumdarstellung:
+     - Waldbaum-Wrapper, Label, Dot, Balken (Projektwald-Übersicht)
+     - Detailbaum-Spalte, PNG-Baum + Apfel-/Blüten-Deko (Detailansicht)
+   Nicht enthalten: Projektkarten, Modals, Tiles, Detailansicht-Layout
+============================================================= */
+
+/* =========================
+   BAUM WRAPPER (Wald-Ansicht, PNG-Baum)
+   Positionierung/Größe kommt aus forest.js (left/top/width/z-index inline,
+   siehe FOREST_SLOTS) — hier nur das visuelle Verhalten des Wrappers.
+========================= */
+.forest-tree-wrap {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 200ms ease, filter 200ms ease;
+}
+.forest-tree-wrap:hover { transform: translateX(-50%) translateY(-6px); z-index: 999 !important; }
+.forest-tree-wrap.archived .forest-tree-img { filter: saturate(1.05); }
+
+/* PNG-Projektbaum — deutlich vom (illustrierten) Hintergrund abgesetzt
+   durch Schlagschatten, den der Hintergrund selbst nicht hat. */
+.forest-tree-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 10px rgba(30,25,10,0.22));
+  transition: filter 200ms ease;
+}
+.forest-tree-wrap:hover .forest-tree-img { filter: drop-shadow(0 14px 14px rgba(30,25,10,0.3)) brightness(1.03); }
+
+/* =========================
+   PROJEKTKARTE unter dem Baum
+========================= */
+.forest-tree-card {
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  padding: 6px 10px;
+  margin-top: -10%;
+  min-width: 110px;
+  max-width: 160px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  backdrop-filter: blur(4px);
+  position: relative;
+  z-index: 1;
+}
+[data-theme-family="dark"] .forest-tree-card {
+  background: rgba(30,34,24,0.9);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.forest-tree-card-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.forest-tree-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 130px;
+}
+
+.forest-tree-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.forest-tree-progress {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+}
+.forest-tree-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.forest-tree-pct {
+  font-size: 10px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+/* =========================
+   HOVER-INFO — dezente Zusatzinfo bei Hover auf Baum/Karte
+========================= */
+.forest-tree-hover-info {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%) translateY(4px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  max-width: 200px;
+  background: rgba(30,26,18,0.92);
+  color: #f4f0e6;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+  z-index: 20;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+  white-space: normal;
+}
+.forest-tree-hover-info strong { font-size: 11.5px; font-weight: 600; }
+.forest-tree-hover-info span { color: rgba(244,240,230,0.78); }
+.forest-tree-wrap:hover .forest-tree-hover-info {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: none;
+}
+
+/* =========================
+   DETAILBAUM-SPALTE (PNG-Baum, dieselbe Variante wie im Projektwald)
+========================= */
+.pdt-tree-col {
+  /* Absolut über die GESAMTE Hero gelegt (nicht die 44%-Grid-Spalte) —
+     dadurch zentriert sich der Baum immer exakt auf 50% der kompletten
+     Baumkachel inkl. Projektinfos-Spalte, unabhängig von deren tatsächlich
+     gerenderter Breite (Grid-Tracks können durch Inhalt/min-content breiter
+     werden als ihr %-Wert). .pdt-left/.pdt-info-card bekommen dafür feste
+     grid-column-Plätze (siehe projects.css), da sie durch das Herausnehmen
+     der Baumspalte aus dem Grid-Fluss sonst nachrücken würden. Rein
+     dekorativ (Baum + Deko haben pointer-events:none) -> Klicks auf
+     Projektinfos/Textbereich bleiben unangetastet.
+  */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  /* stretch statt flex-end: .pdt-tree-wrap füllt dadurch die volle
+     Hero-Höhe, der Baum berührt oben UND unten den Rand — die Bildhöhe
+     bestimmt jetzt die Größe (siehe .pdt-tree-img height:100%), nicht mehr
+     eine feste Breite. */
+  align-items: stretch;
+  justify-content: center;
+  overflow: visible;
+  pointer-events: none;
+}
+/* display:contents "entpackt" den Container — ohne eigene Box entsteht keine
+   Zirkelabhängigkeit mit .pdt-tree-wraps prozentualer Breite (sonst müsste
+   der Browser #proj-detail-tree contentbasiert auf sein Kind sizen, während
+   das Kind gleichzeitig prozentual von #proj-detail-tree abhängt — Ergebnis
+   war eine deutlich zu breite, nicht auf den Baum geschrumpfte Box, wodurch
+   justify-content:center in .pdt-tree-col effektiv nicht mehr den Baum
+   zentrierte). .pdt-tree-wrap wird dadurch direktes Flex-Kind von
+   .pdt-tree-col. */
+#proj-detail-tree { display: contents; }
+
+.pdt-tree-wrap { position: relative; height: 100%; }
+.pdt-tree-img {
+  height: 100%;
+  width: auto;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 16px 16px rgba(30,25,10,0.25));
+}
+
+/* Äpfel/Blüten-Deko — rein dekorativ, oben auf der Baumkrone platziert
+   (Positionen: APPLE_SLOTS/BLOSSOM_SLOTS in project-tree.js). Die eigentliche
+   Interaktion (abhaken, Details) läuft über die Äste-Kacheln darunter. */
+.pdt-tree-decor { position: absolute; inset: 0; pointer-events: none; }
+.pdt-tree-decor-item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+.pdt-tree-decor-flower { width: 20px; height: 20px; }

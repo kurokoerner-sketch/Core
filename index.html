@@ -1,0 +1,2656 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nook</title>
+  <link rel="icon" type="image/svg+xml" href="assets/nook_icon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#6B7F58" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/budget.css" />
+  <link rel="stylesheet" href="css/calendar.css" />
+  <link rel="stylesheet" href="css/flashcards.css" />
+  <link rel="stylesheet" href="css/games.css" />
+  <link rel="stylesheet" href="css/guides.css" />
+  <link rel="stylesheet" href="css/projects.css" />
+  <link rel="stylesheet" href="css/project-tree.css" />
+  <link rel="stylesheet" href="css/today.css" />
+  <link rel="stylesheet" href="css/pinboard.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+  <link rel="stylesheet" href="css/positivity.css" />
+  <link rel="stylesheet" href="css/national_day.css" />
+  <link rel="stylesheet" href="css/tools.css" />
+  <style>
+    /* =========================
+       TASKS — erledigte sichtbar
+    ========================= */
+    .task-item.done {
+      opacity: 0.5;
+    }
+    .task-done-divider {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-3);
+      padding: 10px 18px 4px;
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+    }
+ 
+    /* =========================
+       BLOCK-ANSICHT — erledigte Tasks
+    ========================= */
+    .block-tasks li.block-task-done {
+      opacity: 0.4;
+      text-decoration: line-through;
+      color: var(--text-3);
+    }
+ 
+    /* =========================
+       KALENDER — erledigte Task-Pills
+    ========================= */
+    .cal-task-pill--done {
+      opacity: 0.45;
+      text-decoration: line-through;
+    }
+ 
+    /* Kalender Day-Modal — erledigte Zeilen */
+    .cal-day-ev-row--done {
+      opacity: 0.5;
+    }
+    .cal-day-ev-row--done .cal-day-ev-title {
+      text-decoration: line-through;
+      color: var(--text-3);
+    }
+    .cal-day-section-head--done {
+      color: var(--text-3);
+    }
+ 
+    /* Kalender Task-Punkt (Prio-Farbe) im Day-Modal */
+    .cal-task-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+    .cal-task-dot[data-prio="1"] { background: var(--prio-1); }
+    .cal-task-dot[data-prio="2"] { background: var(--prio-2); }
+    .cal-task-dot[data-prio="3"] { background: var(--prio-3); }
+ 
+    /* =========================
+       ARCHIV MODAL
+    ========================= */
+    .archive-project-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .archive-project-row:last-child { border-bottom: none; }
+    .archive-project-info { flex: 1; min-width: 0; }
+    .archive-project-name { font-size: 14px; font-weight: 500; color: var(--text); }
+    .archive-project-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; font-family: var(--mono); }
+ 
+    /* Checkbox-Styling — von der Projekt-Detailseite (Aufgabenzeilen,
+       Checklisten) weiterhin genutzt, obwohl die Kartenansicht selbst
+       entfernt wurde. */
+    .project-task-cb {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--sage);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+ 
+  <div id="app">
+
+    <!-- Mobile-Bottom-Nav (nur ≤480px sichtbar, siehe main.css) — schnelle,
+         App-artige Navigation für die 4 meistgenutzten Tabs. Nutzt bewusst
+         dieselbe .nav-btn-Klasse + data-view wie die Sidebar-Buttons, damit
+         showView() (main.js) Aktiv-Status und Klick-Handling für beide
+         Stellen automatisch mit übernimmt, ohne eigenen Code.
+         "Mehr" öffnet stattdessen den bestehenden Sidebar-Drawer (ersetzt
+         den früheren eigenen Menü-Button) — dort bleiben alle restlichen
+         Tabs sowie Positivity-Widget, Countdowns und Wochen-Navigation
+         unverändert erreichbar, nichts davon musste für Mobile umziehen. -->
+    <nav id="mobile-bottom-nav">
+      <button class="nav-btn" data-view="today">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1.5" fill="currentColor"/><rect x="9" y="2" width="5" height="5" rx="1.5" fill="currentColor" opacity=".4"/><rect x="2" y="9" width="5" height="5" rx="1.5" fill="currentColor" opacity=".4"/><rect x="9" y="9" width="5" height="5" rx="1.5" fill="currentColor" opacity=".4"/></svg>
+        <span>Heute</span>
+      </button>
+      <button class="nav-btn" data-view="calendar">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Kalender</span>
+      </button>
+      <button class="nav-btn" data-view="budget">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/><path d="M8 5v6M6 6.5h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span>Budget</span>
+      </button>
+      <button class="nav-btn" data-view="games">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/><path d="M6 8H4M5 7v2M10 8h2M11 7l1 1-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span>Spiele</span>
+      </button>
+      <button id="bottom-nav-more-btn" aria-label="Mehr">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Mehr</span>
+      </button>
+    </nav>
+
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div id="sidebar-header">
+        <div id="sidebar-brand">
+          <img id="brand-icon" src="assets/nook_icon.svg" alt="nook Icon" />
+          <div id="brand-text">
+            <span id="brand-name">nook.</span>
+            <span id="brand-subtitle">deine kleine digitale ecke.</span>
+          </div>
+        </div>
+        <button id="theme-toggle-btn" title="Design wechseln" aria-label="Theme toggle">
+          <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+ 
+      <ul id="nav-list">
+        <li><button class="nav-btn active" data-view="today">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1.5" fill="currentColor"/><rect x="9" y="2" width="5" height="5" rx="1.5" fill="currentColor" opacity=".4"/><rect x="2" y="9" width="5" height="5" rx="1.5" fill="currentColor" opacity=".4"/><rect x="9" y="9" width="5" height="5" rx="1.5" fill="currentColor" opacity=".4"/></svg>
+          Heute
+        </button></li>
+        <li><button class="nav-btn" data-view="pinboard">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v3.5M5.5 5.5h5l1 3.5h-7.5l1-3.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none" opacity=".7"/><path d="M8 9v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Pinnwand
+        </button></li>
+        <li><button class="nav-btn" data-view="calendar">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Kalender
+        </button></li>
+        <li><button class="nav-btn" data-view="projects">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/><rect x="9" y="2" width="5" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/><rect x="9" y="11" width="5" height="3" rx="1" fill="currentColor" opacity=".4"/></svg>
+          Projekte
+        </button></li>
+        <li><button class="nav-btn" data-view="flashcards">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Karteikarten
+        </button></li>
+        <li><button class="nav-btn" data-view="guides">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Anleitungen
+        </button></li>
+        <li><button class="nav-btn" data-view="budget">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/><path d="M8 5v6M6 6.5h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Budget
+        </button></li>
+        <li><button class="nav-btn" data-view="games">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/><path d="M6 8H4M5 7v2M10 8h2M11 7l1 1-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Spiele
+        </button></li>
+        <li><button class="nav-btn" data-view="tools">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M9.5 2.5l1 1-5 5-1-1a2.2 2.2 0 0 1 0-3.1l1.1-1.1a2.2 2.2 0 0 1 3.1 0z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none" opacity=".7"/><path d="M6.5 6.5L2.5 10.5a1.4 1.4 0 0 0 2 2l4-4" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none" opacity=".7"/><path d="M11 5l0.5 2 2-0.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Tools
+        </button></li>
+        <li><button class="nav-btn" data-view="settings">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Einstellungen
+        </button></li>
+      </ul>
+ 
+      <!-- Positivity — unter der Navigation, über den Countdowns -->
+      <div id="sidebar-positivity"></div>
+ 
+      <!-- Countdowns — below nav, above footer -->
+      <div id="sidebar-countdowns">
+        <div id="sidebar-countdowns-label">COUNTDOWNS</div>
+        <div id="countdown-display"></div>
+        <button id="countdown-view-all-btn" class="countdown-view-all-btn">Alle Countdowns anzeigen <span aria-hidden="true">›</span></button>
+        <div id="exam-pill" title="Countdowns verwalten" style="display:none;"></div>
+      </div>
+ 
+      <div id="sidebar-footer">
+        <div id="week-nav">
+          <button id="prev-week" class="week-btn">‹</button>
+          <span id="week-label">—</span>
+          <button id="next-week" class="week-btn">›</button>
+        </div>
+      </div>
+    </nav>
+ 
+    <!-- Main -->
+    <main id="main">
+ 
+      <!-- TODAY -->
+      <section id="view-today" class="view active">
+ 
+        <!-- Haupt-Grid + rechte Sidebar -->
+        <div id="today-layout">
+ 
+          <!-- HAUPTBEREICH -->
+          <div id="today-main">
+ 
+            <!-- Begrüßung + Wetter (Header des Hauptbereichs) -->
+            <div id="today-main-header">
+              <div id="today-greeting-block">
+                <h1 id="today-greeting" class="today-greeting">—</h1>
+                <div id="today-subtitle" class="today-subtitle">—</div>
+              </div>
+              <div id="today-weather" class="today-weather">
+                <div class="weather-icon"></div>
+                <div class="weather-info">
+                  <div class="weather-temp" id="weather-temp">—</div>
+                  <div class="weather-desc" id="weather-desc">—</div>
+                </div>
+              </div>
+            </div>
+ 
+            <!-- Unterrichtsblöcke -->
+            <div id="today-blocks-section">
+              <div class="today-section-label">UNTERRICHTSBLÖCKE</div>
+              <div id="blocks-row"></div>
+              <div id="blocks-progress-wrap">
+                <div id="blocks-progress-bar"></div>
+                <span id="blocks-progress-label"></span>
+              </div>
+            </div>
+ 
+            <!-- Aufgaben — kompakte Kachel, nur Mobile; Klick öffnet das
+                 eigenständige Mobile-Aufgaben-Modal (#tasks-modal-overlay,
+                 gerendert von today.js: renderTasksMobileModal()). -->
+            <div class="panel today-tasks-tile" id="today-tasks-tile" role="button" tabindex="0" aria-label="Aufgaben diese Woche öffnen">
+              <div class="panel-header">
+                <span class="panel-label">Aufgaben diese Woche</span>
+                <span class="task-count" id="today-tasks-tile-total"></span>
+              </div>
+              <div class="ttt-row" id="today-tasks-tile-stats"></div>
+            </div>
+
+            <!-- Aufgaben — Desktop-Karte, auf Mobile ausgeblendet (die Kachel
+                 + das Mobile-Modal übernehmen dort). -->
+            <div class="panel" id="panel-tasks">
+              <div class="panel-header">
+                <span class="panel-label">Aufgaben diese Woche</span>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <span class="task-count" id="task-count"></span>
+                  <button class="btn-primary" id="add-task-btn">+ Aufgabe</button>
+                </div>
+              </div>
+              <div id="task-stats" class="task-stats hidden"></div>
+              <ul id="task-list"></ul>
+              <div id="task-empty" class="empty-state">Noch keine Aufgaben diese Woche.</div>
+            </div>
+ 
+          </div><!-- /today-main -->
+ 
+          <!-- RECHTE SIDEBAR -->
+          <div id="today-right">
+            <div id="clock-sidebar-panel"></div>
+            <div class="panel" id="panel-quicknote">
+              <div class="panel-header">
+                <span class="panel-label">Schnellnotiz</span>
+                <span class="save-hint" id="note-saved">gespeichert</span>
+              </div>
+              <textarea id="quicknote" placeholder="Gedanken, Fragen, Reminders..."></textarea>
+            </div>
+            <div id="today-mini-cal"></div>
+          </div>
+ 
+        </div><!-- /today-layout -->
+ 
+      </section>
+ 
+      <!-- PINNWAND -->
+      <section id="view-pinboard" class="view">
+        <div class="view-header">
+          <h1 class="view-title">Pinnwand</h1>
+          <button class="btn-ghost" id="add-tile-btn">+ Karte hinzufügen</button>
+        </div>
+        <div class="dash-content">
+
+          <!-- Schreibtisch — 3 feste, unabhängige Spalten (Masonry), Karten komplett per JS gerendert -->
+          <div id="today-desk">
+            <div class="desk-col" id="desk-col-0"></div>
+            <div class="desk-col" id="desk-col-1"></div>
+            <div class="desk-col" id="desk-col-2"></div>
+          </div>
+
+        </div><!-- /dash-content -->
+      </section>
+ 
+      <!-- PROJEKTE -->
+      <section id="view-projects" class="view">
+        <div class="dash-content forest-active" id="project-dash-content">
+          <!-- Waldansicht — Hintergrundbild füllt die komplette verfügbare Fläche,
+               Titel/Tabs/Suche/Filter/Legende liegen als Overlays direkt darauf
+               (kein separater Header/Toolbar-Bereich mehr, siehe projects.css). -->
+          <div id="project-forest-wrap" style="display:none;">
+            <div id="project-forest">
+              <div class="forest-bg">
+                <img src="img/forest.png" alt="" class="forest-bg-img" draggable="false" />
+              </div>
+
+              <div class="forest-overlay-top">
+                <div class="forest-overlay-header-row">
+                  <div class="forest-overlay-titles">
+                    <h2 class="forest-overlay-title">Projektwald</h2>
+                    <p class="forest-overlay-subtitle">Deine Projekte. Dein Fortschritt. Dein Wald.</p>
+                  </div>
+                  <div class="forest-overlay-actions-slot" id="forest-overlay-actions-slot">
+                    <button class="btn-ghost" id="project-archive-btn">⊘ Archiv</button>
+                    <button class="btn-primary" id="add-project-btn">+ Neues Projekt</button>
+                  </div>
+                </div>
+
+                <div id="forest-toolbar" class="forest-toolbar">
+                  <div class="forest-tabs">
+                    <button class="forest-tab active" id="forest-tab-all" data-tab="all">Alle <span class="forest-tab-count" id="forest-tab-count-all"></span></button>
+                    <button class="forest-tab" id="forest-tab-active" data-tab="active">Aktiv <span class="forest-tab-count" id="forest-tab-count-active"></span></button>
+                    <button class="forest-tab" id="forest-tab-archived" data-tab="archived">Abgeschlossen <span class="forest-tab-count" id="forest-tab-count-archived"></span></button>
+                  </div>
+                  <div class="forest-toolbar-right">
+                    <div class="forest-search-wrap">
+                      <svg class="forest-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M9.5 9.5L12.5 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                      <input type="text" id="forest-search-input" class="forest-search-input" placeholder="Projekte suchen..." />
+                    </div>
+                    <div class="forest-filter-wrap">
+                      <button class="forest-filter-btn" id="forest-filter-btn" title="Nach Priorität filtern">
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 3h11M4.5 7.5h6M6.5 12h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                      </button>
+                      <div class="forest-filter-panel hidden" id="forest-filter-panel">
+                        <div class="forest-filter-title">Priorität</div>
+                        <button class="toggle-select-btn active" id="forest-prio-all" data-prio="">Alle</button>
+                        <button class="toggle-select-btn" id="forest-prio-low" data-prio="Niedrig">Niedrig</button>
+                        <button class="toggle-select-btn" id="forest-prio-mid" data-prio="Mittel">Mittel</button>
+                        <button class="toggle-select-btn" id="forest-prio-high" data-prio="Hoch">Hoch</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bäume werden von renderForest() (forest.js) NUR hier hinein
+                   gerendert — Hintergrund/Overlay/Legende bleiben dabei
+                   unangetastet stehen. -->
+              <div id="forest-trees-layer"></div>
+
+              <!-- Waldseiten-Navigation: max. 14 Bäume/Seite, Pfeile nur bei
+                   Bedarf sichtbar (renderForestPager() in forest.js). -->
+              <button type="button" class="forest-page-arrow forest-page-arrow--prev" id="forest-page-prev" style="display:none;" title="Vorheriges Waldstück">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4l-6 5 6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button type="button" class="forest-page-arrow forest-page-arrow--next" id="forest-page-next" style="display:none;" title="Nächstes Waldstück">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l6 5-6 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+
+              <div class="forest-legend" id="forest-legend">
+                <span class="forest-legend-item"><span class="forest-legend-dot forest-legend-dot--active"></span>Aktives Projekt</span>
+                <span class="forest-legend-item"><span class="forest-legend-dot forest-legend-dot--done"></span>Abgeschlossenes Projekt</span>
+                <span class="forest-legend-item">ⓘ Hover für Infos</span>
+              </div>
+              <div class="forest-page-dots" id="forest-page-dots"></div>
+            </div>
+          </div>
+
+          <!-- Detailansicht — innerhalb der normalen View, Sidebar bleibt sichtbar -->
+          <div id="view-project-detail" style="display:none;">
+ 
+            <!-- HERO — großer immersiver Bereich; Toolbar liegt als Overlay
+                 direkt auf dem Hintergrundbild (kein eigener Balken mehr,
+                 gleiches Muster wie .forest-overlay-top im Projektwald). -->
+            <div class="pdt-hero">
+              <!-- Hintergrundbild (optional, wenn vorhanden) -->
+              <div class="pdt-hero-bg">
+                <img src="img/tree.png" alt="" class="pdt-landscape" onerror="this.style.display='none'"/>
+                <div class="pdt-hero-overlay"></div>
+              </div>
+
+              <!-- TOOLBAR — schlank, nur Navigation + Edit -->
+              <div class="pdt-toolbar">
+                <button class="pdt-back-btn" id="proj-detail-back">
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M9 3L4 7.5 9 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Zurück zum Wald
+                </button>
+                <div class="pdt-toolbar-right">
+                  <button class="pdt-action-btn" id="proj-detail-edit-btn" title="Projekt bearbeiten">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                    Bearbeiten
+                  </button>
+                  <button class="pdt-action-btn pdt-menu-btn" id="proj-detail-menu-btn" title="Mehr Optionen">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="3" r="1.2" fill="currentColor"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor"/><circle cx="7.5" cy="12" r="1.2" fill="currentColor"/></svg>
+                  </button>
+                  <!-- versteckt aber noch im DOM für JS-Kompatibilität -->
+                  <button id="proj-detail-more-branches" style="display:none;"></button>
+                  <button id="proj-detail-add-branch" style="display:none;">+ Ast hinzufügen</button>
+                </div>
+              </div>
+ 
+              <!-- LINKS: Hauptprojektinfo -->
+              <div class="pdt-left">
+                <div class="pdt-status-badge" id="proj-detail-status">Aktives Projekt</div>
+ 
+                <h1 class="pdt-project-name" id="proj-detail-name"></h1>
+ 
+                <p class="pdt-project-desc" id="proj-detail-desc"></p>
+ 
+                <div class="pdt-progress-section">
+                  <div class="pdt-progress-label-row">
+                    <span class="pdt-progress-label">Fortschritt</span>
+                  </div>
+                  <div class="pdt-progress-pct-wrap">
+                    <strong class="pdt-progress-pct" id="proj-detail-pct">0%</strong>
+                    <div class="pdt-progress-track">
+                      <div class="pdt-progress-fill" id="proj-detail-bar-fill"></div>
+                    </div>
+                  </div>
+                  <div class="pdt-progress-meta">
+                    <span id="proj-detail-task-count"></span>
+                    <span class="pdt-meta-sep">·</span>
+                    <span id="proj-detail-sub-count"></span>
+                  </div>
+                </div>
+              </div>
+ 
+              <!-- MITTE: Baum -->
+              <div class="pdt-tree-col">
+                <div id="proj-detail-tree"></div>
+              </div>
+ 
+              <!-- RECHTS: Projektinfos-Karte -->
+              <div class="pdt-info-card">
+                <div class="pdt-info-card-title">Projektinfos</div>
+
+                <div class="pdt-info-item">
+                  <div class="pdt-info-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2.5" width="12" height="10.5" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 1v3M9.5 1v3M1 6.5h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </div>
+                  <div class="pdt-info-content">
+                    <div class="pdt-info-key">Gestartet</div>
+                    <div class="pdt-info-val" id="proj-detail-startdate">—</div>
+                  </div>
+                </div>
+
+                <div class="pdt-info-item" id="proj-detail-due-row" style="display:none;">
+                  <div class="pdt-info-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2.5" width="12" height="10.5" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 1v3M9.5 1v3M1 6.5h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M4.5 9.5l2 2 3-3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div class="pdt-info-content">
+                    <div class="pdt-info-key">Fällig</div>
+                    <div class="pdt-info-val" id="proj-detail-due-val">—</div>
+                  </div>
+                </div>
+
+                <div class="pdt-info-item">
+                  <div class="pdt-info-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  </div>
+                  <div class="pdt-info-content">
+                    <div class="pdt-info-key">Status</div>
+                    <div class="pdt-info-val pdt-status-val" id="proj-detail-status-val">Aktiv</div>
+                  </div>
+                </div>
+ 
+                <div class="pdt-info-item">
+                  <div class="pdt-info-icon">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.8 5.2l4.2.6-3 2.9.7 4.1L7 10.8l-3.7 2 .7-4.1-3-2.9 4.2-.6L7 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div class="pdt-info-content">
+                    <div class="pdt-info-key">Unterprojekte</div>
+                    <div class="pdt-info-val" id="proj-detail-sub-val">—</div>
+                  </div>
+                </div>
+ 
+                <div class="pdt-info-divider"></div>
+ 
+                <div class="pdt-info-quote">
+                  <svg width="16" height="12" viewBox="0 0 16 12" fill="none" style="flex-shrink:0;opacity:0.35;margin-top:2px;"><path d="M0 12V7.5C0 3.36 2.4 1.14 7.2 0l.8 1.5C5.2 2.3 3.6 3.6 3.2 6H6V12H0ZM10 12V7.5C10 3.36 12.4 1.14 17.2 0l.8 1.5C15.2 2.3 13.6 3.6 13.2 6H16V12H10Z" fill="currentColor"/></svg>
+                  <span>Große Dinge entstehen aus vielen kleinen Schritten.</span>
+                </div>
+              </div>
+            </div>
+ 
+            <!-- AUFGABENBEREICH -->
+            <div class="pdt-tasks-section">
+              <div class="pdt-tasks-header">
+                <div class="pdt-tasks-header-left">
+                  <div class="pdt-tasks-title">Äste &amp; Aufgaben</div>
+                  <div class="pdt-tasks-sub">Unterprojekte und Aufgaben dieses Projekts</div>
+                </div>
+                <button class="pdt-add-branch-btn" id="proj-detail-add-branch-visible">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                  Ast hinzufügen
+                </button>
+              </div>
+              <div id="proj-detail-tiles" class="pdt-tiles-grid"></div>
+            </div>
+ 
+          </div>
+        </div>
+      </section>
+ 
+      <!-- FLASHCARDS -->
+      <section id="view-flashcards" class="view">
+        <div class="view-header">
+          <h1 class="view-title">Karteikarten</h1>
+          <button class="btn-primary" id="add-subject-btn">+ Fach</button>
+        </div>
+        <div class="dash-content">
+          <!-- Statistikleiste -->
+          <div id="fc-global-stats"></div>
+          <!-- 3-Spalten-Layout -->
+          <div id="flashcard-layout">
+            <!-- Spalte 1: Fachliste -->
+            <div id="subject-list-panel" class="panel">
+              <div class="panel-header"><span class="panel-label">Fächer</span></div>
+              <div class="fc-subject-search-wrap">
+                <svg class="fc-search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <input id="fc-subject-search" class="fc-subject-search-input" type="text" placeholder="Fächer suchen…">
+              </div>
+              <div id="subject-list"></div>
+              <div id="subject-empty" class="empty-state" style="padding:18px 16px;font-size:13px;">Noch keine Fächer angelegt.</div>
+              <div style="padding:10px 12px;border-top:1px solid var(--border);">
+                <button class="btn-ghost" id="add-subject-btn-2" style="width:100%;font-size:13px;">+ Neues Fach</button>
+              </div>
+            </div>
+            <!-- Spalte 2: Themengruppen & Karten -->
+            <div id="flashcard-content">
+              <div id="flashcard-placeholder" class="empty-state full">Fach auswählen um Karteikarten zu sehen.</div>
+              <div id="flashcard-subject-view" class="hidden">
+                <div id="subject-detail-header">
+                  <div>
+                    <h2 id="subject-detail-title" class="view-title" style="font-size:20px;margin:0;"></h2>
+                    <div id="subject-detail-meta" style="font-size:13px;color:var(--text-3);margin-top:2px;"></div>
+                  </div>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="btn-ghost" id="fc-filter-btn" style="font-size:13px;display:flex;align-items:center;gap:5px;">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                      Filter
+                    </button>
+                    <button class="btn-primary" id="add-group-btn">+ Themengruppe</button>
+                  </div>
+                </div>
+                <div id="group-list"></div>
+              </div>
+            </div>
+            <!-- Spalte 3: Session-Panel (wird per JS ein-/ausgeblendet) -->
+            <div id="fc-session-panel" class="hidden">
+              <div class="fc-session-panel-head">
+                <span id="fc-session-panel-title">Lernsession</span>
+                <button class="modal-x" id="fc-session-panel-close">✕</button>
+              </div>
+              <div id="fc-session-panel-group-tag"></div>
+              <div id="learn-progress-bar-wrap" style="margin:8px 0 12px;">
+                <div id="learn-progress-bar"></div>
+                <span id="learn-progress-label"></span>
+              </div>
+              <div id="learn-live-stats"></div>
+              <div id="learn-motivation"></div>
+              <div id="learn-card-wrap">
+                <div id="learn-card" onclick="flipLearnCard()">
+                  <div id="learn-card-inner">
+                    <div id="learn-card-front"></div>
+                    <div id="learn-card-back"></div>
+                  </div>
+                  <div id="learn-card-hint">Klicken zum Umdrehen</div>
+                </div>
+              </div>
+              <div id="learn-actions" class="hidden" style="display:flex;gap:8px;margin-top:8px;">
+                <button id="learn-didnt" class="btn-ghost" style="flex:1;font-size:13px;">↩ Wiederholen</button>
+                <button id="learn-hard" class="btn-ghost" style="flex:1;font-size:13px;color:#e07a5f;">∼ Schwer</button>
+                <button id="learn-knew" class="btn-primary" style="flex:1;font-size:13px;">✓ Leicht</button>
+              </div>
+              <div id="learn-done" class="hidden"></div>
+              <!-- Heutiger Fortschritt -->
+              <div id="fc-today-progress-section" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+                <div class="fc-session-section-label">Heutiger Fortschritt</div>
+                <div id="fc-today-progress-grid"></div>
+              </div>
+              <!-- Schwierige Karten -->
+              <div id="fc-hard-cards-section" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+                <div class="fc-session-section-label">Schwierige Karten <span id="fc-hard-count" class="leitner-badge"></span></div>
+                <div id="fc-hard-list"></div>
+              </div>
+              <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:12px;">
+                <button id="fc-session-end" class="btn-ghost" style="width:100%;font-size:13px;">Session beenden</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+ 
+      <!-- GUIDES -->
+      <section id="view-guides" class="view">
+        <div class="dash-content">
+ 
+          <!-- Library header -->
+          <div class="lib-header">
+            <div class="lib-header-left">
+              <div class="lib-header-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 4.5C4 3.67 4.67 3 5.5 3H11v18H5.5A1.5 1.5 0 0 1 4 19.5v-15Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                  <path d="M20 4.5c0-.83-.67-1.5-1.5-1.5H13v18h5.5a1.5 1.5 0 0 0 1.5-1.5v-15Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                  <path d="M7 7h2.5M7 10.5h2.5M14.5 7H17M14.5 10.5H17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <h1 class="lib-title">Meine Bibliothek</h1>
+                <div class="lib-subtitle" id="lib-subtitle">0 Bücher · 0 Kapitel</div>
+              </div>
+            </div>
+            <div class="lib-header-right">
+              <div class="guide-search-wrap">
+                <svg class="guide-search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <input id="guide-search-input" class="guide-search-input" type="text" placeholder="Suchen…">
+              </div>
+              <div class="lib-view-toggle">
+                <button id="lib-view-grid" class="lib-view-btn active" title="Regalansicht">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+                <button id="lib-view-list" class="lib-view-btn" title="Listenansicht">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2" width="13" height="2.6" rx="1" fill="currentColor"/><rect x="1.5" y="6.7" width="13" height="2.6" rx="1" fill="currentColor"/><rect x="1.5" y="11.4" width="13" height="2.6" rx="1" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+ 
+          <!-- Bookshelf -->
+          <div class="guide-shelf-wrap">
+            <div id="guide-shelf" class="guide-shelf"></div>
+            <div class="guide-shelf-board"></div>
+          </div>
+          <div id="guide-category-empty" class="empty-state hidden">Noch keine Bücher in deiner Bibliothek — lege mit „+ Neues Buch" los.</div>
+ 
+          <!-- Detail area -->
+          <div id="guide-detail-grid" class="guide-detail-grid hidden">
+            <div id="guide-main" class="guide-main panel"></div>
+            <div id="guide-sidebar" class="guide-sidebar">
+              <div class="panel guide-side-card">
+                <div class="panel-header"><span class="panel-label">Statistiken</span></div>
+                <div id="guide-stats-body" class="guide-stats-body"></div>
+              </div>
+              <div class="panel guide-side-card guide-snippet-card">
+                <div class="panel-header"><span class="panel-label" id="guide-snippet-label">Code-Snippet aus diesem Guide</span></div>
+                <div id="guide-snippet-body" class="guide-snippet-body"></div>
+              </div>
+              <div class="panel guide-side-card hidden" id="guide-bookmarks-card">
+                <div class="panel-header"><span class="panel-label">Code-Bookmarks</span></div>
+                <div id="guide-bookmarks-body" class="guide-bookmarks-body"></div>
+              </div>
+            </div>
+          </div>
+ 
+          <div id="guide-placeholder" class="empty-state full" style="flex-direction:column;gap:8px;">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" opacity=".25">
+              <path d="M8 9c0-1.66 1.34-3 3-3h9v28h-9a3 3 0 0 1-3-3V9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M32 9c0-1.66-1.34-3-3-3h-9v28h9a3 3 0 0 0 3-3V9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+            <span>Buch aus dem Regal auswählen oder suchen</span>
+          </div>
+ 
+        </div>
+      </section>
+ 
+      <!-- CALENDAR -->
+      <section id="view-calendar" class="view">
+
+        <div id="cal-body">
+          <div id="cal-main">
+            <div id="cal-hero" class="cal-hero cal-hero-summer" data-season="summer">
+              <div id="cal-hero-text">
+                <h1 class="view-title" id="cal-title">—</h1>
+                <div class="cal-season-tag"><span id="cal-season-label">—</span><span id="cal-season-icon">☀️</span></div>
+                <p id="cal-season-sentence">—</p>
+              </div>
+
+              <div id="cal-info-card" class="panel">
+                <div class="cal-info-row">
+                  <div class="cal-info-icon"><div id="cal-weather-icon"></div></div>
+                  <div class="cal-info-text">
+                    <div class="cal-info-main" id="cal-weather-temp">—</div>
+                    <div class="cal-info-sub" id="cal-weather-desc">—</div>
+                  </div>
+                </div>
+                <div class="cal-info-divider"></div>
+                <div class="cal-info-row">
+                  <div class="cal-info-icon" id="cal-moon-icon">🌙</div>
+                  <div class="cal-info-text">
+                    <div class="cal-info-main" id="cal-moon-phase">—</div>
+                    <div class="cal-info-sub" id="cal-moon-illum">—</div>
+                  </div>
+                </div>
+                <div class="cal-info-divider"></div>
+                <div class="cal-info-row">
+                  <div class="cal-info-icon" id="cal-season-info-icon">🌼</div>
+                  <div class="cal-info-text">
+                    <div class="cal-info-main" id="cal-season-info-main">—</div>
+                    <div class="cal-info-sub" id="cal-season-info-sub">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-content">
+              <div id="calendar-grid"></div>
+            </div>
+          </div>
+
+
+          <div id="cal-sidebar-col">
+            <div class="cal-nav-row">
+              <button class="btn-primary" id="cal-add-event-btn">+ Termin</button>
+              <button class="week-btn" id="cal-prev">‹</button>
+              <button class="week-btn" id="cal-next">›</button>
+              <button class="icon-btn" id="cal-settings-btn" title="Bundesland für Feiertage">⚙</button>
+            </div>
+
+            <aside id="cal-sidebar" class="dash-content">
+              <div class="cal-sidebar-heading">🌿 Diesen Monat</div>
+
+              <div class="panel cal-side-card hidden" id="cal-card-countdowns">
+                <div class="panel-header"><span class="panel-label">Countdowns</span></div>
+                <div id="cal-countdown-list" class="cal-side-body"></div>
+              </div>
+
+              <div class="panel cal-side-card hidden" id="cal-card-goals">
+                <div class="panel-header"><span class="panel-label">Monatsziele</span><span id="cal-goals-progress" class="cal-side-count"></span></div>
+                <div id="cal-goals-list" class="cal-side-body"></div>
+              </div>
+
+              <div class="panel cal-side-card hidden" id="cal-card-birthdays">
+                <div class="panel-header"><span class="panel-label">Geburtstage</span><button class="cal-birthdays-manage-btn" id="cal-birthdays-manage-btn" title="Geburtstage verwalten">✎</button></div>
+                <div id="cal-birthdays-list" class="cal-side-body"></div>
+              </div>
+
+              <div class="panel cal-side-card hidden" id="cal-card-holidays">
+                <div class="panel-header"><span class="panel-label">Feiertage</span></div>
+                <div id="cal-holidays-list" class="cal-side-body"></div>
+              </div>
+
+              <div class="panel cal-side-card hidden" id="cal-card-stats">
+                <div class="panel-header"><span class="panel-label">Monatsstatistik</span></div>
+                <div id="cal-stats-list" class="cal-side-body"></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+      </section>
+ 
+      <!-- BUDGET -->
+      <section id="view-budget" class="view">
+        <div id="budget-dashboard" class="dash-content">
+ 
+          <!-- ── HEADER ──────────────────────────────────────── -->
+          <div id="budget-header">
+            <button class="b-tree-config-btn" id="budget-header-menu-btn" title="Weitere Optionen" aria-haspopup="true" aria-expanded="false">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <div id="budget-title-block">
+              <h1>Budget</h1>
+              <p>Deine Übersicht. Deine Sicherheit.</p>
+              <div class="sp-subtab-row">
+                <div class="sp-subtab-switch" id="budget-subtab-switch">
+                  <button class="sp-subtab-btn active" id="budget-subtab-btn-budget" data-subtab="budget">Übersicht</button>
+                  <button class="sp-subtab-btn" id="budget-subtab-btn-sparziele" data-subtab="sparziele">Finanzierung</button>
+                  <button class="sp-subtab-btn" id="budget-subtab-btn-sparplan" data-subtab="sparplan">Prognose</button>
+                  <button class="sp-subtab-btn" id="budget-subtab-btn-sparplaene" data-subtab="sparplaene">Sparpläne</button>
+                  <button class="sp-subtab-btn" id="budget-subtab-btn-schulden" data-subtab="schulden">Schulden</button>
+                </div>
+                <button class="sp-savedby-trigger hidden" id="sparplan-savedby-btn" title="Gespart bis... — kleine Zusatzrechnung, unabhängig von deinen Sparzielen">⭐ Gespart bis...</button>
+              </div>
+            </div>
+            <button id="budget-ks-header-btn" class="b-ks-header-pill" title="Kontostand anpassen">
+              <span class="b-ks-pill-label">Kontostand</span>
+              <span id="b-ks-header-value" class="b-ks-pill-value">—</span>
+            </button>
+            <div id="budget-actions">
+              <div id="budget-month-picker">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".6"/>
+                  <path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <button id="budget-month-nav-prev">&#8249;</button>
+                <span id="budget-month-label" style="flex:1;text-align:center;"></span>
+                <button id="budget-month-nav-next">&#8250;</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB-TAB: BUDGET (bestehender Inhalt, unverändert) ─── -->
+          <div id="budget-panel-budget">
+
+          <!-- ── 3 COMPACT SUMMARY KARTEN ──────────────────── -->
+          <div id="budget-main-cards">
+ 
+            <!-- Karte 1: Einnahmen -->
+            <div class="b-main-card b-main-card--income" id="bmc-income">
+              <button class="b-main-card-summary" data-target="bmc-income-detail" data-group="main-cards">
+                <div class="b-mcs-left">
+                  <span class="b-mcs-label">EINNAHMEN</span>
+                  <span class="b-mcs-value income" id="b-income-summary-val">—</span>
+                </div>
+                <span class="b-mcs-arrow">▼</span>
+              </button>
+              <div class="b-main-card-detail" id="bmc-income-detail" style="display:none;">
+                <div id="b-income-list" class="b-main-card-list"></div>
+                <div class="b-main-card-total" id="b-income-total"></div>
+              </div>
+            </div>
+ 
+            <!-- Karte 2: Ausgaben -->
+            <div class="b-main-card b-main-card--expense" id="bmc-expense">
+              <button class="b-main-card-summary" data-target="bmc-expense-detail" data-group="main-cards">
+                <div class="b-mcs-left">
+                  <span class="b-mcs-label">AUSGABEN</span>
+                  <span class="b-mcs-value expense" id="b-expense-summary-val">—</span>
+                </div>
+                <span class="b-mcs-arrow">▼</span>
+              </button>
+              <div class="b-main-card-detail" id="bmc-expense-detail" style="display:none;">
+                <div id="b-expense-list" class="b-main-card-list"></div>
+                <div class="b-main-card-total" id="b-expense-total"></div>
+              </div>
+            </div>
+ 
+            <!-- Karte 3: Verfügbar -->
+            <div class="b-main-card b-main-card--free" id="bmc-free">
+              <button class="b-main-card-summary" data-target="bmc-free-detail" data-group="main-cards">
+                <div class="b-mcs-left">
+                  <span class="b-mcs-label">VERFÜGBAR</span>
+                  <span class="b-mcs-value" id="b-free-summary-val">—</span>
+                </div>
+                <span class="b-mcs-arrow">▼</span>
+              </button>
+              <div class="b-main-card-detail" id="bmc-free-detail" style="display:none;">
+                <div id="b-free-content"></div>
+                <div id="b-status-inner"></div>
+              </div>
+            </div>
+ 
+          </div>
+ 
+          <!-- ── LIQUIDITÄTSVORSCHAU + FINANZGARTEN ────────────── -->
+          <div id="budget-mid-row">
+            <div id="budget-liquidity"></div>
+            <div id="budget-garden-slot">
+              <div id="budget-garden-card"></div>
+            </div>
+          </div>
+ 
+          <!-- ── 3 KARTEN NEBENEINANDER ─────────────────────── -->
+          <div id="budget-row3">
+ 
+            <div class="b-card" id="budget-recurring-card">
+              <div class="b-card-header">
+                <button class="b-card-toggle-btn" data-target="budget-recurring-list">
+                  <span class="b-card-arrow">▼</span>
+                  <span class="b-card-title">Wiederkehrende Posten</span>
+                </button>
+                <button class="b-card-add-btn" id="add-recurring-btn-2">+ Hinzufügen</button>
+              </div>
+              <div id="budget-recurring-list" class="budget-list"></div>
+            </div>
+ 
+            <div class="b-card" id="budget-onetime-card">
+              <div class="b-card-header">
+                <button class="b-card-toggle-btn" data-target="budget-onetime-list">
+                  <span class="b-card-arrow">▼</span>
+                  <span class="b-card-title">Einmalige Buchungen</span>
+                </button>
+                <button class="b-card-add-btn" id="add-onetime-btn-2">+ Hinzufügen</button>
+              </div>
+              <div id="budget-onetime-list" class="budget-list"></div>
+            </div>
+ 
+            <div class="b-card" id="budget-goals-card">
+              <div class="b-card-header">
+                <button class="b-card-toggle-btn" data-target="budget-goals-list">
+                  <span class="b-card-arrow">▼</span>
+                  <span class="b-card-title">Sparziele</span>
+                </button>
+                <button class="b-card-add-btn" id="add-goal-btn-2">+ Ziel hinzufügen</button>
+              </div>
+              <div id="budget-goals-list" class="budget-list"></div>
+            </div>
+ 
+          </div>
+ 
+          <div id="budget-timeline" style="display:none;"></div>
+ 
+          <!-- Legacy stubs (hidden, referenced by budget.js) -->
+          <div style="display:none;">
+            <div id="budget-kontostand-card"></div>
+            <div id="budget-kontostand-left"></div>
+            <div id="budget-kontostand-right"></div>
+            <div class="b-ks-value" id="b-ks-display"></div>
+            <div id="budget-row2"></div>
+            <div id="budget-summary-bar"></div>
+            <button id="add-goal-btn"></button>
+            <button id="add-onetime-btn"></button>
+            <button id="add-recurring-btn"></button>
+          </div>
+
+          </div>
+          <!-- ── /SUB-TAB: BUDGET ─────────────────────────────── -->
+
+          <!-- ── SUB-TAB: SPARZIELE (neu; zentrale Verwaltung aller
+               Sparziele — Karten werden von renderSparziele() in
+               budget-sparziele.js dynamisch befüllt) ──────────── -->
+          <div id="budget-panel-sparziele" class="hidden">
+            <!-- Finanzierung — visuelle Verteilung statt Text-Bericht;
+                 Rendering: renderFinanzanalyse() in budget-analysis.js.
+                 Nutzt ausschließlich vorhandene Sparziel-/Ausgaben-/
+                 Financing-Daten, keine eigene Datenhaltung. -->
+            <div class="sp-panel" id="finanzanalyse-panel">
+              <div class="sp-panel-head">
+                <div class="sp-panel-title">Finanzierung</div>
+              </div>
+              <div class="sp-source-note" style="margin:0 0 12px;">Plane deinen Monat visuell. Ordne jeder regelmäßigen Einnahme die Ausgaben, Sparziele oder Schulden zu, die sie finanzieren soll. So siehst du auf einen Blick, ob jede Einnahme ausreicht und wie viel Geld anschließend übrig bleibt.</div>
+              <div id="finanzanalyse-body" class="gf-view"></div>
+            </div>
+
+            <div class="sp-panel" id="sparziele-head-panel">
+              <div class="sp-panel-head">
+                <div class="sp-panel-title">🎯 Sparziele</div>
+                <button class="sp-add-btn" id="sparziel-add-btn-2">+ Sparziel</button>
+              </div>
+              <div class="sp-source-note" style="margin:0 0 12px;">Sparziele sind die zentrale Quelle für Name, Zielbetrag, Priorität, Finanzierung und Reservierung — Sparprognose und Sparpläne greifen automatisch darauf zu.</div>
+              <div id="sparziele-grid" class="sp-plaene-grid"></div>
+            </div>
+          </div>
+          <!-- ── /SUB-TAB: SPARZIELE ──────────────────────────── -->
+
+          <!-- ── SUB-TAB: SPARPROGNOSE (bisher "Sparplaner"; alle
+               Inhalte werden von budget.js dynamisch aus den echten
+               Budget-Daten gerendert — keine statischen/hardcodierten
+               Werte). IDs bewusst unverändert gelassen. ── -->
+          <div id="budget-panel-sparplan" class="hidden">
+
+            <div id="sparplan-scenarios"></div>
+
+            <div id="sparplan-grid">
+              <div class="sp-panel" id="sparplan-income-expense-panel">
+                <div class="sp-panel-head">
+                  <div class="sp-panel-title">💶 Einnahmen &amp; Ausgaben</div>
+                </div>
+                <div id="sparplan-income-expense"></div>
+              </div>
+
+              <div class="sp-panel" id="sparplan-goals-panel">
+                <div class="sp-panel-head">
+                  <div class="sp-panel-title">🎯 Sparziele &amp; Prognose</div>
+                  <button class="sp-add-btn" id="sparplan-add-goal-btn" title="Wechselt in den Tab „Sparziele“">+ Sparziel</button>
+                </div>
+                <div id="sparplan-goals"></div>
+              </div>
+            </div>
+
+            <div class="sp-panel sp-timeline-panel">
+              <div class="sp-panel-head">
+                <div class="sp-panel-title" id="sparplan-timeline-title">🧭 Zeitstrahl</div>
+              </div>
+              <div id="sparplan-timeline"></div>
+            </div>
+
+            <div id="sparplan-bottom-grid">
+              <div class="sp-panel sp-sim-panel" id="sparplan-simulator"></div>
+              <div id="sparplan-tip-banner" class="b-tip-banner"></div>
+            </div>
+
+          </div>
+          <!-- ── /SUB-TAB: SPARPROGNOSE ───────────────────────── -->
+
+          <!-- ── SUB-TAB: SPARPLÄNE (neu; Karten werden von
+               renderSparplaeneGrid() in budget.js dynamisch befüllt) ── -->
+          <div id="budget-panel-sparplaene" class="hidden">
+            <div class="sp-panel" id="sparplaene-head-panel">
+              <div class="sp-panel-head">
+                <div class="sp-panel-title">🐷 Sparpläne</div>
+                <button class="sp-add-btn" id="sparplan-add-plan-btn">+ Sparplan</button>
+              </div>
+              <div class="sp-plaene-sub">Plane gezielt auf einen Betrag hin — unabhängig von deiner Sparprognose.</div>
+            </div>
+            <div id="sparplaene-grid" class="sp-plaene-grid"></div>
+          </div>
+          <!-- ── /SUB-TAB: SPARPLÄNE ──────────────────────────── -->
+
+          <!-- ── SUB-TAB: SCHULDEN (neu; getrennt von Sparzielen — eine
+               Schuld wird getilgt, nicht gespart. Karten werden von
+               renderSchulden() in budget-debts.js dynamisch befüllt) ── -->
+          <div id="budget-panel-schulden" class="hidden">
+            <div class="sp-panel" id="schulden-head-panel">
+              <div class="sp-panel-head">
+                <div class="sp-panel-title">💳 Raten &amp; Schulden</div>
+                <button class="sp-add-btn" id="debt-add-btn">+ Schuld</button>
+              </div>
+              <div class="sp-source-note" style="margin:0 0 12px;">Offene Verpflichtungen, die getilgt statt angespart werden — z.B. wenn du einer Mitbewohnerin oder einem Freund Geld in Raten zurückzahlst.</div>
+              <div id="schulden-grid" class="sp-plaene-grid"></div>
+            </div>
+          </div>
+          <!-- ── /SUB-TAB: SCHULDEN ───────────────────────────── -->
+ 
+          <!-- Legacy kontostand-edit-btn stub -->
+          <div style="display:none;"><button id="kontostand-edit-btn"></button></div>
+ 
+        </div>
+      </section>
+ 
+      <!-- GAMES -->
+      <section id="view-games" class="view games-view"></section>
+
+      <!-- TOOLS -->
+      <section id="view-tools" class="view"></section>
+ 
+      <!-- SETTINGS -->
+      <section id="view-settings" class="view">
+        <div class="view-header"><h1 class="view-title">Einstellungen</h1></div>
+        <div class="dash-content">
+        <div id="settings-layout">
+ 
+          <div class="settings-col">
+ 
+            <!-- NEU: Profil / Benutzername -->
+            <div class="panel settings-panel">
+              <div class="panel-header"><span class="panel-label">Profil</span></div>
+              <div class="settings-row">
+                <div>
+                  <div class="settings-row-title">Dein Name</div>
+                  <div class="settings-row-sub">Wird in der Begrüßung auf der Heuteseite angezeigt</div>
+                </div>
+                <input type="text" id="setting-username" class="modal-input"
+                  placeholder="z.B. Casey"
+                  style="width:140px;padding:7px 12px;font-size:13px;"
+                  autocomplete="off"/>
+              </div>
+            </div>
+ 
+            <div class="panel settings-panel">
+              <div class="panel-header"><span class="panel-label">Darstellung</span></div>
+              <div class="settings-row">
+                <div><div class="settings-row-title">Theme</div><div class="settings-row-sub">Farbschema für den gesamten Hub</div></div>
+              </div>
+              <div class="settings-row">
+                <div id="theme-picker" style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <button class="clock-type-btn theme-picker-btn" data-theme-value="light">Light</button>
+                  <button class="clock-type-btn theme-picker-btn" data-theme-value="dark">Classic Dark</button>
+                  <button class="clock-type-btn theme-picker-btn" data-theme-value="midnight">Midnight</button>
+                  <button class="clock-type-btn theme-picker-btn" data-theme-value="forest">Forest</button>
+                  <button class="clock-type-btn theme-picker-btn" data-theme-value="espresso">Espresso</button>
+                  <button class="clock-type-btn theme-picker-btn" data-theme-value="oled">OLED</button>
+                </div>
+              </div>
+            </div>
+ 
+            <div class="panel settings-panel">
+              <div class="panel-header"><span class="panel-label">Wetter Widget</span></div>
+              <div class="settings-row">
+                <div><div class="settings-row-title">Standort</div><div class="settings-row-sub">GPS oder manuelle Eingabe</div></div>
+                <div style="display:flex;gap:6px;">
+                  <button class="clock-type-btn" id="weather-mode-gps">GPS</button>
+                  <button class="clock-type-btn active" id="weather-mode-manual">Manuell</button>
+                </div>
+              </div>
+              <div class="settings-row" id="weather-city-row">
+                <div><div class="settings-row-title">Stadt</div><div class="settings-row-sub">z.B. Cologne, Frankfurt, Berlin</div></div>
+                <input type="text" id="weather-city-input" class="modal-input"
+                  placeholder="z.B. Cologne"
+                  style="width:140px;padding:7px 12px;font-size:13px;"
+                  autocomplete="off"/>
+              </div>
+            </div>
+            <div class="panel settings-panel">
+              <div class="panel-header"><span class="panel-label">Daten &amp; Backup</span></div>
+              <div class="settings-row">
+                <div><div class="settings-row-title">Geräte-Sync</div><div class="settings-row-sub" id="sync-status-sub">Nicht angemeldet — Daten bleiben nur auf diesem Gerät</div></div>
+                <button class="btn-ghost" id="sync-status-btn" style="font-size:13px;">Anmelden</button>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-title">Backup exportieren</div><div class="settings-row-sub">Alle Daten als JSON-Datei herunterladen</div></div>
+                <button class="btn-ghost" id="backup-export-btn" style="font-size:13px;">Exportieren</button>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-title">Backup importieren</div><div class="settings-row-sub">Gespeicherte JSON-Datei wiederherstellen</div></div>
+                <button class="btn-ghost" id="backup-import-btn" style="font-size:13px;">Importieren</button>
+                <input type="file" id="backup-file-input" accept=".json" style="display:none;"/>
+              </div>
+              <div class="settings-row">
+                <div><div class="settings-row-title">Alle Spieldaten zurücksetzen</div><div class="settings-row-sub">Löscht ausnahmslos alle Spielstatistiken UND alle Cozy-Home-Daten (Haustiere, Münzen, Inventar) — für einzelne Spiele gibt es eigene Zurücksetzen-Buttons in deren Statistik-Ansicht.</div></div>
+                <button class="btn-ghost" id="reset-highscores-btn" style="font-size:13px;color:var(--prio-1);border-color:var(--prio-1);">Alles zurücksetzen</button>
+              </div>
+            </div>
+ 
+          </div>
+ 
+          <div class="settings-col">
+            <div class="panel settings-panel">
+              <div class="panel-header"><span class="panel-label">Unterrichtsblöcke</span><button class="icon-btn" id="add-block-btn">+</button></div>
+              <div id="blocks-settings-list"></div>
+            </div>
+ 
+            <div class="panel settings-panel" id="positivity-settings-panel">
+              <div class="panel-header"><span class="panel-label">Positivity</span><span class="positivity-total-badge" id="positivity-total-count"></span></div>
+              <div id="positivity-category-list"></div>
+            </div>
+
+            <div class="panel settings-panel">
+              <div class="panel-header"><span class="panel-label">Persönliche Farben verwalten</span></div>
+              <div class="settings-row" style="border-bottom:none;">
+                <div><div class="settings-row-title">Gespeicherte Farben</div><div class="settings-row-sub">Beim Überfahren einer Farbe erscheint ✕ zum Entfernen</div></div>
+              </div>
+              <div style="padding:0 18px 16px;">
+                <div id="settings-color-library" class="hub-color-library"></div>
+                <div id="settings-color-empty" class="empty-state" style="display:none;padding:6px 0 0;">Noch keine Farben gespeichert.</div>
+              </div>
+            </div>
+ 
+          </div>
+ 
+        </div><!-- /settings-layout -->
+        </div><!-- /dash-content -->
+      </section>
+
+      <!-- MEHR — nur Mobile, ersetzt den früheren Sidebar-Drawer (siehe
+           css/main.css und js/main.js: bottom-nav-more-btn zeigt diese
+           View statt einen Drawer zu öffnen). Nav-Punkte hier sind wie
+           bei der Bottom-Nav bewusst dieselben data-view-Buttons in
+           eigenen Markup-Kopien; #mehr-positivity-slot/#mehr-countdown-slot
+           bekommen #sidebar-positivity/#sidebar-countdowns per JS
+           umgehängt statt dupliziert. -->
+      <section id="view-mehr" class="view">
+        <div class="view-header">
+          <button id="mehr-close-btn" class="modal-x" aria-label="Schließen">✕</button>
+          <h1 class="view-title">Mehr</h1>
+        </div>
+
+        <div class="mehr-section">
+          <span class="panel-label mehr-section-label">Organisieren</span>
+          <div class="panel mehr-group">
+            <button class="nav-btn" data-view="pinboard">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v3.5M5.5 5.5h5l1 3.5h-7.5l1-3.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none" opacity=".7"/><path d="M8 9v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              Pinnwand
+            </button>
+            <button class="nav-btn" data-view="projects">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/><rect x="9" y="2" width="5" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".7"/><rect x="9" y="11" width="5" height="3" rx="1" fill="currentColor" opacity=".4"/></svg>
+              Projekte
+            </button>
+            <button class="nav-btn" data-view="flashcards">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Karteikarten
+            </button>
+            <button class="nav-btn" data-view="guides">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".7"/><path d="M5 7h6M5 9.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Anleitungen
+            </button>
+          </div>
+        </div>
+
+        <div class="mehr-section">
+          <span class="panel-label mehr-section-label">Werkzeuge</span>
+          <div class="panel mehr-group">
+            <button class="nav-btn" data-view="tools">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M9.5 2.5l1 1-5 5-1-1a2.2 2.2 0 0 1 0-3.1l1.1-1.1a2.2 2.2 0 0 1 3.1 0z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none" opacity=".7"/><path d="M6.5 6.5L2.5 10.5a1.4 1.4 0 0 0 2 2l4-4" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none" opacity=".7"/><path d="M11 5l0.5 2 2-0.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Tools
+            </button>
+          </div>
+        </div>
+
+        <div class="mehr-section">
+          <span class="panel-label mehr-section-label">Nook</span>
+          <div class="panel mehr-group">
+            <button class="nav-btn" data-view="settings">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Einstellungen
+            </button>
+          </div>
+        </div>
+
+        <div id="mehr-positivity-slot" class="mehr-section panel"></div>
+        <div id="mehr-countdown-slot" class="mehr-section panel"></div>
+      </section>
+
+    </main>
+  </div>
+ 
+  <!-- Task Modal -->
+  <div id="modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head"><span id="modal-title">Neue Aufgabe</span><button class="modal-x" id="modal-close">✕</button></div>
+      <input type="text" class="modal-input" id="modal-task-input" placeholder="Aufgabe eingeben..." autocomplete="off"/>
+      <div class="modal-row"><label>Details (optional)</label><textarea class="modal-textarea" id="modal-task-notes" placeholder="Beschreibung, Links, Hinweise..."></textarea></div>
+      <div class="modal-row"><label>Blöcke</label><div id="modal-block-chips" class="task-block-chips"></div></div>
+      <div class="modal-row"><label>Priorität</label>
+        <div id="priority-picker">
+          <button class="prio-btn" data-prio="1">Hoch</button>
+          <button class="prio-btn active" data-prio="2">Normal</button>
+          <button class="prio-btn" data-prio="3">Niedrig</button>
+        </div>
+      </div>
+      <div class="modal-row"><label>Status</label>
+        <div id="status-picker">
+          <button class="status-btn active" data-status="open">○ Offen</button>
+          <button class="status-btn" data-status="in_progress">◐ In Bearbeitung</button>
+          <button class="status-btn" data-status="completed">✓ Abgeschlossen</button>
+        </div>
+      </div>
+      <div class="modal-actions"><button id="modal-cancel" class="btn-ghost">Abbrechen</button><button id="modal-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+ 
+  <!-- Event Modal -->
+  <div id="event-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head"><span id="event-modal-title">Neuer Termin</span><button class="modal-x" id="event-modal-close">✕</button></div>
+      <input type="text" class="modal-input" id="event-modal-input" placeholder="Termin eingeben..." autocomplete="off"/>
+      <div class="modal-row"><label>Details (optional)</label><textarea class="modal-textarea" id="event-modal-notes" placeholder="Ort, Hinweise, Links..."></textarea></div>
+      <div class="modal-row"><label>Startdatum</label><input type="date" class="modal-date" id="event-modal-date-input"/></div>
+      <div class="modal-row"><label>Enddatum <span style="font-size:11px;color:var(--text-3);font-weight:400;">(optional — für Zeiträume)</span></label><input type="date" class="modal-date" id="event-modal-enddate-input"/></div>
+      <div class="modal-row" id="event-modal-time-row"><label>Uhrzeit (optional)</label><input type="time" class="modal-time" id="event-modal-time"/></div>
+      <div class="modal-row">
+        <label>Farbe</label>
+        <div class="hub-color-picker-wrap">
+          <div class="hub-color-picker-row">
+            <input type="color" id="event-modal-color" value="#6b7f58" class="hub-color-input">
+            <div id="event-modal-color-preview" class="hub-color-preview"></div>
+            <button type="button" class="hub-color-add-btn" id="event-modal-color-add-btn" title="Farbe zur Bibliothek hinzufügen">+</button>
+            <button type="button" class="btn-ghost event-color-reset" id="event-modal-color-reset">Standard</button>
+          </div>
+          <div class="hub-color-library-wrap">
+            <span class="hub-color-library-label">Meine Farben</span>
+            <div id="event-modal-color-library" class="hub-color-library"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-row" id="event-modal-recur-row">
+        <label>Wiederholung</label>
+        <select class="modal-select" id="event-modal-recur-select">
+          <option value="none">Nie</option>
+          <option value="daily">Täglich</option>
+          <option value="weekly">Wöchentlich</option>
+          <option value="monthly">Monatlich</option>
+          <option value="yearly">Jährlich</option>
+          <option value="custom">Benutzerdefiniert…</option>
+        </select>
+        <div class="modal-hint" id="event-modal-recur-locked-hint" style="display:none;">Bei „Nur diesen Termin" kann das Wiederholungsmuster nicht geändert werden — nur Titel, Uhrzeit, Notizen und Farbe.</div>
+      </div>
+      <div class="modal-row hidden" id="event-modal-custom-recur">
+        <label>Benutzerdefinierte Wiederholung</label>
+        <div class="recur-interval-row">
+          <span>Alle</span>
+          <input type="number" id="recur-interval-input" class="modal-input recur-interval-input" min="1" value="1">
+          <select id="recur-unit-select" class="modal-select recur-unit-select">
+            <option value="daily">Tage</option>
+            <option value="weekly">Wochen</option>
+            <option value="monthly">Monate</option>
+            <option value="yearly">Jahre</option>
+          </select>
+        </div>
+        <div class="recur-weekday-row hidden" id="recur-weekday-row">
+          <button type="button" class="recur-wd-btn" data-wd="0">Mo</button>
+          <button type="button" class="recur-wd-btn" data-wd="1">Di</button>
+          <button type="button" class="recur-wd-btn" data-wd="2">Mi</button>
+          <button type="button" class="recur-wd-btn" data-wd="3">Do</button>
+          <button type="button" class="recur-wd-btn" data-wd="4">Fr</button>
+          <button type="button" class="recur-wd-btn" data-wd="5">Sa</button>
+          <button type="button" class="recur-wd-btn" data-wd="6">So</button>
+        </div>
+        <div class="recur-end-group">
+          <label class="recur-end-option"><input type="radio" name="recur-end" value="never" checked> Nie</label>
+          <label class="recur-end-option"><input type="radio" name="recur-end" value="until"> Am <input type="date" id="recur-end-until" class="modal-date recur-end-date"></label>
+          <label class="recur-end-option"><input type="radio" name="recur-end" value="count"> Nach <input type="number" id="recur-end-count" class="modal-input recur-end-count-input" min="1" value="10"> Terminen</label>
+        </div>
+      </div>
+      <div class="modal-row modal-row-inline">
+        <div><div class="settings-row-title">Als Countdown anzeigen</div><div class="settings-row-sub">Wird in der Sidebar angezeigt</div></div>
+        <label class="toggle"><input type="checkbox" id="event-modal-countdown"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="modal-row modal-row-inline">
+        <div><div class="settings-row-title">In Agenda anzeigen</div><div class="settings-row-sub">Erscheint in Terminlisten</div></div>
+        <label class="toggle"><input type="checkbox" id="event-modal-agenda" checked/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="modal-actions"><button id="event-modal-cancel" class="btn-ghost">Abbrechen</button><button id="event-modal-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+
+  <!-- Wiederholungs-Umfang Modal (Bearbeiten/Löschen von Serienterminen) -->
+  <div id="recur-scope-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head"><span id="recur-scope-modal-title">Wiederholenden Termin bearbeiten</span><button class="modal-x" id="recur-scope-modal-close">✕</button></div>
+      <p class="modal-hint">Dieser Termin ist Teil einer Terminserie. Was möchtest du ändern?</p>
+      <div class="recur-scope-options">
+        <button class="recur-scope-btn" id="recur-scope-this">Nur diesen Termin</button>
+        <button class="recur-scope-btn" id="recur-scope-following">Diesen und alle zukünftigen Termine</button>
+        <button class="recur-scope-btn" id="recur-scope-all">Gesamte Terminserie</button>
+      </div>
+      <div class="modal-actions"><button id="recur-scope-cancel" class="btn-ghost">Abbrechen</button></div>
+    </div>
+  </div>
+ 
+  <!-- Note Modal -->
+  <div id="note-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head"><span id="note-modal-title">Notiz hinzufügen</span><button class="modal-x" id="note-modal-close">✕</button></div>
+      <textarea class="modal-textarea" id="note-modal-input" placeholder="Notiz eingeben..." style="min-height:80px;"></textarea>
+      <div class="modal-actions"><button id="note-modal-cancel" class="btn-ghost">Abbrechen</button><button id="note-modal-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+ 
+  <!-- Custom Tile Modal -->
+  <div id="tile-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:460px;">
+      <div class="modal-head"><span id="tile-modal-head-title">Neue Karte</span><button class="modal-x" id="tile-modal-close">✕</button></div>
+      <div class="modal-row"><label>Titel</label><input type="text" class="modal-input" id="tile-modal-title" placeholder="z.B. Links, Einkaufsliste..."/></div>
+      <div class="modal-row">
+        <label>Farbe</label>
+        <div class="hub-color-picker-wrap">
+          <div class="hub-color-picker-row">
+            <input type="color" id="tile-modal-color" value="#C9D6BC" class="hub-color-input">
+            <div id="tile-modal-color-preview" class="hub-color-preview"></div>
+            <button type="button" class="hub-color-add-btn" id="tile-modal-color-add-btn" title="Farbe zur Bibliothek hinzufügen">+</button>
+          </div>
+          <div class="hub-color-library-wrap">
+            <span class="hub-color-library-label">Meine Farben</span>
+            <div id="tile-modal-color-library" class="hub-color-library"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-row">
+        <label>Stil</label>
+        <div id="tile-type-picker" class="tile-style-picker">
+          <button class="tile-type-btn active" data-style="standard">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 4h8M3 7h8M3 10h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Standard
+          </button>
+          <button class="tile-type-btn" data-style="pinned">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.2 3 3.3.4-2.4 2.3.6 3.3L7 9l-2.7 1.5.6-3.3-2.4-2.3 3.3-.4L7 1.5z" fill="currentColor"/></svg>
+            Angepinnt
+          </button>
+          <button class="tile-type-btn" data-style="important">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.2 3 3.3.4-2.4 2.3.6 3.3L7 9l-2.7 1.5.6-3.3-2.4-2.3 3.3-.4L7 1.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+            Wichtig
+          </button>
+          <button class="tile-type-btn" data-style="code">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3.5L2 7l3 3.5M9 3.5L12 7l-3 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Code
+          </button>
+          <button class="tile-type-btn" data-style="checklist">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="3.5" width="2" height="2" rx=".5" fill="currentColor"/><rect x="2" y="6.5" width="2" height="2" rx=".5" fill="currentColor"/><rect x="2" y="9.5" width="2" height="2" rx=".5" fill="currentColor"/><path d="M6 4.5h6M6 7.5h6M6 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Checkliste
+          </button>
+          <button class="tile-type-btn" data-style="quote">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5.5c0-1.4 1-2 2-2v1.1c-.5 0-1 .3-1 .9h1v2H3v-2zm5 0c0-1.4 1-2 2-2v1.1c-.5 0-1 .3-1 .9h1v2H8v-2z" fill="currentColor"/></svg>
+            Zitat
+          </button>
+        </div>
+        <div class="tile-type-desc" id="tile-type-desc">Freies Textfeld, wie die Schnellnotiz.</div>
+      </div>
+      <div class="modal-row">
+        <label>Spalte</label>
+        <div style="display:flex;gap:6px;" id="tile-modal-column-picker">
+          <button type="button" class="toggle-select-btn active" data-col="0">Links</button>
+          <button type="button" class="toggle-select-btn" data-col="1">Mitte</button>
+          <button type="button" class="toggle-select-btn" data-col="2">Rechts</button>
+        </div>
+      </div>
+      <div class="modal-row modal-row-inline" id="tile-modal-order-row" style="display:none;">
+        <label>Reihenfolge</label>
+        <div style="display:flex;gap:6px;">
+          <button type="button" class="icon-btn" id="tile-modal-move-up" title="Nach oben verschieben">⬆</button>
+          <button type="button" class="icon-btn" id="tile-modal-move-down" title="Nach unten verschieben">⬇</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="tile-modal-delete-btn" class="btn-ghost" style="color:var(--prio-1);border-color:var(--prio-1);margin-right:auto;display:none;">Karte löschen</button>
+        <button id="tile-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="tile-modal-save" class="btn-primary">Erstellen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Calendar Day Modal -->
+  <div id="cal-day-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head"><span id="cal-day-modal-title">—</span><button class="modal-x" id="cal-day-modal-close">✕</button></div>
+      <div id="cal-day-modal-content"></div>
+      <div class="modal-actions"><button id="cal-day-add-event" class="btn-primary">+ Termin</button></div>
+    </div>
+  </div>
+ 
+  <!-- Countdown Modal -->
+  <div id="countdown-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head"><span>Countdowns</span><button class="modal-x" id="countdown-modal-close">✕</button></div>
+      <div id="countdown-list"></div>
+      <p class="modal-hint">Termine als Countdown markieren im Termin-Modal. Hier kannst du auswählen welche angezeigt werden.</p>
+    </div>
+  </div>
+ 
+  <!-- Geburtstage verwalten -->
+  <div id="birthday-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span>Geburtstage verwalten</span><button class="modal-x" id="birthday-modal-close">✕</button></div>
+      <div id="birthday-manage-list" class="cal-birthday-manage-list"></div>
+      <div class="modal-row-inline" style="margin-top:14px;gap:8px;">
+        <input type="text" class="modal-input" id="birthday-name-input" placeholder="Name" style="flex:2;">
+        <input type="number" class="modal-input" id="birthday-day-input" placeholder="Tag" min="1" max="31" style="flex:1;">
+        <input type="number" class="modal-input" id="birthday-month-input" placeholder="Monat" min="1" max="12" style="flex:1;">
+      </div>
+      <div class="modal-row-inline" style="margin-top:8px;">
+        <input type="number" class="modal-input" id="birthday-year-input" placeholder="Geburtsjahr (optional)">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="birthday-modal-done">Fertig</button>
+        <button class="btn-primary" id="birthday-add-btn">+ Hinzufügen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="calendar-settings-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:380px;">
+      <div class="modal-head"><span>Kalender-Einstellungen</span><button class="modal-x" id="calendar-settings-modal-close">✕</button></div>
+
+      <div class="modal-row">
+        <label>Bundesland (für Feiertage)</label>
+        <select class="modal-select" id="calendar-bundesland-select">
+          <option value="">— nicht ausgewählt —</option>
+          <option value="BW">Baden-Württemberg</option>
+          <option value="BY">Bayern</option>
+          <option value="BE">Berlin</option>
+          <option value="BB">Brandenburg</option>
+          <option value="HB">Bremen</option>
+          <option value="HH">Hamburg</option>
+          <option value="HE">Hessen</option>
+          <option value="MV">Mecklenburg-Vorpommern</option>
+          <option value="NI">Niedersachsen</option>
+          <option value="NW">Nordrhein-Westfalen</option>
+          <option value="RP">Rheinland-Pfalz</option>
+          <option value="SL">Saarland</option>
+          <option value="SN">Sachsen</option>
+          <option value="ST">Sachsen-Anhalt</option>
+          <option value="SH">Schleswig-Holstein</option>
+          <option value="TH">Thüringen</option>
+        </select>
+      </div>
+
+      <div class="cal-settings-section-label">Anzeige</div>
+      <div class="cal-settings-toggle-row">
+        <span>Feiertage anzeigen</span>
+        <label class="toggle"><input type="checkbox" id="cal-setting-show-holidays"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="cal-settings-toggle-row">
+        <span>Geburtstage anzeigen</span>
+        <label class="toggle"><input type="checkbox" id="cal-setting-show-birthdays"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="cal-settings-toggle-row">
+        <span>Aufgaben anzeigen</span>
+        <label class="toggle"><input type="checkbox" id="cal-setting-show-tasks"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="cal-settings-toggle-row">
+        <span>Abgeschlossene Aufgaben anzeigen</span>
+        <label class="toggle"><input type="checkbox" id="cal-setting-show-done-tasks"><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="cal-settings-section-label">Erinnerungen</div>
+      <div class="modal-row">
+        <label>Geburtstage vorher ankündigen</label>
+        <select class="modal-select" id="calendar-birthday-reminder-select">
+          <option value="0">Aus</option>
+          <option value="1">1 Tag vorher</option>
+          <option value="3">3 Tage vorher</option>
+          <option value="7">7 Tage vorher</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-primary" id="calendar-settings-modal-done">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flashcard Modal — Karte bearbeiten/erstellen -->
+  <div id="fc-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head"><span id="fc-modal-title">Karteikarte</span><button class="modal-x" id="fc-modal-close">✕</button></div>
+      <div class="modal-row"><label>Vorderseite (Frage / Begriff)</label><textarea class="modal-textarea" id="fc-modal-front" placeholder="Was steht auf der Vorderseite?" style="min-height:80px;"></textarea></div>
+      <div class="modal-row"><label>Rückseite (Antwort / Erklärung)</label><textarea class="modal-textarea" id="fc-modal-back" placeholder="Was steht auf der Rückseite?" style="min-height:80px;"></textarea></div>
+      <div class="modal-actions"><button id="fc-modal-cancel" class="btn-ghost">Abbrechen</button><button id="fc-modal-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+ 
+  <!-- Fach erstellen Modal -->
+  <div id="fc-subject-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span>Neues Fach</span><button class="modal-x" id="fc-subject-modal-close">✕</button></div>
+      <div class="modal-row">
+        <label>Fachname</label>
+        <input type="text" class="modal-input" id="fc-subject-name-input" placeholder="z.B. LF 2, Mathematik…" autocomplete="off">
+      </div>
+      <div class="modal-row">
+        <label>Lehrer <span style="color:var(--text-3);font-weight:400;">(optional)</span></label>
+        <input type="text" class="modal-input" id="fc-subject-teacher-input" placeholder="z.B. Herr Müller" autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button id="fc-subject-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="fc-subject-modal-save" class="btn-primary">Erstellen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Themengruppe erstellen/umbenennen Modal -->
+  <div id="fc-group-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span id="fc-group-modal-title">Neue Themengruppe</span><button class="modal-x" id="fc-group-modal-close">✕</button></div>
+      <div class="modal-row">
+        <label>Name der Themengruppe</label>
+        <input type="text" class="modal-input" id="fc-group-name-input" placeholder="z.B. Hardware, Kapitel 1…" autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button id="fc-group-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="fc-group-modal-save" class="btn-primary">Erstellen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Fach bearbeiten Modal -->
+  <div id="fc-subject-edit-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span>Fach bearbeiten</span><button class="modal-x" id="fc-subject-edit-modal-close">✕</button></div>
+      <div class="modal-row">
+        <label>Fachname</label>
+        <input type="text" class="modal-input" id="fc-subject-edit-name-input" autocomplete="off">
+      </div>
+      <div class="modal-row">
+        <label>Lehrer <span style="color:var(--text-3);font-weight:400;">(optional)</span></label>
+        <input type="text" class="modal-input" id="fc-subject-edit-teacher-input" autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button id="fc-subject-edit-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="fc-subject-edit-modal-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Guide Category Modal -->
+  <div id="guide-cat-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:460px;">
+      <div class="modal-head">
+        <span id="guide-cat-modal-title">Neues Buch</span>
+        <button class="modal-x" id="guide-cat-modal-close">✕</button>
+      </div>
+      <div class="modal-row">
+        <label>Name</label>
+        <input type="text" class="modal-input" id="guide-cat-name-input" placeholder="z.B. Git &amp; GitHub">
+      </div>
+      <div class="modal-row">
+        <label>Farbe</label>
+        <div class="hub-color-picker-wrap">
+          <div class="hub-color-picker-row">
+            <input type="color" id="guide-color-picker" value="#C9D6BC" class="hub-color-input">
+            <div id="guide-color-preview" class="hub-color-preview"></div>
+            <button type="button" class="hub-color-add-btn" id="guide-color-add-btn" title="Farbe zur Bibliothek hinzufügen">+</button>
+          </div>
+          <div class="hub-color-library-wrap">
+            <span class="hub-color-library-label">Meine Farben</span>
+            <div id="guide-color-library" class="hub-color-library"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="guide-cat-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="guide-cat-modal-save" class="btn-primary">Erstellen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Guide Entry Modal -->
+  <div id="guide-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box guide-modal-box">
+      <div class="modal-head">
+        <span id="guide-modal-title">Neue Anleitung</span>
+        <button class="modal-x" id="guide-modal-close">✕</button>
+      </div>
+      <div class="modal-row"><label>Titel</label><input type="text" class="modal-input" id="guide-modal-title-input" placeholder="Titel der Anleitung" autocomplete="off"/></div>
+      <div class="modal-row"><label>Beschreibung <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(optional)</span></label><input type="text" class="modal-input" id="guide-modal-desc-input" placeholder="Kurze Beschreibung..."/></div>
+      <div class="modal-row"><label>Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(kommagetrennt)</span></label><input type="text" class="modal-input" id="guide-modal-tags-input" placeholder="z.B. git, terminal, basics"/></div>
+      <div class="modal-row modal-row-inline">
+        <label>Als Favorit markieren</label>
+        <label class="toggle"><input type="checkbox" id="guide-modal-fav"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="modal-row">
+        <label>Inhalt</label>
+        <div class="guide-modal-tabs">
+          <button class="guide-modal-tab active" id="guide-tab-edit">Bearbeiten</button>
+          <button class="guide-modal-tab" id="guide-tab-preview">Vorschau</button>
+          <div class="guide-modal-snippets">
+            <button class="guide-snippet-btn" data-snippet="h2" title="## Überschrift">H2</button>
+            <button class="guide-snippet-btn" data-snippet="h3" title="### Unterüberschrift">H3</button>
+            <button class="guide-snippet-btn" data-snippet="bold" title="**fett**"><strong>B</strong></button>
+            <button class="guide-snippet-btn" data-snippet="code" title="Code-Block">{ }</button>
+            <button class="guide-snippet-btn" data-snippet="list" title="Liste">☰</button>
+            <button class="guide-snippet-btn" data-snippet="hr" title="Trennlinie">—</button>
+            <button class="guide-snippet-btn" data-snippet="mark" title="Text markieren ==text==">▐</button>
+          </div>
+        </div>
+      </div>
+      <div id="guide-modal-editor-pane">
+        <textarea class="modal-textarea guide-modal-editor" id="guide-modal-content-input" placeholder="Inhalt in Markdown schreiben…"></textarea>
+      </div>
+      <div id="guide-modal-preview-pane" class="hidden">
+        <div id="guide-modal-preview-content" class="guide-detail-content guide-preview-box"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="guide-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="guide-modal-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Recurring Budget Modal -->
+  <div id="recurring-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:440px;">
+      <div class="modal-head"><span id="recurring-modal-title">Wiederkehrender Posten</span><button class="modal-x" id="recurring-modal-close">&#10005;</button></div>
+      <input type="text" class="modal-input" id="recurring-name" placeholder="z.B. Ausbildungsgehalt, Spotify..." autocomplete="off"/>
+      <div class="modal-row"><label>Typ</label>
+        <div style="display:flex;gap:6px;">
+          <button class="toggle-select-btn active" id="recurring-type-income">Einnahme</button>
+          <button class="toggle-select-btn" id="recurring-type-expense">Ausgabe</button>
+        </div>
+      </div>
+      <div class="modal-row" id="recurring-icon-row">
+        <label>Icon</label>
+        <div class="recurring-icon-picker" id="recurring-icon-picker">
+          <button type="button" class="recurring-icon-btn" data-icon="&#128182;" title="Geld">&#128182;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#128188;" title="Gehalt / Job">&#128188;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#128098;" title="Taschengeld">&#128098;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#127968;" title="Miete">&#127968;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#127873;" title="Geschenk">&#127873;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#127891;" title="Stipendium / BAf&ouml;G">&#127891;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#128646;" title="Fahrtkosten">&#128646;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#128176;" title="Ersparnisse">&#128176;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#128200;" title="Investition">&#128200;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#127808;" title="Gl&uuml;ck / Bonus">&#127808;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#11088;" title="Sonstiges">&#11088;</button>
+          <button type="button" class="recurring-icon-btn" data-icon="&#127918;" title="Nebenjob">&#127918;</button>
+        </div>
+      </div>
+      <div class="modal-row"><label>Betrag (&#8364;)</label><input type="number" class="modal-input" id="recurring-amount" placeholder="0.00" step="0.01" min="0"/></div>
+      <div class="modal-row"><label>Rhythmus</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="toggle-select-btn" id="recurring-freq-daily">Täglich</button>
+          <button class="toggle-select-btn" id="recurring-freq-weekly">Wöchentlich</button>
+          <button class="toggle-select-btn" id="recurring-freq-biweekly">Alle 2 Wochen</button>
+          <button class="toggle-select-btn active" id="recurring-freq-monthly">Monatlich</button>
+          <button class="toggle-select-btn" id="recurring-freq-yearly">Jährlich</button>
+        </div>
+      </div>
+      <div class="modal-row hidden" id="recurring-weekday-row">
+        <label>Wochentag</label>
+        <select class="modal-input" id="recurring-weekday" style="max-width:180px;">
+          <option value="1">Montag</option>
+          <option value="2">Dienstag</option>
+          <option value="3">Mittwoch</option>
+          <option value="4">Donnerstag</option>
+          <option value="5">Freitag</option>
+          <option value="6">Samstag</option>
+          <option value="0">Sonntag</option>
+        </select>
+      </div>
+      <div class="modal-row hidden" id="recurring-anchor-row">
+        <label>Nächste Zahlung am <span style="font-size:11px;color:var(--text-3);font-weight:400;">legt den 2-Wochen-Rhythmus fest</span></label>
+        <input type="date" class="modal-input" id="recurring-anchor-date" style="max-width:170px;"/>
+      </div>
+      <div class="modal-row" id="recurring-day-row">
+        <label>Tag des Monats (1&#8211;31)</label>
+        <input type="number" class="modal-input" id="recurring-day" placeholder="z.B. 25" min="1" max="31"/>
+      </div>
+      <div class="modal-row hidden" id="recurring-date-row">
+        <label>Datum (Tag / Monat)</label>
+        <div style="display:flex;gap:8px;">
+          <input type="number" class="modal-input" id="recurring-date-day" placeholder="Tag" min="1" max="31" style="width:90px;"/>
+          <input type="number" class="modal-input" id="recurring-date-month" placeholder="Monat" min="1" max="12" style="width:90px;"/>
+        </div>
+      </div>
+      <div class="modal-row" id="recurring-prio-row">
+        <label>Priorität <span id="recurring-prio-hint" style="font-size:11px;color:#8a8478;font-weight:400;">(nur für Ausgaben)</span></label>
+        <div class="budget-prio-picker">
+          <button class="budget-prio-btn" data-prio="must" id="recurring-prio-must">Muss</button>
+          <button class="budget-prio-btn active" data-prio="need" id="recurring-prio-need">Brauche</button>
+          <button class="budget-prio-btn" data-prio="want" id="recurring-prio-want">Möchte</button>
+        </div>
+      </div>
+      <div class="modal-row" id="recurring-certainty-row">
+        <label>Sicherheit <span style="font-size:11px;color:var(--text-3);font-weight:400;">(für die Sparprognose)</span></label>
+        <div style="display:flex;gap:6px;">
+          <button class="toggle-select-btn active" id="recurring-certainty-fixed">Fest</button>
+          <button class="toggle-select-btn" id="recurring-certainty-variable">Variabel</button>
+        </div>
+      </div>
+      <div class="modal-row hidden" id="recurring-var-range-row">
+        <label>Spanne (&#8364;) <span style="font-size:11px;color:var(--text-3);font-weight:400;">min – max</span></label>
+        <div style="display:flex;gap:8px;">
+          <input type="number" class="modal-input" id="recurring-var-min" placeholder="Min." step="0.01" min="0" style="width:100%;"/>
+          <input type="number" class="modal-input" id="recurring-var-max" placeholder="Max." step="0.01" min="0" style="width:100%;"/>
+        </div>
+      </div>
+      <div class="modal-row modal-row-inline hidden" id="recurring-sparplan-include-row">
+        <label>Als Sonderfall in der Sparprognose anzeigen <span style="font-size:11px;color:var(--text-3);font-weight:400;">rein informativ, ohne Einfluss auf die Sparrate</span></label>
+        <label class="toggle">
+          <input type="checkbox" id="recurring-sparplan-include" checked/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="modal-row hidden" id="recurring-funding-row"><label>Finanzierungsquellen <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — welche Einnahmen decken diese Ausgabe?</span></label></div>
+      <div id="recurring-funding-list" class="hidden"></div>
+      <div class="modal-actions"><button id="recurring-cancel" class="btn-ghost">Abbrechen</button><button id="recurring-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+ 
+  <!-- One-time Budget Modal -->
+  <div id="onetime-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span>Einmalige Buchung</span><button class="modal-x" id="onetime-modal-close">&#10005;</button></div>
+      <input type="text" class="modal-input" id="onetime-name" placeholder="z.B. Einkauf, Reparatur, Geldgeschenk..." autocomplete="off"/>
+      <div class="modal-row"><label>Datum</label><input type="date" class="modal-input" id="onetime-date" style="max-width:160px;"/></div>
+      <div class="modal-row"><label>Typ</label>
+        <div style="display:flex;gap:6px;">
+          <button class="toggle-select-btn" id="onetime-type-income">Einnahme</button>
+          <button class="toggle-select-btn active" id="onetime-type-expense">Ausgabe</button>
+        </div>
+      </div>
+      <div class="modal-row"><label>Betrag (&#8364;)</label><input type="number" class="modal-input" id="onetime-amount" placeholder="0.00" step="0.01" min="0"/></div>
+      <div class="modal-row" id="onetime-prio-row">
+        <label>Priorität</label>
+        <div class="budget-prio-picker">
+          <button class="budget-prio-btn" data-prio="must" id="onetime-prio-must">Muss</button>
+          <button class="budget-prio-btn active" data-prio="need" id="onetime-prio-need">Brauche</button>
+          <button class="budget-prio-btn" data-prio="want" id="onetime-prio-want">Möchte</button>
+        </div>
+      </div>
+      <div class="modal-row hidden" id="onetime-funding-row"><label>Finanzierungsquellen <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — gilt nur für diesen Monat</span></label></div>
+      <div id="onetime-funding-list" class="hidden"></div>
+      <div class="modal-actions"><button id="onetime-cancel" class="btn-ghost">Abbrechen</button><button id="onetime-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+ 
+  <!-- Goal Modal -->
+  <div id="goal-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span id="goal-modal-title">Neues Sparziel</span><button class="modal-x" id="goal-modal-close">&#10005;</button></div>
+      <input type="text" class="modal-input" id="goal-name" placeholder="z.B. Urlaub, Laptop..." autocomplete="off"/>
+      <div class="modal-row"><label>Zielbetrag (&#8364;)</label><input type="number" class="modal-input" id="goal-target" placeholder="500.00" step="0.01" min="0"/></div>
+      <div class="modal-row" id="goal-current-row"><label>Aktueller Betrag (&#8364;)</label><input type="number" class="modal-input" id="goal-current" placeholder="0.00" step="0.01" min="0"/></div>
+      <div class="modal-row"><label>Wunschtermin (ETA) <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — für die Sparprognose</span></label><input type="month" class="modal-input" id="goal-eta" style="max-width:160px;"/></div>
+      <div class="modal-row"><label>Startdatum <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — Standardwert für Sparpläne</span></label><input type="date" class="modal-input" id="goal-startdate" style="max-width:170px;"/></div>
+      <div class="modal-row"><label>Kategorie <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional</span></label><input type="text" class="modal-input" id="goal-category" placeholder="z.B. Mobilität, Technik..." autocomplete="off"/></div>
+      <div class="modal-row"><label>Beschreibung <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional</span></label><textarea class="modal-input" id="goal-description" rows="2" placeholder="Notizen zu diesem Sparziel..." style="resize:vertical;"></textarea></div>
+      <div class="modal-row">
+        <label>Priorität <span style="font-size:11px;color:var(--text-3);font-weight:400;">steuert die Reihenfolge in der Sparprognose</span></label>
+        <div class="budget-prio-picker">
+          <button class="budget-prio-btn" data-prio="must" id="goal-prio-must">Muss</button>
+          <button class="budget-prio-btn active" data-prio="need" id="goal-prio-need">Brauche</button>
+          <button class="budget-prio-btn" data-prio="want" id="goal-prio-want">Möchte</button>
+        </div>
+      </div>
+      <div class="modal-row"><label>Finanzierungsquellen <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — aus deinen Einnahmen im Budget-Tab</span></label></div>
+      <div id="goal-funding-list"></div>
+      <div class="modal-row modal-row-inline">
+        <label>Geld automatisch reservieren</label>
+        <label class="toggle"><input type="checkbox" id="goal-reserve-active"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="modal-row">
+        <label>Pflanze auswählen</label>
+        <div class="goal-plant-selector" id="goal-plant-selector">
+          <label class="goal-plant-option"><input type="radio" name="goal-plant" value="sunflower" checked/><span class="goal-plant-icon">🌻</span><span class="goal-plant-name">Sonnenblume</span></label>
+          <label class="goal-plant-option"><input type="radio" name="goal-plant" value="cactus"/><span class="goal-plant-icon">🌵</span><span class="goal-plant-name">Kaktus</span></label>
+          <label class="goal-plant-option"><input type="radio" name="goal-plant" value="bonsai"/><span class="goal-plant-icon">🌳</span><span class="goal-plant-name">Bonsai</span></label>
+          <label class="goal-plant-option"><input type="radio" name="goal-plant" value="potplant"/><span class="goal-plant-icon">🪴</span><span class="goal-plant-name">Zimmerpflanze</span></label>
+          <label class="goal-plant-option"><input type="radio" name="goal-plant" value="cherryblossom"/><span class="goal-plant-icon">🌸</span><span class="goal-plant-name">Kirschblüte</span></label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="goal-delete" class="btn-ghost hidden" style="margin-right:auto;color:var(--b-red);border-color:var(--b-red);">Löschen</button>
+        <button id="goal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="goal-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Goal Deposit/Withdraw Modal -->
+  <div id="goal-tx-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:360px;">
+      <div class="modal-head"><span id="goal-tx-title">Einzahlen</span><button class="modal-x" id="goal-tx-close">&#10005;</button></div>
+      <div class="modal-row"><label>Betrag (&#8364;)</label><input type="number" class="modal-input" id="goal-tx-amount" placeholder="0.00" step="0.01" min="0"/></div>
+      <div class="modal-actions"><button id="goal-tx-cancel" class="btn-ghost">Abbrechen</button><button id="goal-tx-save" class="btn-primary">OK</button></div>
+    </div>
+  </div>
+
+  <!-- Schulden-Modal — strukturell wie das Sparziel-Modal, bewusst
+       andere Sprache (Restschuld statt Zielbetrag, Bezahlen statt
+       Einzahlen, siehe budget-debts.js). Nutzt denselben Finanzierungs-
+       Editor (budget-financing.js) wie Sparziele/Ausgaben. -->
+  <div id="debt-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head"><span id="debt-modal-title">Neue Schuld</span><button class="modal-x" id="debt-modal-close">&#10005;</button></div>
+      <input type="text" class="modal-input" id="debt-name" placeholder="z.B. WLAN-Router (Mo)" autocomplete="off"/>
+      <div class="modal-row"><label>Ursprünglicher Betrag (&#8364;)</label><input type="number" class="modal-input" id="debt-original" placeholder="70.00" step="0.01" min="0"/></div>
+      <div class="modal-row" id="debt-paid-row"><label>Bereits bezahlt (&#8364;)</label><input type="number" class="modal-input" id="debt-paid" placeholder="0.00" step="0.01" min="0"/></div>
+      <div class="modal-row"><label>Fälligkeit <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional</span></label><input type="date" class="modal-input" id="debt-duedate" style="max-width:170px;"/></div>
+      <div class="modal-row"><label>Beschreibung <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional</span></label><textarea class="modal-input" id="debt-description" rows="2" placeholder="Notizen..." style="resize:vertical;"></textarea></div>
+      <div class="modal-row">
+        <label>Priorität</label>
+        <div class="budget-prio-picker">
+          <button class="budget-prio-btn" data-prio="must" id="debt-prio-must">Muss</button>
+          <button class="budget-prio-btn active" data-prio="need" id="debt-prio-need">Brauche</button>
+          <button class="budget-prio-btn" data-prio="want" id="debt-prio-want">Möchte</button>
+        </div>
+      </div>
+      <div class="modal-row"><label>Finanzierungsquellen <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — womit tilgst du das?</span></label></div>
+      <div id="debt-funding-list"></div>
+      <div class="modal-row modal-row-inline">
+        <label>Geld automatisch reservieren</label>
+        <label class="toggle"><input type="checkbox" id="debt-reserve-active"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="modal-actions">
+        <button id="debt-delete" class="btn-ghost hidden" style="margin-right:auto;color:var(--b-red);border-color:var(--b-red);">Löschen</button>
+        <button id="debt-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="debt-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sparplan-Assistent (Wizard) — 3 Varianten, unabhängig von der
+       Sparprognose. Reserviert keinerlei Budget-Beträge. -->
+  <div id="sparplan-wizard-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:480px;max-height:85vh;overflow-y:auto;">
+      <div class="modal-head"><span id="sparplan-wizard-title">Neuer Sparplan</span><button class="modal-x" id="sparplan-wizard-close">&#10005;</button></div>
+
+      <div id="sparplan-wizard-step-variant">
+        <div class="modal-row"><label>Wie möchtest du planen?</label></div>
+        <div class="sp-wizard-variant-list">
+          <button class="sp-wizard-variant-btn" data-variant="target">
+            <span class="sp-wizard-variant-title">🎯 Ich kenne meinen Zielbetrag</span>
+            <span class="sp-wizard-variant-desc">Betrag, Zeitraum &amp; Intervall angeben — Nook berechnet die Sparrate.</span>
+          </button>
+          <button class="sp-wizard-variant-btn" data-variant="rate">
+            <span class="sp-wizard-variant-title">💶 Ich kenne meine Sparrate</span>
+            <span class="sp-wizard-variant-desc">Zeitraum, Intervall &amp; Rate angeben — Nook berechnet den Endbetrag.</span>
+          </button>
+          <button class="sp-wizard-variant-btn" data-variant="custom">
+            <span class="sp-wizard-variant-title">✏️ Individuell</span>
+            <span class="sp-wizard-variant-desc">Jede Rate selbst mit Datum &amp; Betrag festlegen.</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="sparplan-wizard-step-target" class="hidden">
+        <input type="text" class="modal-input" id="spw-target-name" placeholder="z.B. Führerschein, Laptop..." autocomplete="off"/>
+        <div class="modal-row"><label>Zielbetrag (&#8364;)</label><input type="number" class="modal-input" id="spw-target-amount" placeholder="1500.00" step="0.01" min="0"/></div>
+        <div class="modal-row"><label>Startdatum</label><input type="date" class="modal-input" id="spw-target-start" style="max-width:170px;"/></div>
+        <div class="modal-row"><label>Zieldatum</label><input type="date" class="modal-input" id="spw-target-end" style="max-width:170px;"/></div>
+        <div class="modal-row"><label>Sparintervall</label>
+          <select class="modal-input" id="spw-target-interval" style="max-width:170px;">
+            <option value="monthly">Monatlich</option>
+            <option value="biweekly">Zweiwöchentlich</option>
+            <option value="weekly">Wöchentlich</option>
+            <option value="daily">Täglich</option>
+          </select>
+        </div>
+        <div class="modal-row"><label>Sparart</label>
+          <div style="display:flex;gap:6px;">
+            <button class="toggle-select-btn active" data-method="constant">Konstant</button>
+            <button class="toggle-select-btn" data-method="increasing">Steigend</button>
+            <button class="toggle-select-btn" data-method="decreasing">Fallend</button>
+          </div>
+        </div>
+        <div class="sp-wizard-preview" id="spw-target-preview"></div>
+      </div>
+
+      <div id="sparplan-wizard-step-rate" class="hidden">
+        <input type="text" class="modal-input" id="spw-rate-name" placeholder="z.B. Notgroschen, Reise..." autocomplete="off"/>
+        <div class="modal-row"><label>Sparrate (&#8364;)</label><input type="number" class="modal-input" id="spw-rate-amount" placeholder="50.00" step="0.01" min="0"/></div>
+        <div class="modal-row"><label>Startdatum</label><input type="date" class="modal-input" id="spw-rate-start" style="max-width:170px;"/></div>
+        <div class="modal-row"><label>Enddatum</label><input type="date" class="modal-input" id="spw-rate-end" style="max-width:170px;"/></div>
+        <div class="modal-row"><label>Sparintervall</label>
+          <select class="modal-input" id="spw-rate-interval" style="max-width:170px;">
+            <option value="monthly">Monatlich</option>
+            <option value="biweekly">Zweiwöchentlich</option>
+            <option value="weekly">Wöchentlich</option>
+            <option value="daily">Täglich</option>
+          </select>
+        </div>
+        <div class="sp-wizard-preview" id="spw-rate-preview"></div>
+      </div>
+
+      <div id="sparplan-wizard-step-custom" class="hidden">
+        <input type="text" class="modal-input" id="spw-custom-name" placeholder="z.B. Weihnachtsgeld-Sparplan..." autocomplete="off"/>
+
+        <!-- Gemeinsames Intervall für den GESAMTEN Plan — gilt für alle
+             Werkzeuge und bestimmt nur die Beschriftung der Positionen
+             (Woche 1, Tag 1, ...). Es werden keine Kalenderdaten erzeugt. -->
+        <div class="modal-row"><label>Intervall <span style="font-size:11px;color:var(--text-3);font-weight:400;">gilt für den gesamten Sparplan</span></label>
+          <div id="spw-custom-interval-picker" style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="toggle-select-btn" data-interval="daily">Täglich</button>
+            <button class="toggle-select-btn active" data-interval="weekly">Wöchentlich</button>
+            <button class="toggle-select-btn" data-interval="biweekly">Zweiwöchentlich</button>
+            <button class="toggle-select-btn" data-interval="monthly">Monatlich</button>
+          </div>
+        </div>
+
+        <!-- Hauptansicht: Werkzeugleiste + die EINE Ratenliste. Jedes
+             Werkzeug hängt seine erzeugten Einträge ans Ende der
+             bestehenden Liste an — die Liste selbst ist die einzige
+             Quelle der Wahrheit, kein Werkzeug ersetzt sie. Es werden
+             nur Positionen (Woche 1, Woche 2, ...) dargestellt, keine
+             Kalendertage. -->
+        <div id="spw-custom-main">
+          <div class="modal-row"><label>Raten hinzufügen mit...</label></div>
+          <div class="sp-wizard-toolbar">
+            <button class="sp-add-btn" data-generator="fixed">💶 Fester Betrag</button>
+            <button class="sp-add-btn" data-generator="random">🎲 Zufällige Beträge</button>
+            <button class="sp-add-btn" data-generator="manual">✏️ Eigene Einträge</button>
+            <button class="sp-add-btn" data-generator="template">📋 Aus Vorlage</button>
+          </div>
+          <div id="spw-custom-rows"></div>
+          <div class="sp-wizard-preview" id="spw-custom-sum"></div>
+        </div>
+
+        <!-- Fester Betrag — hängt Raten an, ersetzt nichts -->
+        <div id="spw-custom-form-fixed" class="hidden">
+          <button type="button" class="sp-wizard-back-link" id="spw-fixed-back">‹ Zurück zur Liste</button>
+          <div class="modal-row"><label>Betrag (&#8364;)</label><input type="number" class="modal-input" id="spw-fixed-amount" placeholder="25.00" step="0.01" min="0"/></div>
+          <div class="modal-row"><label>Anzahl</label><input type="number" class="modal-input" id="spw-fixed-count" placeholder="10" min="1" step="1" style="max-width:120px;"/></div>
+          <div class="sp-wizard-preview" id="spw-fixed-preview"></div>
+          <div class="modal-actions" style="padding-top:4px;justify-content:flex-start;"><button class="btn-primary" id="spw-fixed-generate">Zur Liste hinzufügen</button></div>
+        </div>
+
+        <!-- Zufällige Beträge — Vorschau, dann anhängen. Nur ganze Euro. -->
+        <div id="spw-custom-form-random" class="hidden">
+          <button type="button" class="sp-wizard-back-link" id="spw-random-back">‹ Zurück zur Liste</button>
+          <div class="modal-row"><label>Von (&#8364;)</label><input type="number" class="modal-input" id="spw-random-min" placeholder="5" step="1" min="0" style="max-width:120px;"/></div>
+          <div class="modal-row"><label>Bis (&#8364;)</label><input type="number" class="modal-input" id="spw-random-max" placeholder="20" step="1" min="0" style="max-width:120px;"/></div>
+          <div class="modal-row"><label>Anzahl</label><input type="number" class="modal-input" id="spw-random-count" placeholder="10" min="1" step="1" style="max-width:120px;"/></div>
+          <div class="modal-row modal-row-inline">
+            <label>Nur Vielfache von <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional</span></label>
+            <label class="toggle"><input type="checkbox" id="spw-random-multiple-toggle"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="modal-row hidden" id="spw-random-multiple-row"><label>Vielfaches von (&#8364;)</label><input type="number" class="modal-input" id="spw-random-multiple" placeholder="5" step="1" min="1" style="max-width:120px;"/></div>
+          <div class="modal-actions" style="padding-top:4px;justify-content:flex-start;"><button class="btn-primary" id="spw-random-generate">Vorschau generieren</button></div>
+
+          <div id="spw-random-preview-wrap" class="hidden">
+            <div class="sp-detail-section-title">Vorschau</div>
+            <div class="sp-detail-entry-list" id="spw-random-preview-list"></div>
+            <div class="sp-wizard-preview" id="spw-random-preview-sum"></div>
+            <div class="modal-actions" style="padding-top:8px;">
+              <button class="btn-ghost" id="spw-random-regenerate">🔄 Neu generieren</button>
+              <button class="btn-primary" id="spw-random-apply">✅ Zur Liste hinzufügen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aus Vorlage (Platzhalter, Registry vorbereitet) -->
+        <div id="spw-custom-form-template" class="hidden">
+          <button type="button" class="sp-wizard-back-link" id="spw-template-back">‹ Zurück zur Liste</button>
+          <div id="spw-template-list"></div>
+        </div>
+      </div>
+
+      <!-- Geteilter Verknüpfungs-Block — erscheint zusammen mit jeder der
+           drei Varianten (Zielbetrag/Rate/Individuell), da alle drei zu
+           demselben optionalen Sparziel führen können. Kein eigener
+           Wizard-Schritt, um die bestehende Navigation (Zurück/Speichern)
+           nicht zu verändern. Finanzierung/Reservierung werden NUR bei
+           "Neues Sparziel" hier erfasst — bei "Vorhandenes Sparziel" sind
+           sie bereits am Sparziel gepflegt und werden nur angezeigt. -->
+      <div id="sparplan-wizard-step-link" class="hidden" style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+        <div class="modal-row"><label>Sparziel <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — verknüpft diesen Plan mit dem Finanzgarten</span></label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="toggle-select-btn active" data-goalmode="none">Kein Sparziel</button>
+            <button class="toggle-select-btn" data-goalmode="new">Neues Sparziel</button>
+            <button class="toggle-select-btn" data-goalmode="existing">Vorhandenes Sparziel</button>
+          </div>
+        </div>
+        <div class="modal-row hidden" id="spw-goal-existing-row">
+          <label>Sparziel auswählen</label>
+          <select class="modal-input" id="spw-goal-select"></select>
+        </div>
+        <div class="modal-row hidden" id="spw-goal-funding-existing-row">
+          <label>Finanzierung <span style="font-size:11px;color:var(--text-3);font-weight:400;">vom Sparziel übernommen — bearbeitbar im Tab „Sparziele"</span></label>
+          <div id="spw-goal-funding-existing-text" style="font-size:12.5px;color:var(--text-3);"></div>
+        </div>
+        <div class="modal-row hidden" id="spw-goal-priority-row">
+          <label>Priorität <span style="font-size:11px;color:var(--text-3);font-weight:400;">für die Sparprognose</span></label>
+          <div class="budget-prio-picker">
+            <button class="budget-prio-btn" data-prio="must" id="spw-goal-prio-must">Muss</button>
+            <button class="budget-prio-btn active" data-prio="need" id="spw-goal-prio-need">Brauche</button>
+            <button class="budget-prio-btn" data-prio="want" id="spw-goal-prio-want">Möchte</button>
+          </div>
+        </div>
+        <div class="modal-row hidden" id="spw-goal-funding-new-row"><label>Finanzierungsquellen <span style="font-size:11px;color:var(--text-3);font-weight:400;">optional — für das neue Sparziel</span></label></div>
+        <div id="spw-goal-funding-new" class="hidden"></div>
+        <div class="modal-row modal-row-inline hidden" id="spw-goal-reserve-row">
+          <label>Geld automatisch reservieren</label>
+          <label class="toggle"><input type="checkbox" id="spw-goal-reserve-active"/><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost hidden" id="sparplan-wizard-back">Zurück</button>
+        <button class="btn-ghost" id="sparplan-wizard-cancel">Abbrechen</button>
+        <button class="btn-primary hidden" id="sparplan-wizard-save">Sparplan erstellen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sparplan-Detailansicht -->
+  <div id="sparplan-detail-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:480px;max-height:85vh;overflow-y:auto;">
+      <div class="modal-head">
+        <span id="sparplan-detail-title">Sparplan</span>
+        <div style="display:flex;gap:2px;">
+          <button class="modal-x" id="sparplan-detail-edit-btn" title="Bearbeiten">&#9998;</button>
+          <button class="modal-x" id="sparplan-detail-close">&#10005;</button>
+        </div>
+      </div>
+      <div id="sparplan-detail-body"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="sparplan-detail-delete" style="color:var(--b-red);">Löschen</button>
+        <button class="btn-primary" id="sparplan-detail-done-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- "Gespart bis..." Modal — kleine, eigenständige Zusatzrechnung,
+       unabhängig von Sparzielen. Ändert nichts am Sparplan. -->
+  <div id="sparplan-savedby-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head"><span>⭐ Gespart bis...</span><button class="modal-x" id="sparplan-savedby-close">&#10005;</button></div>
+      <div class="modal-row"><label>Datum</label><input type="date" class="modal-input" id="sparplan-savedby-date" style="max-width:170px;"/></div>
+      <div class="modal-row"><label>Szenario</label>
+        <div style="display:flex;gap:6px;">
+          <button class="toggle-select-btn" id="sparplan-savedby-scen-garant" data-scen="garant">Garantiert</button>
+          <button class="toggle-select-btn" id="sparplan-savedby-scen-real" data-scen="real">Realistisch</button>
+          <button class="toggle-select-btn" id="sparplan-savedby-scen-opt" data-scen="opt">Optimistisch</button>
+        </div>
+      </div>
+      <div class="modal-row modal-row-inline hidden" id="sparplan-savedby-kontostand-row">
+        <label>Aktuellen Kontostand einbeziehen</label>
+        <label class="toggle">
+          <input type="checkbox" id="sparplan-savedby-include-kontostand"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="modal-actions"><button id="sparplan-savedby-cancel" class="btn-ghost">Schließen</button><button id="sparplan-savedby-calc" class="btn-primary">Berechnen</button></div>
+      <div id="sparplan-savedby-result"></div>
+    </div>
+  </div>
+ 
+  <!-- Finanzbaum Konfigurations-Modal -->
+  <div id="finanzbaum-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head">
+        <span>🌱 Finanzbaum konfigurieren</span>
+        <button class="modal-x" id="finanzbaum-modal-close">&#10005;</button>
+      </div>
+      <p class="modal-hint" style="margin-bottom:16px;">Lege fest, ab welchem Kontostand der Baum in die nächste Wachstumsstufe wechselt.</p>
+      <div class="finanzbaum-config-rows" id="finanzbaum-config-rows"></div>
+      <div class="modal-actions">
+        <button id="finanzbaum-config-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="finanzbaum-config-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget-Archiv (erfüllte Sparziele / beglichene Schulden) -->
+  <div id="budget-archiv-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:480px;max-height:76vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <span>&#128230; Archiv</span>
+        <button class="modal-x" id="budget-archiv-modal-close">&#10005;</button>
+      </div>
+      <p class="modal-hint" style="padding:8px 0 6px;">Erfüllte Sparziele und beglichene Schulden landen hier — jederzeit wiederherstellbar.</p>
+      <div style="overflow-y:auto;flex:1;">
+        <div class="budget-archiv-section">
+          <div class="budget-archiv-section-title">&#127919; Sparziele</div>
+          <div id="budget-archiv-goals-list"></div>
+        </div>
+        <div class="budget-archiv-section">
+          <div class="budget-archiv-section-title">&#128179; Schulden</div>
+          <div id="budget-archiv-debts-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kontostand Modal -->
+  <div id="kontostand-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:360px;">
+      <div class="modal-head"><span>Kontostand aktualisieren</span><button class="modal-x" id="kontostand-modal-close">&#10005;</button></div>
+      <div class="modal-row"><label>Aktueller Kontostand (&#8364;)</label><input type="number" class="modal-input" id="kontostand-input" placeholder="0.00" step="0.01"/></div>
+      <p class="modal-hint">Gib deinen aktuellen Kontostand ein. Er wird als Basis für die Liquiditätsvorschau verwendet.</p>
+      <div class="modal-actions"><button id="kontostand-cancel" class="btn-ghost">Abbrechen</button><button id="kontostand-save" class="btn-primary">Speichern</button></div>
+    </div>
+  </div>
+ 
+  <!-- Projekt erstellen / bearbeiten Modal -->
+  <div id="project-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:440px;">
+      <div class="modal-head">
+        <span id="project-modal-title">Neues Projekt</span>
+        <button class="modal-x" id="project-modal-close">✕</button>
+      </div>
+      <div class="modal-row">
+        <label>Projektname</label>
+        <input type="text" class="modal-input" id="project-modal-name" placeholder="z.B. Boblerverwaltung" autocomplete="off"/>
+      </div>
+      <div class="modal-row">
+        <label>Beschreibung <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(optional)</span></label>
+        <input type="text" class="modal-input" id="project-modal-desc" placeholder="Worum geht es?"/>
+      </div>
+      <div class="modal-row">
+        <label>Priorität</label>
+        <div style="display:flex;gap:6px;">
+          <button class="toggle-select-btn" id="prio-low">Niedrig</button>
+          <button class="toggle-select-btn active" id="prio-mid">Mittel</button>
+          <button class="toggle-select-btn" id="prio-high">Hoch</button>
+        </div>
+      </div>
+      <div class="modal-row">
+        <label>Startdatum <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(optional)</span></label>
+        <input type="date" class="modal-input" id="project-modal-startdate" style="max-width:170px;"/>
+      </div>
+      <div class="modal-row">
+        <label>Fälligkeitsdatum <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(optional)</span></label>
+        <input type="date" class="modal-input" id="project-modal-due" style="max-width:170px;"/>
+      </div>
+      <div class="modal-actions">
+        <button id="project-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="project-modal-save" class="btn-primary">Speichern</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Projekt-Aufgabe hinzufügen Modal -->
+  <div id="project-task-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head">
+        <span id="project-task-modal-title">Aufgabe hinzufügen</span>
+        <button class="modal-x" id="project-task-modal-close">✕</button>
+      </div>
+      <input type="text" class="modal-input" id="project-task-input" placeholder="Aufgabe beschreiben..." autocomplete="off"/>
+      <div class="modal-row" style="margin-top:10px;">
+        <label>Beschreibung <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(optional)</span></label>
+        <textarea class="modal-input" id="project-task-desc-input" placeholder="Details, Links, Notizen..." rows="2" style="resize:vertical;min-height:52px;"></textarea>
+      </div>
+      <div class="modal-row">
+        <label>Typ</label>
+        <div style="display:flex;gap:6px;">
+          <button class="toggle-select-btn active" id="task-type-core">Kernaufgabe</button>
+          <button class="toggle-select-btn" id="task-type-extra">✦ Extra</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="project-task-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="project-task-modal-save" class="btn-primary">Hinzufügen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Projekt Archiv Modal -->
+  <div id="project-archive-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:580px;max-height:70vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <span>Archiv</span>
+        <button class="modal-x" id="project-archive-close">✕</button>
+      </div>
+      <p class="modal-hint" style="padding:12px 0 8px;">Archivierte Projekte bleiben vollständig erhalten und können jederzeit wiederhergestellt werden.</p>
+      <div id="project-archive-list" style="overflow-y:auto;flex:1;"></div>
+    </div>
+  </div>
+ 
+  <!-- Unterprojekt hinzufügen Modal -->
+  <div id="proj-sub-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head">
+        <span id="proj-sub-modal-title">Unterprojekt hinzufügen</span>
+        <button class="modal-x" id="proj-sub-modal-close">✕</button>
+      </div>
+      <input type="text" class="modal-input" id="proj-sub-input" placeholder="z.B. UI Redesign, Backend, Testing..." autocomplete="off"/>
+      <div class="modal-actions">
+        <button id="proj-sub-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="proj-sub-modal-save" class="btn-primary">Erstellen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Bestätigungs-Modal (Archivieren / Löschen) -->
+  <div id="proj-confirm-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head">
+        <span id="proj-confirm-title">Bestätigen</span>
+        <button class="modal-x" id="proj-confirm-x">✕</button>
+      </div>
+      <p class="modal-hint" id="proj-confirm-message" style="margin:4px 0 20px;"></p>
+      <div class="modal-actions">
+        <button id="proj-confirm-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="proj-confirm-ok" class="btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Aufgabe verschieben Modal -->
+  <div id="proj-move-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:380px;">
+      <div class="modal-head">
+        <span>Aufgabe verschieben</span>
+        <button class="modal-x" id="proj-move-modal-close">✕</button>
+      </div>
+      <span class="modal-hint" id="proj-move-task-name" style="display:block;margin-bottom:12px;"></span>
+      <div class="modal-row">
+        <label>Verschieben nach</label>
+        <select class="modal-input" id="proj-move-target" style="cursor:pointer;"></select>
+      </div>
+      <div class="modal-actions">
+        <button id="proj-move-modal-cancel" class="btn-ghost">Abbrechen</button>
+        <button id="proj-move-modal-save" class="btn-primary">Verschieben</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Projekt Detailansicht (Fullscreen Overlay) -->
+  <!-- Aufgaben Detail Modal -->
+  <div id="task-detail-overlay" class="modal-backdrop hidden" style="z-index:300;">
+    <div class="modal-box" style="width:480px;max-height:80vh;overflow-y:auto;">
+      <div class="modal-head">
+        <div>
+          <div style="font-size:10px;color:var(--text-3);margin-bottom:2px;" id="task-detail-sp"></div>
+          <span style="display:flex;align-items:center;gap:6px;">
+            <span id="task-detail-title" style="font-size:15px;font-weight:500;"></span>
+            <button type="button" class="detail-task-icon-btn" id="task-detail-rename" title="Umbenennen">✎</button>
+          </span>
+        </div>
+        <button class="modal-x" id="task-detail-close">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <input type="checkbox" id="task-detail-done-cb" class="project-task-cb" style="width:17px;height:17px;"/>
+        <label for="task-detail-done-cb" style="font-size:13px;color:var(--text-2);cursor:pointer;">Erledigt</label>
+        <span class="detail-tile-extra-badge" id="task-detail-type" style="margin-left:auto;"></span>
+      </div>
+      <div class="modal-row">
+        <label>Beschreibung</label>
+        <textarea class="modal-input" id="task-detail-desc" placeholder="Beschreibung, Links, Notizen..." rows="3" style="resize:vertical;"></textarea>
+      </div>
+      <div class="modal-row">
+        <label>Checkliste</label>
+        <div id="task-detail-checklist" style="margin-bottom:8px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" class="modal-input" id="task-detail-cl-input" placeholder="Neuer Punkt..." autocomplete="off" style="flex:1;"/>
+          <button class="btn-ghost" id="task-detail-add-cl" style="flex-shrink:0;">+ Hinzufügen</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="task-detail-delete" class="btn-ghost" style="color:var(--prio-1);border-color:var(--prio-1);">✕ Aufgabe löschen</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Positivity: Karten-Detail Modal -->
+  <div id="positivity-card-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:380px;">
+      <div class="modal-head">
+        <span id="positivity-card-modal-cat">Kategorie</span>
+        <button class="modal-x" id="positivity-card-modal-close">✕</button>
+      </div>
+      <p class="positivity-modal-text" id="positivity-card-modal-text"></p>
+      <div class="modal-actions" style="justify-content:flex-start;gap:8px;">
+        <button class="positivity-action-btn" id="positivity-card-modal-fav"></button>
+        <button class="positivity-action-btn" id="positivity-card-modal-pin"></button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Positivity: Kategorie bearbeiten Modal -->
+  <div id="positivity-cat-edit-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:360px;">
+      <div class="modal-head">
+        <span>Kategorie bearbeiten</span>
+        <button class="modal-x" id="positivity-cat-edit-close">✕</button>
+      </div>
+      <div class="modal-row">
+        <label>Name</label>
+        <input type="text" class="modal-input" id="positivity-cat-edit-name" autocomplete="off"/>
+      </div>
+      <div class="modal-row">
+        <label>Farbe</label>
+        <input type="color" class="color-swatch" id="positivity-cat-edit-color"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="positivity-cat-edit-cancel">Abbrechen</button>
+        <button class="btn-primary" id="positivity-cat-edit-save">Speichern</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Positivity: Karten verwalten Modal -->
+  <div id="positivity-cards-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:440px;max-height:80vh;display:flex;flex-direction:column;">
+      <div class="modal-head">
+        <span id="positivity-cards-modal-title">Kategorie</span>
+        <button class="modal-x" id="positivity-cards-modal-close">✕</button>
+      </div>
+      <div id="positivity-new-card-row" class="positivity-new-card-row">
+        <textarea class="modal-input" id="positivity-new-card-input" maxlength="150" rows="2" placeholder="Neue Karte…" style="resize:vertical;"></textarea>
+        <div class="positivity-new-card-footer">
+          <span class="positivity-char-count" id="positivity-char-count">0 / 150</span>
+          <button class="btn-primary" id="positivity-new-card-add">+ Hinzufügen</button>
+        </div>
+      </div>
+      <div id="positivity-cards-list" style="overflow-y:auto;"></div>
+    </div>
+  </div>
+ 
+  <!-- Positivity: Kategorie-Menü (Burger) -->
+  <div id="positivity-cat-menu" class="positivity-cat-menu hidden">
+    <button class="positivity-cat-menu-item" data-action="edit">Bearbeiten</button>
+    <button class="positivity-cat-menu-item" data-action="new">Neue Karte erstellen</button>
+    <button class="positivity-cat-menu-item" data-action="export">Karten exportieren</button>
+    <button class="positivity-cat-menu-item" data-action="import">Karten importieren</button>
+  </div>
+  <input type="file" id="positivity-import-input" accept=".json" style="display:none;"/>
+
+  <!-- Games: Play-Modal -->
+  <div id="games-play-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box games-play-modal-box">
+      <div class="modal-head">
+        <span class="games-play-modal-title">
+          <span id="games-play-modal-icon" class="games-play-modal-icon">🎮</span>
+          <span id="games-play-modal-name">Spiel</span>
+        </span>
+        <button class="modal-x" id="games-play-modal-close">✕</button>
+      </div>
+      <div class="games-play-modal-body" id="games-play-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Sync-Login-Modal (js/sync.js) — Geräte-übergreifender Datenabgleich
+       per Supabase Magic Link. "Später"/X lässt Nook wie bisher rein
+       lokal weiterlaufen, ohne zu blockieren. -->
+  <div id="sync-login-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head">
+        <span>☁️ Geräte-Sync</span>
+        <button class="modal-x" id="sync-login-close">✕</button>
+      </div>
+      <div id="sync-login-step-email">
+        <p class="modal-hint">Melde dich an, damit deine Daten automatisch zwischen all deinen Geräten synchronisiert werden. Kein Passwort nötig — du bekommst einen Anmelde-Link per E-Mail.</p>
+        <div class="modal-row"><label>E-Mail</label><input type="email" class="modal-input" id="sync-login-email" placeholder="du@beispiel.de" autocomplete="email"/></div>
+        <p class="modal-hint" id="sync-login-error" style="color:var(--prio-1);display:none;"></p>
+        <div class="modal-actions">
+          <button class="btn-ghost" id="sync-login-skip">Später</button>
+          <button class="btn-primary" id="sync-login-send">Link senden</button>
+        </div>
+      </div>
+      <div id="sync-login-step-sent" class="hidden">
+        <p class="modal-hint">Wir haben dir einen Anmelde-Link an <strong id="sync-login-sent-email"></strong> geschickt. Öffne ihn auf diesem Gerät, um dich anzumelden.</p>
+        <div class="modal-actions">
+          <button class="btn-ghost" id="sync-login-sent-close">Schließen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync-Update-Hinweis (js/sync.js) — erscheint, wenn ein anderes Gerät
+       Daten geändert hat, während diese Seite offen war. Bewusst kein
+       Auto-Reload während aktiver Nutzung (siehe Kommentar in sync.js). -->
+  <div id="sync-update-banner" class="floating-update-banner hidden">
+    <span>Auf einem anderen Gerät aktualisiert</span>
+    <button id="sync-update-reload-btn">Neu laden</button>
+  </div>
+
+  <!-- App-Update-Hinweis (js/pwa.js) — erscheint, wenn der Service Worker
+       im Hintergrund eine neue Version von Nook geladen und aktiviert hat
+       (CSS/JS wurden neu deployed). Ohne diesen Hinweis liefert der
+       Service Worker CSS/JS weiterhin cache-first aus dem laufenden Tab
+       aus, ein Deploy kommt also unbemerkt erst beim nächsten Neuladen an
+       — siehe Kommentar in sw.js. Bewusst kein Auto-Reload, gleiche
+       Begründung wie beim Sync-Banner oben. -->
+  <div id="sw-update-banner" class="floating-update-banner hidden">
+    <span>Neue Version verfügbar</span>
+    <button id="sw-update-reload-btn">Neu laden</button>
+  </div>
+
+  <!-- Hub-weites Bestätigungs-Modal (hub-utils.js: hubConfirm()) — ersetzt
+       native confirm()-Dialoge durch ein Nook-gestyltes Modal. Tab-
+       unabhängig nutzbar, aktuell vom Games-Reset (games.js/settings.js)
+       verwendet. -->
+  <div id="hub-confirm-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:400px;">
+      <div class="modal-head">
+        <span id="hub-confirm-title">Bist du sicher?</span>
+        <button class="modal-x" id="hub-confirm-close">✕</button>
+      </div>
+      <p id="hub-confirm-message" class="modal-hint"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="hub-confirm-cancel">Abbrechen</button>
+        <button class="btn-primary" id="hub-confirm-ok">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Games: Statistik-Modal -->
+  <div id="games-stats-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:480px;">
+      <div class="modal-head">
+        <span class="games-play-modal-title">
+          <span id="games-stats-modal-icon" class="games-play-modal-icon">📊</span>
+          <span id="games-stats-modal-name">Statistik</span>
+        </span>
+        <button class="modal-x" id="games-stats-modal-close">✕</button>
+      </div>
+      <div id="games-stats-modal-body" class="games-stats-modal-body"></div>
+      <button class="btn-ghost hidden" id="games-stats-modal-reset" style="width:100%;font-size:13px;color:var(--prio-1);border-color:var(--prio-1);">Statistiken zurücksetzen</button>
+    </div>
+  </div>
+
+  <!-- Today Mobile: Aufgaben-Modal — eigene kompakte Mobile-Ansicht (nicht
+       die Desktop-Karte #panel-tasks), gerendert von today.js:
+       renderTasksMobileModal()/buildMobileTaskItem(). -->
+  <div id="tasks-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box tasks-modal-box">
+      <div class="tasks-mobile-header">
+        <span class="tasks-mobile-title">Aufgaben diese Woche</span>
+        <div class="tasks-mobile-header-actions">
+          <button type="button" class="tasks-mobile-add-btn" id="mobile-add-task-btn" aria-label="Aufgabe hinzufügen">+</button>
+          <button type="button" class="modal-x" id="tasks-modal-close-btn" aria-label="Schließen">✕</button>
+        </div>
+      </div>
+      <ul id="tasks-mobile-list" class="tasks-mobile-list"></ul>
+      <div id="tasks-mobile-empty" class="empty-state hidden">Noch keine Aufgaben diese Woche.</div>
+    </div>
+  </div>
+
+  <!-- Gruppendienste: Übersicht aller Pflichten -->
+  <div id="gd-overview-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:480px;">
+      <div class="modal-head"><span>Pflichten verwalten</span><button class="modal-x" id="gd-overview-close">&#10005;</button></div>
+      <div id="gd-overview-list" class="gd-overview-list"></div>
+      <div class="modal-actions" style="justify-content:flex-start;">
+        <button type="button" class="btn-primary" id="gd-overview-add">+ Neue Pflicht</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gruppendienste: Pflicht-Editor -->
+  <div id="gd-duty-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:520px;max-height:88vh;overflow-y:auto;">
+      <div class="modal-head"><span id="gd-duty-modal-title">Neue Pflicht</span><button class="modal-x" id="gd-duty-modal-close">&#10005;</button></div>
+
+      <div class="gd-section-tabs" id="gd-section-tabs">
+        <button type="button" class="gd-section-tab active" data-section="general">Allgemein</button>
+        <button type="button" class="gd-section-tab" data-section="participants">Teilnehmer</button>
+        <button type="button" class="gd-section-tab" data-section="seats">Besetzung</button>
+        <button type="button" class="gd-section-tab" data-section="rotation">Rotation</button>
+        <button type="button" class="gd-section-tab" data-section="links">Verknüpft</button>
+      </div>
+
+      <!-- ALLGEMEIN -->
+      <div class="gd-duty-section" id="gd-duty-section-general">
+        <div class="modal-row"><label>Name</label><input type="text" class="modal-input" id="gd-duty-name" placeholder="z.B. Müll"/></div>
+        <div class="modal-row">
+          <label>Icon</label>
+          <div class="recurring-icon-picker" id="gd-duty-icon-picker">
+            <button type="button" class="recurring-icon-btn" data-icon="🗑️" title="Müll">🗑️</button>
+            <button type="button" class="recurring-icon-btn" data-icon="💧" title="Wasser">💧</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🧹" title="Aufräumen">🧹</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🧺" title="Wäsche">🧺</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🍽️" title="Küche/Abwasch">🍽️</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🧴" title="Bad">🧴</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🌱" title="Pflanzen">🌱</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🐾" title="Haustier">🐾</button>
+            <button type="button" class="recurring-icon-btn" data-icon="📦" title="Einkauf">📦</button>
+            <button type="button" class="recurring-icon-btn" data-icon="♻️" title="Recycling">♻️</button>
+            <button type="button" class="recurring-icon-btn" data-icon="🔧" title="Reparatur">🔧</button>
+            <button type="button" class="recurring-icon-btn" data-icon="✨" title="Sonstiges">✨</button>
+          </div>
+        </div>
+        <div class="modal-row modal-row-inline">
+          <label>Startdatum</label><input type="date" class="modal-input" id="gd-duty-start" style="max-width:170px;"/>
+        </div>
+        <div class="modal-row modal-row-inline">
+          <label>Enddatum</label><input type="date" class="modal-input" id="gd-duty-end" style="max-width:170px;"/>
+        </div>
+      </div>
+
+      <!-- TEILNEHMER -->
+      <div class="gd-duty-section hidden" id="gd-duty-section-participants">
+        <div class="modal-row">
+          <label>Personen</label>
+          <div class="gd-chip-picker" id="gd-duty-people-picker"></div>
+          <div class="gd-inline-add">
+            <input type="text" class="modal-input" id="gd-new-person-name" placeholder="Neue Person…"/>
+            <button type="button" class="btn-ghost" id="gd-new-person-add">+ Hinzufügen</button>
+          </div>
+        </div>
+        <div class="modal-row">
+          <label>Gruppen</label>
+          <div class="gd-chip-picker" id="gd-duty-groups-picker"></div>
+          <div class="gd-inline-add">
+            <button type="button" class="btn-ghost" id="gd-new-group-toggle">+ Neue Gruppe</button>
+          </div>
+          <div class="gd-new-group-form hidden" id="gd-new-group-form">
+            <input type="text" class="modal-input" id="gd-new-group-name" placeholder="Gruppenname…"/>
+            <div class="gd-chip-picker" id="gd-new-group-members"></div>
+            <button type="button" class="btn-primary" id="gd-new-group-add">Gruppe erstellen</button>
+          </div>
+        </div>
+        <div class="modal-row">
+          <label>Übersicht teilnehmender Personen/Gruppen</label>
+          <div class="gd-participants-overview" id="gd-participants-overview"></div>
+        </div>
+      </div>
+
+      <!-- BESETZUNG -->
+      <div class="gd-duty-section hidden" id="gd-duty-section-seats">
+        <div class="modal-row modal-row-inline"><label>Reguläre Teilnehmer / Woche</label><input type="number" class="modal-input" id="gd-duty-seats-regular" min="0" style="max-width:90px;"/></div>
+        <div class="modal-row modal-row-inline"><label>Ersatz / Woche</label><input type="number" class="modal-input" id="gd-duty-seats-ersatz" min="0" style="max-width:90px;"/></div>
+        <span class="modal-hint" id="gd-duty-seats-hint">Wird nur bei automatischer Rotation verwendet.</span>
+      </div>
+
+      <!-- ROTATION -->
+      <div class="gd-duty-section hidden" id="gd-duty-section-rotation">
+        <div class="modal-row">
+          <label>Rotationsart</label>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="toggle-select-btn active" id="gd-rotation-auto">Automatisch berechnen</button>
+            <button type="button" class="toggle-select-btn" id="gd-rotation-fixed">Feste Reihenfolge</button>
+          </div>
+        </div>
+        <div class="modal-row hidden" id="gd-duty-fixed-order-row">
+          <label>Reihenfolge (wiederholt sich zyklisch)</label>
+          <div class="gd-order-list" id="gd-duty-fixed-order-list"></div>
+        </div>
+      </div>
+
+      <!-- VERKNÜPFTE PFLICHTEN -->
+      <div class="gd-duty-section hidden" id="gd-duty-section-links">
+        <div class="modal-row">
+          <button type="button" class="btn-ghost" id="gd-links-toggle">🔗 Pflichten verknüpfen</button>
+          <div class="gd-links-list hidden" id="gd-links-list"></div>
+        </div>
+        <div class="modal-row">
+          <label>Aktuell verknüpft mit</label>
+          <div class="gd-links-summary" id="gd-links-summary">—</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost hidden" id="gd-duty-delete" style="margin-right:auto;">Löschen</button>
+        <button type="button" class="btn-ghost" id="gd-duty-cancel">Abbrechen</button>
+        <button type="button" class="btn-primary" id="gd-duty-save">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/hub-utils.js"></script>
+  <!-- Supabase-SDK per CDN (UMD-Build, kein npm/Build-Step für die Kern-App
+       nötig) — stellt window.supabase bereit, das js/sync.js direkt danach
+       nutzt. Explizit der UMD-Pfad, nicht das bloße Paket (das würde den
+       ESM-Build ausliefern, der keinen window.supabase-Global erzeugt). -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Persönliche, nicht versionierte Zugangsdaten (js/sync-config.js,
+       siehe .gitignore + sync-config.example.js) — fehlt sie (z.B. bei
+       einem frischen Fork ohne eigenes Supabase-Projekt), läuft Nook
+       bewusst fehlerfrei rein lokal weiter (siehe sync.js). -->
+  <script src="js/sync-config.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/today.js"></script>
+  <script src="js/gruppendienste.js"></script>
+  <script src="js/pinboard.js"></script>
+  <script src="js/flashcards.js"></script>
+  <script src="js/guides.js"></script>
+  <script src="js/budget.js"></script>
+  <script src="js/budget-sparziele.js"></script>
+  <script src="js/budget-financing.js"></script>
+  <script src="js/budget-analysis.js"></script>
+  <script src="js/budget-debts.js"></script>
+  <script src="js/budget-sparprognose.js"></script>
+  <script src="js/budget-sparplaene.js"></script>
+  <script src="js/projects.js"></script>
+  <script src="js/project-tree.js"></script>
+  <script src="js/forest.js"></script>
+  <!-- Spiele: games.js ist der Hub, games-list.js die einzige Stelle,
+       die beim Hinzufügen/Entfernen eines Spiels angepasst werden muss -->
+  <script src="js/games.js"></script>
+  <script src="games/games-list.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/positivity.js"></script>
+  <script src="js/national_day.js"></script>
+  <script src="js/tools.js"></script>
+  <script src="js/tools-calculator.js"></script>
+  <script src="js/tools-timer.js"></script>
+  <script src="js/tools-converter.js"></script>
+  <script src="js/tools-datarate.js"></script>
+  <script src="js/tools-notenmanager.js"></script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

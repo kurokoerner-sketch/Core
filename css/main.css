@@ -1,0 +1,1159 @@
+/* =============================================================
+   MAIN.CSS — Personal Hub · Global Foundation
+   Cozy Muted Palette — v3 corrected, depth restored
+============================================================= */
+
+/* =============================================================
+   DESIGN TOKENS
+============================================================= */
+:root {
+  /* ── Fonts ────────────────────────────────────────────── */
+  --font: 'DM Sans', system-ui, sans-serif;
+  --mono: 'DM Mono', 'Courier New', monospace;
+
+  /* ── Page background — warm paper ────────────────────── */
+  --bg:        #EFEBe3;
+  --bg-2:      #E5E0D5;
+
+  /* ── Surface hierarchy — layered elevation ────────────── */
+  --surface:   #FDFAF5;   /* top-level cards */
+  --surface-2: #F4F0E8;   /* secondary panels */
+  --surface-3: #EAE5DA;   /* subtle insets */
+
+  /* ── Dashboard container (today main area) ────────────── */
+  --dash-bg:     #F7F3EB;
+  --dash-border: rgba(140,118,78,0.15);
+  --dash-shadow: 0 2px 16px rgba(80,60,30,0.08), 0 1px 4px rgba(80,60,30,0.05);
+
+  /* ── Borders ──────────────────────────────────────────── */
+  --border:        rgba(120,100,65,0.16);
+  --border-strong: rgba(120,100,65,0.28);
+
+  /* ── Text hierarchy ───────────────────────────────────── */
+  --text:   #24211C;   /* warm charcoal — readable, not pure black */
+  --text-2: #56503F;   /* warm medium */
+  --text-3: #90876E;   /* warm muted — slightly richer */
+
+  /* ── Accent surfaces ──────────────────────────────────── */
+  --accent-soft: #E5DFD0;
+
+  /* ── Sage — primary accent, richer ───────────────────── */
+  --sage:        #6B7F58;
+  --sage-dark:   #50623E;
+  --sage-light:  #96A47E;
+  --sage-bg:     rgba(107,127,88,0.13);
+  --sage-border: rgba(107,127,88,0.32);
+  --sage-fg:     #F8F5EE;   /* Text auf --sage-Hintergrund, in beiden Themes identisch */
+
+  /* ── Event color (calendar/blocks) ───────────────────── */
+  --event-color:    #6B7F58;
+  --event-color-bg: rgba(107,127,88,0.13);
+
+  /* ── Priority — earthy, readable ─────────────────────── */
+  --prio-1:    #9A4F35;   /* muted terracotta — richer */
+  --prio-1-bg: rgba(154,79,53,0.11);
+  --prio-2:    #6B7F58;   /* sage */
+  --prio-2-bg: rgba(107,127,88,0.11);
+  --prio-3:    #8A7A68;   /* warm stone */
+  --prio-3-bg: rgba(138,122,104,0.11);
+
+  /* ── Budget ───────────────────────────────────────────── */
+  --budget-income:  #4A6E50;
+  --budget-expense: #9A4F35;
+
+  /* ── Radius ───────────────────────────────────────────── */
+  --radius:    12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  /* ── Shadows — warm, layered ──────────────────────────── */
+  --shadow-xs: 0 1px 3px rgba(50,40,20,0.07);
+  --shadow-sm: 0 2px 8px rgba(50,40,20,0.09), 0 1px 2px rgba(50,40,20,0.05);
+  --shadow-md: 0 4px 16px rgba(50,40,20,0.10), 0 2px 4px rgba(50,40,20,0.06);
+  --shadow-lg: 0 8px 28px rgba(50,40,20,0.12), 0 2px 6px rgba(50,40,20,0.06);
+
+  /* ── Layout ───────────────────────────────────────────── */
+  --sidebar-w: 228px;
+
+  /* ── Transitions ──────────────────────────────────────── */
+  --transition:      150ms ease;
+  --transition-slow: 280ms ease;
+
+  /* ── Spacing — für neue/zu vereinheitlichende Abstände ─── */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 14px;
+  --spacing-lg: 20px;
+  --spacing-xl: 28px;
+
+  /* ── Amber — Favoriten/Feiertags-Akzent (guides.css + calendar.css) ── */
+  --amber: #c0834a;
+}
+
+/* ── Dark Mode ─────────────────────────────────────────────── */
+[data-theme-family="dark"] {
+  --bg:        #1A1815;
+  --bg-2:      #201E1A;
+  --surface:   #252119;
+  --surface-2: #2C2820;
+  --surface-3: #322E24;
+  --dash-bg:     #242019;
+  --dash-border: rgba(240,220,180,0.07);
+  --dash-shadow: 0 2px 16px rgba(0,0,0,0.30), 0 1px 4px rgba(0,0,0,0.20);
+  --border:        rgba(240,220,170,0.09);
+  --border-strong: rgba(240,220,170,0.16);
+  --text:   #EDE6D8;
+  --text-2: #9E9280;
+  --text-3: #6A6050;
+  --accent-soft: #2A2620;
+  --sage:        #728460;
+  --sage-dark:   #5A6A4A;
+  --sage-light:  #9A9E80;
+  --sage-bg:     rgba(114,132,96,0.14);
+  --sage-border: rgba(114,132,96,0.25);
+  --event-color:    #728460;
+  --event-color-bg: rgba(114,132,96,0.14);
+  --prio-1:    #8C5540;
+  --prio-1-bg: rgba(140,85,64,0.14);
+  --prio-2:    #728460;
+  --prio-2-bg: rgba(114,132,96,0.14);
+  --prio-3:    #807860;
+  --prio-3-bg: rgba(128,120,96,0.12);
+  --budget-income:  #6B8F6F;
+  --budget-expense: var(--prio-1);
+
+  /* ── Code-Panel (nur dark, bewusst schwärzer als --surface-2) ─ */
+  --code-bg:            #1e1b17;
+  --code-border:        rgba(255,235,200,0.08);
+  --code-header-bg:     rgba(255,235,200,0.04);
+  --code-header-border: rgba(255,235,200,0.06);
+}
+
+/* =============================================================
+   THEME-VARIANTEN (Phase 3 — Feinschliff)
+   Bauen auf [data-theme-family="dark"] auf und überschreiben nur die
+   Oberflächen-/Rand-/Text-Töne. Sage-Akzent, Prio-, Budget- und
+   Code-Panel-Farben bleiben bewusst themeübergreifend gleich — das
+   ist die Markenidentität und wird nicht pro Theme neu erfunden.
+============================================================= */
+
+/* ── Classic Dark — neutralisiert (war zu braun) ─────────────── */
+[data-theme="dark"] {
+  --bg:          #181817;
+  --bg-2:        #1e1d1c;
+  --surface:     #20201e;
+  --surface-2:   #272625;
+  --surface-3:   #2d2c2a;
+  --dash-bg:     #201f1d;
+  --dash-border: rgba(203,200,194,0.07);
+  --border:        rgba(203,200,194,0.09);
+  --border-strong: rgba(203,200,194,0.16);
+  --text:   #e6e3df;
+  --text-2: #94918b;
+  --text-3: #615e59;
+  --accent-soft: #262524;
+}
+
+/* ── Midnight — leicht bläulich ──────────────────────────────── */
+[data-theme="midnight"] {
+  --bg:          #121419;
+  --bg-2:        #16191f;
+  --surface:     #141925;
+  --surface-2:   #1a202c;
+  --surface-3:   #1e2432;
+  --dash-bg:     #141924;
+  --dash-border: rgba(176,190,221,0.07);
+  --border:        rgba(176,190,221,0.10);
+  --border-strong: rgba(176,190,221,0.18);
+  --text:   #dde0e8;
+  --text-2: #878c97;
+  --text-3: #565a64;
+  --accent-soft: #1b1f29;
+}
+
+/* ── Forest — dunkles Grün ────────────────────────────────────── */
+[data-theme="forest"] {
+  --bg:          #131915;
+  --bg-2:        #181f1b;
+  --surface:     #16251b;
+  --surface-2:   #1c2c22;
+  --surface-3:   #203227;
+  --dash-bg:     #16241b;
+  --dash-border: rgba(181,217,194,0.07);
+  --border:        rgba(181,217,194,0.10);
+  --border-strong: rgba(181,217,194,0.18);
+  --text:   #dee7e1;
+  --text-2: #89958d;
+  --text-3: #58635c;
+  --accent-soft: #1d2a21;
+}
+
+/* ── Espresso — warmes Braun (entspricht ungefähr dem alten Dark) ─ */
+[data-theme="espresso"] {
+  --bg:          #1a1815;
+  --bg-2:        #201d1a;
+  --surface:     #252019;
+  --surface-2:   #2c2620;
+  --surface-3:   #322c24;
+  --dash-bg:     #241f19;
+  --dash-border: rgba(230,201,168,0.07);
+  --border:        rgba(230,201,168,0.11);
+  --border-strong: rgba(230,201,168,0.18);
+  --text:   #ede3d8;
+  --text-2: #9e9080;
+  --text-3: #6a5e50;
+  --accent-soft: #2a2520;
+}
+
+/* ── OLED — nahezu schwarz ─────────────────────────────────────── */
+[data-theme="oled"] {
+  --bg:          #070707;
+  --bg-2:        #080808;
+  --surface:     #090909;
+  --surface-2:   #0b0b0b;
+  --surface-3:   #0c0c0c;
+  --dash-bg:     #090908;
+  --dash-border: rgba(199,199,199,0.06);
+  --border:        rgba(199,199,199,0.08);
+  --border-strong: rgba(199,199,199,0.15);
+  --text:   #e3e3e2;
+  --text-2: #908f8e;
+  --text-3: #5e5d5c;
+  --accent-soft: #0a0a0a;
+}
+
+/* =============================================================
+   RESET
+============================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button { font: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font: inherit; }
+ul { list-style: none; }
+
+/* =============================================================
+   APP LAYOUT
+============================================================= */
+#app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+
+/* =============================================================
+   SIDEBAR
+============================================================= */
+#sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(50,40,20,0.04);
+}
+
+#sidebar-header {
+  padding: 22px 18px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--text-3);
+  transition: background var(--transition), color var(--transition);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+#theme-toggle-btn:hover { background: var(--accent-soft); color: var(--text); }
+
+/* ── Sidebar countdowns section ──────────────────────────── */
+#sidebar-countdowns {
+  padding: 10px 18px 14px;
+  border-top: 1px solid var(--border);
+}
+#sidebar-countdowns-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+#sidebar-countdowns #countdown-display {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.countdown-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.countdown-entry-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.countdown-entry-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.countdown-entry-info { min-width: 0; }
+.countdown-label {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.countdown-sub {
+  font-size: 10px;
+  color: var(--text-3);
+  display: block;
+}
+.countdown-days {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+#sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+#brand-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: block;
+}
+
+#brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+#brand-name {
+  font-family: var(--font);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  color: var(--text);
+}
+
+#brand-subtitle {
+  font-size: 9.5px;
+  font-weight: 400;
+  color: var(--text-3);
+  white-space: normal;
+  line-height: 1.3;
+}
+
+#exam-pill { display: none; }
+
+#nav-list {
+  padding: 6px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 400;
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-btn svg { flex-shrink: 0; opacity: 0.5; transition: opacity var(--transition); }
+.nav-btn:hover {
+  background: var(--sage-bg);
+  color: var(--text);
+}
+.nav-btn:hover svg { opacity: 0.75; }
+.nav-btn.active {
+  background: var(--sage);
+  color: var(--sage-fg);
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(50,40,20,0.12);
+}
+.nav-btn.active svg { opacity: 1; color: var(--sage-fg); }
+
+#sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+}
+
+#week-nav { display: flex; align-items: center; gap: 8px; }
+#week-label {
+  flex: 1;
+  text-align: center;
+  font-size: 11.5px;
+  font-family: var(--mono);
+  color: var(--text-3);
+}
+.week-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  color: var(--text-2);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+.week-btn:hover { background: var(--accent-soft); color: var(--text); }
+
+/* =============================================================
+   MAIN + VIEWS
+============================================================= */
+#main { overflow-y: auto; min-height: 100vh; scrollbar-gutter: stable; }
+
+.view {
+  display: none;
+  padding: 28px 32px 16px;
+  animation: fadeIn 200ms ease;
+}
+.view.active { display: block; }
+
+/* =============================================================
+   RESPONSIVE — Grundgerüst
+   Zwei Stufen unterhalb des unveränderten Desktop-Layouts:
+     - Tablet / Fold aufgeklappt (≤1024px): Sidebar bleibt sichtbar
+       (bei ~670–900px Gesamtbreite genug Platz), nur weniger Padding.
+       Tab-interne Grids reduzieren sich in den jeweiligen
+       css/<tab>.css-Dateien selbst auf 2 statt 3 Spalten.
+     - Phone / Fold gefaltet (≤480px): Sidebar wird komplett ausgeblendet.
+       Ihr Inhalt lebt stattdessen in #view-mehr (eigene Vollbild-View,
+       siehe index.html + js/main.js: placeSidebarWidgets()) — Nav-Punkte
+       dort sind eigene Markup-Kopien (wie bei der Bottom-Nav), Positivity/
+       Countdowns werden per JS zwischen #sidebar und #view-mehr
+       umgehängt statt dupliziert. Grund für den früheren Off-Canvas-
+       Drawer-Ansatz (verworfen): Nav-Liste + Positivity + Countdowns +
+       Footer zusammen sprengten auf kleinen Screens (z.B. iPhone SE)
+       die 100vh-Drawer-Höhe, overflow:hidden schnitt den Countdown-
+       Bereich dabei komplett unsichtbar ab.
+   z-index bleibt bewusst unter 100 (.modal-backdrop), damit ein Modal
+   immer über der Bottom-Nav liegt, falls mehreres gleichzeitig offen
+   wäre.
+============================================================= */
+
+/* Bottom-Nav: nur auf Phone-Breite sichtbar (siehe @media unten), aber
+   Grundgerüst hier oben, damit sie nicht erst per !important auftaucht. */
+#mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 90;
+  background: var(--surface);
+  border-top: 1px solid var(--border-strong);
+  box-shadow: 0 -2px 10px rgba(50,40,20,0.06);
+  /* env() für's Home-Indicator-Gebiet auf iPhones ohne Home-Button —
+     0px Fallback auf allen anderen Geräten. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 1024px) {
+  .view { padding: 20px 20px 16px; }
+}
+
+@media (max-width: 480px) {
+  #app { grid-template-columns: 1fr; }
+
+  #sidebar { display: none; }
+
+  /* Unten Platz für die Bottom-Nav (56px Inhalt + Safe-Area) statt wie
+     vorher oben Platz für den (jetzt entfernten) Menü-Button. */
+  .view { padding: 20px 16px calc(56px + env(safe-area-inset-bottom, 0px) + 16px); }
+
+  #mobile-bottom-nav { display: flex; }
+  #mobile-bottom-nav .nav-btn,
+  #mobile-bottom-nav #bottom-nav-more-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 56px;
+    padding: 0;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-2);
+    text-align: center;
+  }
+  #mobile-bottom-nav .nav-btn svg,
+  #mobile-bottom-nav #bottom-nav-more-btn svg { opacity: 0.55; }
+  #mobile-bottom-nav .nav-btn:hover,
+  #mobile-bottom-nav #bottom-nav-more-btn:hover { background: none; }
+  #mobile-bottom-nav .nav-btn.active,
+  #mobile-bottom-nav #bottom-nav-more-btn.active {
+    background: none;
+    box-shadow: none;
+    color: var(--sage-dark);
+    font-weight: 600;
+  }
+  #mobile-bottom-nav .nav-btn.active svg,
+  #mobile-bottom-nav #bottom-nav-more-btn.active svg { opacity: 1; color: var(--sage-dark); }
+
+  /* Update-Pillen (sync.js/pwa.js) über statt hinter der Bottom-Nav. */
+  .floating-update-banner { right: 12px; bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 12px); }
+  #sw-update-banner { bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 76px); }
+}
+
+/* =============================================================
+   MEHR — mobile-only Vollbild-Seite (siehe index.html #view-mehr).
+   #mehr-positivity-slot/#mehr-countdown-slot bekommen
+   #sidebar-positivity/#sidebar-countdowns per JS umgehängt (siehe
+   js/main.js: placeSidebarWidgets()) — dieselben DOM-Knoten wie in
+   der Desktop-Sidebar, keine Duplikate, damit positivity.js/today.js
+   weiterhin nur einen Render-Ziel-Container pro Widget kennen müssen.
+============================================================= */
+#view-mehr .view-header { justify-content: flex-start; gap: 10px; }
+
+.mehr-section { margin-bottom: 18px; }
+.mehr-section-label { display: block; margin-bottom: 8px; padding-left: 2px; }
+
+.mehr-group.panel { display: flex; flex-direction: column; }
+.mehr-group .nav-btn { border-radius: 0; padding: 13px 16px; font-size: 14px; }
+.mehr-group .nav-btn + .nav-btn { border-top: 1px solid var(--border); }
+.mehr-group .nav-btn::after { content: '›'; margin-left: auto; opacity: .5; font-size: 17px; }
+
+#mehr-positivity-slot, #mehr-countdown-slot { padding: 14px 16px; }
+#mehr-positivity-slot #sidebar-positivity { padding: 0; }
+#mehr-countdown-slot #sidebar-countdowns { padding: 0; border-top: none; }
+
+.countdown-view-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+  color: var(--text-3);
+  font-weight: 500;
+}
+.countdown-view-all-btn:hover { color: var(--text); }
+
+/* ── Dashboard container — unified across all views ──────── */
+/* Applied to the inner content wrapper in each view.        */
+/* Identical to today's #today-main visual appearance.       */
+.dash-content {
+  background: var(--dash-bg);
+  border: 1px solid var(--dash-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--dash-shadow);
+  padding: 24px 22px 28px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.view-title {
+  font-family: var(--font);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+/* =============================================================
+   GLOBAL BUTTONS
+============================================================= */
+.btn-primary {
+  background: var(--sage);
+  color: var(--sage-fg);
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--transition), box-shadow var(--transition);
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 3px rgba(50,40,20,0.15);
+}
+.btn-primary:hover {
+  background: var(--sage-dark);
+  box-shadow: 0 2px 6px rgba(50,40,20,0.18);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text-2);
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 400;
+  border: 1px solid var(--border-strong);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.btn-ghost:hover { background: var(--accent-soft); color: var(--text); border-color: var(--border-strong); }
+
+/* Warnende Variante von .btn-primary für hubConfirm({ danger: true })
+   (hub-utils.js) — nutzt dieselbe --prio-1-Warnfarbe wie die übrigen
+   Lösch-/Zurücksetzen-Buttons im Hub (z.B. Karte/Projekt löschen, "Alle
+   Spieldaten zurücksetzen"), statt eine eigene Rot-Variante zu erfinden. */
+.btn-primary.hub-confirm-danger {
+  background: var(--prio-1);
+}
+.btn-primary.hub-confirm-danger:hover {
+  background: var(--prio-1);
+  filter: brightness(0.92);
+}
+
+/* hubConfirm() (hub-utils.js) kann über einem bereits offenen Modal
+   erscheinen (z.B. Games-Stats-Modal) — höherer z-index als der normale
+   .modal-backdrop-Wert (100), damit es garantiert obenauf liegt. */
+#hub-confirm-overlay { z-index: 200; }
+
+/* Schwebende Pille unten rechts für Update-Hinweise (Sync-Update, App-
+   Update), statt Modal/Overlay, damit sie die aktuelle Ansicht nie
+   blockiert. Gemeinsame Basis, geteilt von js/sync.js (#sync-update-banner)
+   und js/pwa.js (#sw-update-banner) — beide stapeln sich bei Bedarf
+   übereinander statt sich zu überlappen (siehe Bottom-Offsets unten). */
+.floating-update-banner {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+  color: var(--text-2);
+  animation: modalIn 160ms ease;
+}
+.floating-update-banner button {
+  background: var(--sage);
+  color: var(--sage-fg);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.floating-update-banner button:hover { background: var(--sage-dark); }
+/* App-Update-Banner sitzt über dem Sync-Banner, falls je beide gleichzeitig sichtbar sind. */
+#sw-update-banner { bottom: 88px; }
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+.icon-btn:hover { background: var(--accent-soft); color: var(--text); }
+
+/* =============================================================
+   GLOBAL PANEL / CARD
+============================================================= */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  background: transparent;
+}
+
+.panel-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-3);
+}
+
+.task-count { font-family: var(--mono); font-size: 11px; color: var(--sage); font-weight: 600; }
+.save-hint { font-size: 11px; color: var(--sage); opacity: 0; transition: opacity 600ms; }
+.save-hint.show { opacity: 1; }
+
+/* =============================================================
+   GLOBAL INPUTS
+============================================================= */
+.modal-input {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+.modal-input:focus {
+  border-color: var(--sage);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--sage-bg);
+}
+
+.modal-textarea {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.65;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+.modal-textarea:focus {
+  border-color: var(--sage);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--sage-bg);
+}
+
+.modal-select, .modal-date, .modal-time {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 13.5px;
+  outline: none;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+  transition: border-color var(--transition), background var(--transition);
+}
+.modal-select:focus, .modal-date:focus, .modal-time:focus {
+  border-color: var(--sage);
+  background: var(--surface);
+}
+
+/* =============================================================
+   GLOBAL MODAL
+============================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,24,21,0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+.modal-backdrop.hidden { display: none; }
+
+.modal-box {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  width: 480px;
+  max-width: calc(100vw - 40px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: modalIn 160ms ease;
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.97) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.modal-head,
+.budget-goal-head,
+.dr-result-top { display: flex; justify-content: space-between; align-items: center; }
+.modal-head > span { font-family: var(--font); font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+.modal-x { color: var(--text-3); font-size: 14px; padding: 4px 8px; border-radius: var(--radius-sm); transition: background var(--transition), color var(--transition); }
+.modal-x:hover { background: var(--accent-soft); color: var(--text); }
+
+.modal-hint { font-size: 12px; color: var(--text-3); line-height: 1.6; }
+.modal-row { display: flex; flex-direction: column; gap: 6px; }
+.modal-row label { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.modal-row-inline { flex-direction: row !important; align-items: center; justify-content: space-between; }
+.modal-row-inline label { text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 400; color: var(--text-2); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+
+/* =============================================================
+   SHARED FORM CONTROLS
+============================================================= */
+
+/* ── Hub-weiter Farb-Picker (Guides, Kalender, ...) ──────────
+   Markup + Verkabelung: hub-utils.js (initColorPickerWidget) */
+.hub-color-picker-wrap { display: flex; flex-direction: column; gap: 10px; }
+.hub-color-picker-row { display: flex; align-items: center; gap: 10px; }
+.hub-color-input {
+  width: 44px; height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px; cursor: pointer;
+  background: var(--surface); flex-shrink: 0;
+}
+.hub-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+.hub-color-input::-webkit-color-swatch { border: none; border-radius: 3px; }
+.hub-color-preview {
+  flex: 1; height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  transition: background 0.15s;
+}
+.hub-color-add-btn {
+  width: 32px; height: 32px; flex-shrink: 0;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text-2); font-size: 18px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+/* ── Geteiltes Sage-Hover-Muster ───────────────────────────
+   War 10x identisch dupliziert über budget/calendar/games/
+   guides/main/settings/tools.css — hier zentral zusammengefasst. */
+.hub-color-add-btn:hover,
+.sp-sim-reset:hover,
+.recur-scope-btn:hover,
+.game-play-btn:not(:disabled):hover,
+.game-toggle-btn:hover,
+.guide-chapter-row:hover .guide-chapter-open,
+.clock-type-btn:hover,
+.tool-mode-btn:hover,
+.dr-formula-inline-btn.active {
+  background: var(--sage-bg);
+  border-color: var(--sage);
+  color: var(--sage-dark);
+}
+.hub-color-library-wrap { display: flex; flex-direction: column; gap: 6px; }
+.hub-color-library-label { font-size: 11px; color: var(--text-3); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+.hub-color-library { display: flex; flex-wrap: wrap; gap: 6px; min-height: 16px; }
+.hub-color-swatch {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color var(--transition), transform 0.1s, box-shadow var(--transition);
+  padding: 0;
+}
+.hub-color-swatch:hover { transform: scale(1.08); border-color: var(--border-strong); }
+.hub-color-swatch:hover .hub-color-del { opacity: 1; }
+.hub-color-swatch.active { border-color: var(--sage); box-shadow: 0 0 0 2px var(--sage-bg); }
+.hub-color-del {
+  position: absolute; top: 0; right: 0; width: 14px; height: 14px;
+  background: rgba(0,0,0,0.45); color: #fff; font-size: 8px; line-height: 14px; text-align: center;
+  border-radius: 0 0 0 3px; opacity: 0; transition: opacity 0.15s; cursor: pointer;
+}
+
+#priority-picker { display: flex; gap: 6px; }
+.prio-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: all var(--transition);
+}
+.prio-btn:hover { background: var(--accent-soft); color: var(--text); border-color: var(--border-strong); }
+.prio-btn.active[data-prio="1"] { background: var(--prio-1-bg); color: var(--prio-1); border-color: var(--prio-1); }
+.prio-btn.active[data-prio="2"] { background: var(--prio-2-bg); color: var(--prio-2); border-color: var(--prio-2); }
+.prio-btn.active[data-prio="3"] { background: var(--prio-3-bg); color: var(--prio-3); border-color: var(--prio-3); }
+
+/* Status-Picker im Aufgaben-Modal — gleiches Muster wie #priority-picker,
+   Farben abgeleitet aus den bestehenden Tokens (--text-3/--amber/--sage). */
+#status-picker { display: flex; gap: 6px; }
+.status-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.status-btn:hover { background: var(--accent-soft); color: var(--text); border-color: var(--border-strong); }
+.status-btn.active[data-status="open"]        { background: var(--surface-3); color: var(--text-2); border-color: var(--border-strong); }
+.status-btn.active[data-status="in_progress"] { background: color-mix(in srgb, var(--amber) 14%, transparent); color: var(--amber); border-color: var(--amber); }
+.status-btn.active[data-status="completed"]   { background: var(--sage-bg); color: var(--sage-dark); border-color: var(--sage); }
+
+.toggle-select-btn {
+  flex: 1;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.toggle-select-btn:hover { border-color: var(--sage); color: var(--sage); background: var(--sage-bg); }
+
+/* ── Geteiltes Sage-Active-Muster ──────────────────────────
+   War 5x identisch dupliziert über games/main/settings/tools.css. */
+.toggle-select-btn.active,
+.tile-type-btn.active,
+.game-toggle-btn.active,
+.clock-type-btn.active,
+.tool-mode-btn.active {
+  background: var(--sage-bg);
+  border-color: var(--sage);
+  color: var(--sage-dark);
+  font-weight: 600;
+}
+
+#tile-type-picker { display: flex; gap: 6px; }
+#tile-type-picker.tile-style-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.tile-type-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--transition);
+}
+.tile-type-btn:hover { background: var(--accent-soft); color: var(--text); }
+.tile-type-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+.countdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.countdown-row:last-child { border-bottom: none; }
+.countdown-row-info { display: flex; flex-direction: column; gap: 2px; }
+.countdown-row-title { font-size: 13.5px; font-weight: 500; }
+
+/* ── Geteiltes "Bold-Status/Titel-Text"-Muster ─────────────
+   War 5x identisch dupliziert über budget/flashcards/projects.css. */
+.b-status-text,
+.b-liq-total-label,
+#fc-session-panel-title,
+.archive-project-name,
+.detail-tile-title {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ── Geteiltes "Meta-Text"-Muster (kleine, gedämpfte Mono-Angaben:
+   Datum, Zähler, Fortschritt) — war 10x identisch dupliziert über
+   budget/calendar/guides/positivity/projects/today.css. ── */
+.countdown-row-days,
+.b-garden-dd-pct,
+.cal-birthday-date,
+.detail-tile-meta,
+.mini-cal-event-date,
+.cal-day-ev-time,
+.cal-side-count,
+.guide-detail-date,
+.positivity-char-count {
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.b-garden-dd-pct,
+.cal-birthday-date,
+.detail-tile-meta,
+.mini-cal-event-date {
+  flex-shrink: 0;
+}
+
+/* Toggle switch */
+.toggle { position: relative; display: inline-flex; width: 38px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border-strong);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 220ms;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  top: 3px;
+  background: var(--surface);
+  border-radius: 50%;
+  transition: transform 220ms;
+  box-shadow: 0 1px 3px rgba(50,40,20,0.18);
+}
+.toggle input:checked + .toggle-slider { background: var(--sage); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* =============================================================
+   SHARED TASK ITEMS
+============================================================= */
+.task-item {
+  display: grid;
+  grid-template-columns: 20px 8px 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  transition: background var(--transition);
+}
+.task-item:hover { background: var(--surface-3); }
+.task-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--sage); cursor: pointer; }
+
+.prio-dot,
+.b-section-dot,
+.positivity-card-row-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.prio-dot[data-prio="1"] { background: var(--prio-1); }
+.prio-dot[data-prio="2"] { background: var(--prio-2); }
+.prio-dot[data-prio="3"] { background: var(--prio-3); }
+
+/* ── Geteiltes "Fortschrittsbalken-Füllung"-Muster ─────────
+   War 3x identisch dupliziert über budget/flashcards/project-tree.css. */
+.b-garden-progress-fill,
+.leitner-seg,
+.forest-tree-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 400ms ease;
+}
+
+.task-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.task-title {
+  font-size: 13.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.task-title:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+}
+.task-item.done .task-title { color: var(--text-3); text-decoration: line-through; }
+.task-sub { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Block badge — always-visible sage pill */
+.task-block-badge {
+  font-size: 10.5px;
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  border: 1px solid var(--sage-border);
+  border-radius: 99px;
+  padding: 2px 9px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.task-delete {
+  opacity: 0;
+  color: var(--text-3);
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: opacity var(--transition), color var(--transition);
+}
+.task-item:hover .task-delete { opacity: 1; }
+.task-delete:hover { color: var(--prio-1); }
+
+#task-empty { padding: 22px 18px; font-size: 13px; color: var(--text-3); }
+#task-empty.hidden { display: none; }
+.clock-analog { display: flex; align-items: center; justify-content: center; }
+
+/* =============================================================
+   UTILITY + EMPTY STATES
+============================================================= */
+.empty-state { font-size: 13px; color: var(--text-3); padding: 16px 18px; }
+.empty-state.full { text-align: center; padding: 44px; }
+.hidden { display: none !important; }

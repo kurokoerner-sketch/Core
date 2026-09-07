@@ -1,0 +1,1279 @@
+/* ==========================================
+   TOOLS
+   Kleiner Werkzeugkasten: Taschenrechner, Focus Timer, Converter.
+   Nutzt ausschließlich bestehende Design-Tokens (main.css) — keine
+   neuen Farben, gleiche Radien/Schatten/Abstände wie der Rest von Nook.
+========================================== */
+
+.tools-subtitle {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* =========================
+   GENERISCHE WERKZEUG-KARTE
+========================= */
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tool-card-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tool-card-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.tool-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tool-card-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+/* =========================
+   TASCHENRECHNER
+========================= */
+
+.calc-expression {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-3);
+  text-align: right;
+  min-height: 16px;
+  padding: 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calc-display {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px 16px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 32px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calc-keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.calc-key {
+  padding: 14px 0;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition);
+  font-family: var(--font);
+}
+.calc-key:hover { background: var(--accent-soft); }
+.calc-key:active { box-shadow: inset 0 1px 4px rgba(0,0,0,0.12); }
+
+.calc-key--fn {
+  background: var(--surface-3);
+  color: var(--text-2);
+}
+.calc-key--fn:hover { background: var(--accent-soft); }
+
+.calc-key--op {
+  background: var(--sage-bg);
+  color: var(--sage-dark);
+  border-color: var(--sage-border);
+}
+.calc-key--op:hover { background: var(--sage-border); }
+.calc-key--op.active { background: var(--sage); color: var(--sage-fg); }
+
+.calc-key--eq {
+  background: var(--sage);
+  color: var(--sage-fg);
+  border-color: var(--sage);
+}
+.calc-key--eq:hover { background: var(--sage-dark); }
+
+.calc-key--zero { grid-column: span 2; }
+
+.calc-history {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.calc-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.calc-history-item {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.calc-history-item:hover { background: var(--accent-soft); }
+
+.calc-history-empty {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 8px 0;
+}
+
+.calc-history-clear {
+  align-self: center;
+  font-size: 11.5px;
+  color: var(--text-3);
+  padding: 4px 8px;
+  transition: color var(--transition);
+}
+.calc-history-clear:hover { color: var(--text-2); }
+
+/* =========================
+   FOCUS TIMER
+========================= */
+
+.timer-ring-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  margin: 4px auto 0;
+  aspect-ratio: 1 / 1;
+}
+
+.timer-complete-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 28px 12px;
+  background: var(--sage-bg);
+  border: 1px solid var(--sage-border);
+  border-radius: var(--radius);
+}
+
+.timer-complete-icon { font-size: 32px; line-height: 1; }
+.timer-complete-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.timer-complete-sub { font-size: 13px; color: var(--text-2); }
+.timer-complete-btn { margin-top: 8px; }
+
+.tool-toggle-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.timer-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.timer-history-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.timer-history-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-bottom: 2px;
+}
+
+.timer-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.timer-history-item {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-3);
+  padding: 3px 4px;
+}
+.timer-history-empty {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 6px 0;
+}
+
+.timer-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 10;
+}
+
+.timer-ring-fg {
+  fill: none;
+  stroke: var(--sage);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 900ms linear, stroke var(--transition);
+}
+
+.timer-ring-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.timer-time {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.timer-mode-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.timer-sessions {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 5px 12px;
+  margin: 2px auto 0;
+  width: fit-content;
+}
+
+.timer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.timer-start-btn { min-width: 120px; text-align: center; }
+
+.tool-settings-toggle {
+  align-self: center;
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 4px 8px;
+  transition: color var(--transition);
+}
+.tool-settings-toggle:hover { color: var(--text-2); }
+
+.timer-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.timer-settings.hidden { display: none; }
+
+.timer-settings label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.timer-settings input {
+  width: 64px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+  outline: none;
+}
+.timer-settings input:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px var(--sage-bg);
+}
+
+/* =========================
+   CONVERTER
+========================= */
+
+.conv-category-select {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  font-family: var(--font);
+  cursor: pointer;
+}
+.conv-category-select:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px var(--sage-bg);
+}
+
+.conv-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.conv-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.conv-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.conv-input-group .modal-input { flex: 1; min-width: 0; }
+
+.conv-unit-select {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  font-family: var(--font);
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 84px;
+}
+
+.conv-swap-btn {
+  align-self: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+.conv-swap-btn:hover { background: var(--accent-soft); color: var(--text); }
+.conv-swap-btn:active { transform: rotate(180deg); }
+
+.conv-example {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 9px 10px;
+  font-family: var(--mono);
+}
+
+/* =========================
+   GETEILT: MODUS-SCHALTER
+   Segmented-Button-Gruppe für "einer von N Modi" — genutzt vom
+   Focus Timer (Fokus/Kurze Pause/Lange Pause) und vom
+   Datenübertragungsraten-Rechner (Zeit/Geschwindigkeit/Datenmenge).
+========================= */
+
+.tool-mode-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tool-mode-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-2);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: border-color var(--transition), color var(--transition), background var(--transition);
+}
+
+
+/* =========================
+   DATENÜBERTRAGUNGSRATEN-RECHNER
+========================= */
+
+.tool-card--wide { grid-column: 1 / -1; }
+
+.dr-learn-switch {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.dr-learn-switch-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.dr-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.dr-fields .conv-row.hidden { display: none; }
+
+.dr-unit-select { width: 108px; }
+
+/* =========================
+   DR: ERGEBNIS / LERNMODUS-LAYOUT
+   Bei aktivem Lernmodus: Ergebnis links ~1/3, Musterlösung rechts
+   ~2/3 — der Lernbereich bekommt bewusst den meisten Platz. Bei
+   deaktiviertem Lernmodus nimmt das Ergebnis die volle Breite ein
+   (dr-layout--learn-off), unverändert wie zuvor.
+========================= */
+
+.dr-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.dr-layout--learn-off { grid-template-columns: 1fr; }
+.dr-layout--learn-off .dr-learn-col { display: none; }
+
+.dr-result-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dr-learn-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* =========================
+   DR: KONTEXTBEZOGENE FORMELSAMMLUNG
+   Nutzt den freien Platz unter der Ergebnis-Karte im Lernmodus.
+   Klappt an Ort und Stelle auf/zu — kein Modal. Der Panel-Inhalt
+   wird erst beim Öffnen gebaut und beim Schließen wieder geleert
+   (keine unnötige DOM-Arbeit, solange das Panel zu ist).
+========================= */
+
+.dr-formula-inline-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+
+.dr-formula-inline-panel {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* =========================
+   FORMELSAMMLUNG — INHALT
+   Gemeinsam genutzt vom kontextbezogenen Panel und dem globalen
+   Modal. dr-formula-sheet-section nutzt dieselbe Karten-Optik wie
+   dr-learn-section (drSection-Helper) für ein einheitliches Bild.
+========================= */
+
+.dr-formula-sheet-section { background: var(--bg); }
+
+.dr-formula-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.dr-formula-table th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.dr-formula-table td {
+  padding: 5px 6px;
+  color: var(--text-2);
+  font-family: var(--mono);
+  border-bottom: 1px solid var(--border);
+}
+.dr-formula-table tr:last-child td { border-bottom: none; }
+
+.dr-formula-note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.dr-formula-note strong { color: var(--text); }
+
+.dr-formula-formula-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dr-formula-formula {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 3px 9px;
+}
+.dr-formula-formula-desc { font-size: 11.5px; color: var(--text-3); }
+
+.dr-formula-placeholder {
+  text-align: center;
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.dr-formula-placeholder-icon { font-size: 22px; }
+.dr-formula-placeholder-title { font-size: 12.5px; color: var(--text-2); font-weight: 500; }
+.dr-formula-placeholder-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.dr-formula-placeholder-list li::before { content: '·'; margin-right: 6px; color: var(--border-strong); }
+
+/* =========================
+   FORMELSAMMLUNG — GLOBALES MODAL
+   Links Navigation über alle Module (auch noch nicht umgesetzte,
+   als Badge "bald" markiert), rechts der jeweilige Inhalt.
+========================= */
+
+.dr-formula-modal-body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 14px;
+  min-height: 340px;
+  max-height: 60vh;
+}
+
+.dr-formula-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding-right: 12px;
+}
+
+.dr-formula-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-2);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background var(--transition), color var(--transition);
+}
+.dr-formula-nav-item:hover { background: var(--accent-soft); color: var(--text); }
+.dr-formula-nav-item.active { background: var(--sage-bg); color: var(--sage-dark); font-weight: 600; }
+.dr-formula-nav-icon { flex-shrink: 0; font-size: 13px; }
+.dr-formula-nav-label { flex: 1; min-width: 0; }
+.dr-formula-nav-badge {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+  background: var(--surface-2);
+  border-radius: 99px;
+  padding: 2px 6px;
+}
+
+.dr-formula-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.dr-formula-content-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.dr-formula-content-icon { font-size: 17px; }
+.dr-formula-content-title { font-size: 14.5px; font-weight: 700; color: var(--text); }
+
+.dr-formula-content-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =========================
+   DR: LERNMODUS — MUSTERLÖSUNG
+   Berufsschul-Aufbau: Gegeben → Gesucht → Formel → Formel
+   umstellen → Einheiten umrechnen → Werte einsetzen → Berechnen
+   → Ergebnis. Jeder Abschnitt eine eigene "Karteikarte", jede
+   Umrechnungsstufe ein eigener Schritt mit eigener Warum-Box.
+========================= */
+
+.dr-learn-solution {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dr-learn-section {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dr-learn-section-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dr-learn-section-icon { font-size: 14px; line-height: 1; }
+
+.dr-learn-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-2);
+}
+
+.dr-learn-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dr-learn-section--given, .dr-learn-section--search { background: var(--bg); }
+
+.dr-learn-given-row, .dr-learn-search-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.dr-learn-given-var, .dr-learn-search-var {
+  font-weight: 700;
+  color: var(--text);
+  min-width: 14px;
+}
+
+.dr-learn-given-eq, .dr-learn-search-eq { color: var(--text-3); }
+.dr-learn-given-val { color: var(--text-2); }
+
+.dr-learn-formula {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 4px 0;
+}
+
+.dr-learn-rearrange-why {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+.dr-learn-rearrange-why strong { color: var(--text-2); }
+
+.dr-learn-chain-block + .dr-learn-chain-block {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+.dr-learn-chain-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+
+.dr-learn-chain-step { padding: 6px 0; }
+.dr-learn-chain-step + .dr-learn-chain-step { border-top: 1px dotted var(--border); }
+
+.dr-learn-chain-eq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text);
+  text-align: center;
+}
+
+.dr-learn-chain-op { color: var(--text-3); font-size: 11.5px; flex-shrink: 0; }
+.dr-learn-chain-result { font-weight: 600; }
+
+.dr-learn-why {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-3);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  margin-top: 4px;
+}
+
+.dr-learn-why-icon { flex-shrink: 0; font-size: 12px; }
+.dr-learn-why strong { color: var(--text-2); }
+
+.dr-learn-arrow { text-align: center; font-size: 12px; color: var(--text-3); }
+
+.dr-learn-substitute-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dr-learn-substitute-var {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dr-learn-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dr-learn-fraction-num, .dr-learn-fraction-den {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text);
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.dr-learn-fraction-line {
+  width: 100%;
+  height: 1px;
+  background: var(--text-3);
+  margin: 2px 0;
+}
+
+.dr-learn-math-line {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text);
+  text-align: center;
+}
+
+.dr-learn-math-line--result { font-weight: 700; font-size: 14px; }
+
+.dr-learn-section--result { background: var(--sage-bg); border-color: var(--sage-border); }
+
+.dr-learn-result-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--sage-dark);
+  text-align: center;
+}
+
+.dr-learn-result-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  text-align: center;
+}
+
+.dr-result {
+  background: var(--sage-bg);
+  border: 1px solid var(--sage-border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+.dr-result-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--sage-dark);
+}
+
+.dr-copy-btn { width: 26px; height: 26px; font-size: 13px; }
+
+.dr-result-value {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.dr-result-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  min-height: 16px;
+}
+
+.dr-result-unit {
+  width: 140px;
+  margin-top: 4px;
+}
+
+.dr-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.dr-step-line {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
+.dr-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+.dr-hints-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-bottom: 2px;
+}
+
+/* =========================
+   NOTENMANAGER
+   Ausbildungsjahre (Accordion) → Fächer (Karten) → Leistungen.
+   Nutzt ausschließlich bestehende Tokens (main.css/style.css) —
+   keine neuen Farben, gleiche Radien/Abstände wie der Rest von Nook.
+========================= */
+
+.noten-header-btn { margin-left: auto; }
+
+.noten-years-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.noten-empty, .noten-empty-hint, .noten-subject-empty {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-3);
+  padding: 14px 0;
+}
+
+.noten-year-item {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.noten-year-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.noten-year-header:hover { background: var(--accent-soft); }
+
+.noten-year-chevron {
+  font-size: 9px;
+  color: var(--text-3);
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.noten-year-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noten-year-meta {
+  font-size: 11.5px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.noten-year-avg {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.noten-year-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.noten-year-actions .icon-btn { width: 24px; height: 24px; font-size: 11.5px; }
+
+.noten-year-body {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.noten-year-body.collapsed { display: none; }
+
+.noten-subject-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.noten-subject-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  min-width: 96px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  font-family: var(--font);
+}
+.noten-subject-card:hover { border-color: var(--sage); background: var(--sage-bg); }
+
+.noten-subject-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.noten-subject-avg { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--sage-dark); }
+.noten-subject-pending { font-size: 10px; font-weight: 600; color: var(--prio-1); }
+
+/* ── Kategorien-Modal ── */
+.noten-category-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.noten-category-row { display: flex; gap: 8px; align-items: center; }
+.noten-category-row .noten-cat-name { flex: 1; }
+.noten-category-row .noten-cat-weight { width: 68px; text-align: center; flex-shrink: 0; }
+
+/* ── Fach-Detailansicht + Leistungsliste ── */
+.noten-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.noten-detail-avg {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.noten-detail-actions { display: flex; gap: 6px; }
+
+.noten-entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.noten-entry-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+.noten-entry-date { width: 78px; flex-shrink: 0; font-family: var(--mono); font-size: 11.5px; color: var(--text-2); }
+.noten-entry-cat { flex: 1; min-width: 0; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.noten-entry-grade { width: 42px; flex-shrink: 0; text-align: right; font-family: var(--mono); font-weight: 600; color: var(--text); }
+.noten-entry-weight { width: 30px; flex-shrink: 0; text-align: right; font-size: 11px; color: var(--text-3); }
+.noten-entry-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.noten-entry-actions .icon-btn { width: 22px; height: 22px; font-size: 11px; }
+
+.noten-badge-pending {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--prio-1-bg);
+  color: var(--prio-1);
+}
+
+/* ── Zeugnisse (pro Ausbildungsjahr) ── */
+.noten-reports-section { padding-top: 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+.noten-reports-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.noten-reports-title { font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.noten-reports-header-actions { display: flex; gap: 8px; margin-left: auto; }
+.noten-reports-list { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.noten-report-card {
+  flex: 1 1 320px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.noten-report-card:hover { border-color: var(--sage); background: var(--sage-bg); }
+
+.noten-report-card-head { display: flex; align-items: center; gap: 8px; }
+.noten-report-card-icon { font-size: 13px; flex-shrink: 0; line-height: 1; }
+.noten-report-card-name { font-size: 12.5px; font-weight: 600; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.noten-report-card-avg {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sage-dark);
+  background: var(--sage-bg);
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.noten-report-card-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.noten-report-card-actions .icon-btn { width: 22px; height: 22px; font-size: 11px; }
+
+.noten-report-card-grades { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 12px; }
+.noten-report-grade-chip { display: inline-flex; align-items: baseline; gap: 5px; font-size: 12px; }
+.noten-report-grade-subject { color: var(--text-3); }
+.noten-report-grade-value { font-family: var(--mono); font-weight: 600; color: var(--text-2); }
+.noten-report-grade-sep { color: var(--border-strong); font-size: 10px; align-self: center; }
+
+/* ── Zeugnis-Modal: Notenliste je Fach ── */
+.noten-report-grades { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+.noten-report-grade-row { display: flex; align-items: center; gap: 8px; }
+.noten-report-subject-name { flex: 1; min-width: 0; font-size: 12.5px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.noten-report-grade-input { width: 68px; text-align: center; flex-shrink: 0; }
+
+/* ── Zeugnisse vergleichen ── */
+.noten-compare-selects { display: flex; align-items: center; gap: 10px; }
+.noten-compare-selects .modal-select { flex: 1; min-width: 0; }
+.noten-compare-arrow { color: var(--text-3); font-size: 13px; flex-shrink: 0; }
+.noten-compare-table { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; }
+.noten-compare-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+.noten-compare-subject { color: var(--text-2); }
+.noten-compare-values { font-family: var(--mono); font-weight: 600; color: var(--text); }
+.noten-compare-row--total { background: var(--sage-bg); }
+.noten-compare-row--total .noten-compare-subject { font-weight: 600; color: var(--text); }
+.noten-compare-row--total .noten-compare-values { color: var(--sage-dark); }
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1180px) {
+  .tools-grid { grid-template-columns: 1fr 1fr; }
+  .tool-card:first-child { grid-column: 1 / -1; }
+}
+
+@media (max-width: 700px) {
+  .tools-grid { grid-template-columns: 1fr; }
+  .tool-card:first-child { grid-column: auto; }
+}
+
+@media (max-width: 860px) {
+  .dr-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .dr-fields { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .dr-learn-switch-label { display: none; }
+  .dr-formula-global-btn-label { display: none; }
+}
+
+@media (max-width: 560px) {
+  .dr-formula-modal-body { grid-template-columns: 1fr; }
+  .dr-formula-nav { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 10px; }
+  .dr-formula-nav-item { flex-shrink: 0; }
+
+  .noten-year-meta { display: none; }
+  .noten-entry-cat { display: none; }
+  .noten-entry-row { gap: 8px; }
+  .noten-compare-selects { flex-direction: column; align-items: stretch; }
+  .noten-compare-arrow { display: none; }
+}

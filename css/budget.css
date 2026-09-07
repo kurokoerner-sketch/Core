@@ -1,0 +1,1828 @@
+/* =============================================================
+   BUDGET.CSS — Tab: Budget
+   Personal Hub · persönlicher Finanzbegleiter
+
+   ALLE Farben über root variables — vollständig darkmode-fähig.
+   Keine hardcodierten Farben (#fff, rgba(0,0,0,...), etc.)
+   Abhängigkeiten: CSS-Variablen aus main.css (:root)
+============================================================= */
+
+/* ── Budget-spezifische Tokens ────────────────────────────── */
+:root {
+  /* Greens (income, positive) */
+  --b-green:      #2d5a3d;
+  --b-green-soft: color-mix(in srgb, var(--bg) 80%, #2d5a3d 8%);
+  --b-green-mid:  #4a7c5a;
+
+  /* Olive (want / neutral) */
+  --b-olive:      #6b7c5a;
+  --b-olive-soft: color-mix(in srgb, var(--bg) 80%, #6b7c5a 8%);
+
+  /* Red (expense, negative) */
+  --b-red:        #c0392b;
+  --b-red-soft:   color-mix(in srgb, var(--bg) 85%, #c0392b 6%);
+
+  /* Blue (Sparziele im Geldfluss) / Purple (Schulden im Geldfluss) —
+     einzige Stellen in Nook, an denen diese beiden Töne vorkommen;
+     an anderer Stelle bitte bestehende Töne wiederverwenden. */
+  --b-blue:        #3a5a7c;
+  --b-blue-soft:   color-mix(in srgb, var(--bg) 82%, #3a5a7c 7%);
+  --b-purple:      #6b4c7c;
+  --b-purple-soft: color-mix(in srgb, var(--bg) 82%, #6b4c7c 7%);
+
+  /* Neutral helpers */
+  --b-warm-gray:  var(--text-3);
+  --b-dark:       var(--text);
+  --b-cream:      var(--bg);
+  --b-cream-2:    var(--bg-2);
+
+  /* Shadows */
+  --b-shadow:    var(--shadow-sm);
+  --b-shadow-lg: var(--shadow-md);
+
+  /* Radius */
+  --b-radius:    var(--radius-lg);
+  --b-radius-sm: var(--radius);
+  --b-radius-xs: var(--radius-sm);
+
+  /* Status-Ampel (Kontostand-Check) */
+  --b-status-amber:      #ca8a04;
+  --b-status-amber-text: #92400e;
+
+  /* Finanzgarten — Papier-/Erde-Optik. Illustration bleibt themenunabhängig (SVGs),
+     die Karten-/Textfarben passen sich über die Dark-Overrides unten an. */
+  --b-garden-bg-1:       #F6F0E4;
+  --b-garden-bg-2:       #EDE4D0;
+  --b-garden-border:     #C8B07A;
+  --b-garden-title:      #7A5C1E;
+  --b-garden-select:     #6B4E1A;
+  --b-garden-stage:      #8B6820;
+  --b-garden-plant:      #5A4010;
+  --b-garden-plant-val:  #3A2A08;
+  --b-garden-pip:        #8B9E3A;
+  --b-garden-wood:       #A07840;
+  --b-garden-wood-light: #C4A06A;
+  --b-garden-shadow:     0 4px 18px rgba(100,75,30,0.13), 0 1px 4px rgba(100,75,30,0.08);
+  --b-garden-line:       rgba(150,115,60,0.14);
+  --b-garden-header-bg:  rgba(175,140,70,0.08);
+  --b-garden-chip-bg:        rgba(175,140,70,0.15);
+  --b-garden-chip-bg-hover:  rgba(175,140,70,0.28);
+  --b-garden-chip-border:    rgba(175,140,70,0.3);
+  --b-garden-stage-bg:   rgba(175,140,70,0.18);
+  --b-garden-track:      rgba(150,115,60,0.18);
+  --b-garden-rail:       rgba(140,100,40,0.2);
+  --b-garden-highlight:  rgba(255,255,255,0.12);
+
+  /* Mini-Übersichtskarten (Einnahmen/Ausgaben/Frei) — feste Pastellflächen, analog Pinnwand-Prinzip.
+     Textfarben laufen über --b-card-ink-* / --b-card-line-* statt rohem rgba(0,0,0,x). */
+  --b-card-income-bg:   #A3B18A;
+  --b-card-expense-bg:  #C0AC99;
+  --b-card-free-bg:     #EBE4D4;
+  --b-card-income-text:  #1E4020;
+  --b-card-expense-text: #5A2010;
+  --b-card-neutral-text: #1C1A16;
+  --b-card-must: #C03020;
+  --b-card-need: #D08010;
+  --b-card-want: #5A9020;
+  --b-card-bad:  #7A1810;
+
+  --b-card-ink-1: rgba(0,0,0,0.78);
+  --b-card-ink-2: rgba(0,0,0,0.50);
+  --b-card-ink-3: rgba(0,0,0,0.45);
+  --b-card-ink-4: rgba(0,0,0,0.42);
+  --b-card-ink-5: rgba(0,0,0,0.38);
+  --b-card-ink-6: rgba(0,0,0,0.35);
+  --b-card-ink-7: rgba(0,0,0,0.32);
+  --b-card-line-1: rgba(0,0,0,0.05);
+  --b-card-line-2: rgba(0,0,0,0.07);
+  --b-card-line-3: rgba(0,0,0,0.08);
+  --b-card-line-4: rgba(0,0,0,0.09);
+  --b-card-line-5: rgba(0,0,0,0.10);
+  --b-card-line-6: rgba(0,0,0,0.13);
+  --b-card-panel:  rgba(255,255,255,0.62);
+}
+
+/* Dark mode overrides for budget-specific tokens */
+[data-theme-family="dark"] {
+  --b-green-soft: rgba(45,90,61,0.18);
+  --b-olive-soft: rgba(107,124,90,0.16);
+  --b-red-soft:   rgba(192,57,43,0.16);
+  --b-blue-soft:   rgba(58,90,124,0.20);
+  --b-purple-soft: rgba(107,76,124,0.20);
+
+  --b-status-amber-text: #f5c242;
+
+  /* Finanzgarten — dunklere Erde/Papier-Optik, Illustrationen bleiben lesbar */
+  --b-garden-bg-1:       #2A2116;
+  --b-garden-bg-2:       #221B12;
+  --b-garden-border:     #6B5A34;
+  --b-garden-title:      #D8B978;
+  --b-garden-select:     #C9A868;
+  --b-garden-stage:      #D3AC63;
+  --b-garden-plant:      #C7A876;
+  --b-garden-plant-val:  #E6D2A8;
+  --b-garden-pip:        #A7C24E;
+  --b-garden-wood:       #7A5A34;
+  --b-garden-wood-light: #93764A;
+  --b-garden-shadow:     0 4px 18px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.20);
+  --b-garden-line:       rgba(255,225,160,0.10);
+  --b-garden-header-bg:  rgba(255,225,160,0.05);
+  --b-garden-chip-bg:        rgba(255,225,160,0.12);
+  --b-garden-chip-bg-hover:  rgba(255,225,160,0.20);
+  --b-garden-chip-border:    rgba(255,225,160,0.22);
+  --b-garden-stage-bg:   rgba(255,225,160,0.14);
+  --b-garden-track:      rgba(255,225,160,0.14);
+  --b-garden-rail:       rgba(255,225,160,0.16);
+  --b-garden-highlight:  rgba(255,255,255,0.06);
+
+  /* Mini-Übersichtskarten — dunklere, entsättigte Pastellflächen + heller Ink */
+  --b-card-income-bg:   #3C4A34;
+  --b-card-expense-bg:  #4A3B32;
+  --b-card-free-bg:     #332E24;
+  --b-card-income-text:  #A9CB93;
+  --b-card-expense-text: #DCA98C;
+  --b-card-neutral-text: #EDE6D8;
+  --b-card-must: #E08A72;
+  --b-card-need: #E3A94D;
+  --b-card-want: #9CC169;
+  --b-card-bad:  #D98B78;
+
+  --b-card-ink-1: rgba(255,255,255,0.85);
+  --b-card-ink-2: rgba(255,255,255,0.58);
+  --b-card-ink-3: rgba(255,255,255,0.52);
+  --b-card-ink-4: rgba(255,255,255,0.48);
+  --b-card-ink-5: rgba(255,255,255,0.44);
+  --b-card-ink-6: rgba(255,255,255,0.40);
+  --b-card-ink-7: rgba(255,255,255,0.38);
+  --b-card-line-1: rgba(255,255,255,0.08);
+  --b-card-line-2: rgba(255,255,255,0.10);
+  --b-card-line-3: rgba(255,255,255,0.11);
+  --b-card-line-4: rgba(255,255,255,0.12);
+  --b-card-line-5: rgba(255,255,255,0.13);
+  --b-card-line-6: rgba(255,255,255,0.16);
+  --b-card-panel:  rgba(0,0,0,0.22);
+}
+
+/* ── View override ────────────────────────────────────────── */
+#view-budget {
+  overflow: visible;
+}
+
+/* ── Dashboard wrapper ────────────────────────────────────── */
+#budget-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════════ */
+#budget-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+}
+#budget-title-block { min-width: 0; }
+.b-ks-header-pill { justify-self: center; }
+#budget-actions { justify-self: end; }
+
+/* Menü-Button: unabhängig vom Grid-Fluss in die obere rechte Ecke der
+   gesamten Kopfzeile gepinnt — dort bleibt es in beiden Layouts stabil.
+   Auf Desktop kollidiert das nicht mit dem Monatspicker: der sitzt
+   #budget-header{align-items:center} zentriert und beginnt daher
+   spürbar unterhalb der oberen Kante. Auf Mobile ist #budget-header der
+   ganze gestapelte Block, "oben rechts" liegt dort neben "Budget". */
+#budget-header-menu-btn { position: absolute; top: 0; right: 0; }
+
+/* Kontostand Pill — mittig im Header */
+.b-ks-header-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: box-shadow var(--transition), border-color var(--transition);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.b-ks-header-pill:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.b-ks-pill-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.b-ks-pill-value {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+.b-ks-pill-value.positive { color: var(--budget-income); }
+.b-ks-pill-value.negative { color: var(--budget-expense); }
+
+#budget-title-block h1 {
+  font-family: var(--font);
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -1.5px;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 5px;
+}
+#budget-title-block p {
+  font-size: 13px;
+  color: var(--text-3);
+  letter-spacing: 0.01em;
+  font-style: italic;
+}
+
+#budget-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-top: 6px;
+}
+
+/* ── Zahnrad-Button: Kopfzeilen-Menü (Finanzbaum-Konfig + Archiv) ── */
+.b-tree-config-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-3);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform 200ms;
+  flex-shrink: 0;
+}
+.b-tree-config-btn:hover {
+  background: var(--surface-2);
+  color: var(--sage-dark);
+  transform: rotate(30deg);
+}
+
+/* Dropdown des Kopfzeilen-Menüs — gleiches Muster wie .b-garden-dropdown:
+   an <body> angehängt (fixed statt absolute), damit es nicht vom
+   overflow:hidden umgebender Karten abgeschnitten wird. */
+.b-header-dropdown {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  min-width: 210px;
+  overflow: hidden;
+}
+.b-header-dropdown.open { display: flex; }
+.b-header-dropdown-item {
+  display: flex; align-items: center;
+  width: 100%; padding: 10px 14px;
+  font-size: 13px; color: var(--text);
+  background: none; border: none; cursor: pointer;
+  text-align: left; gap: 8px;
+  transition: background var(--transition);
+}
+.b-header-dropdown-item:hover { background: var(--surface-2); }
+
+/* ── Finanzbaum Konfig Modal ─────────────────────────────── */
+.finanzbaum-config-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.finanzbaum-config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.finanzbaum-config-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+}
+.finanzbaum-config-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.finanzbaum-config-unit {
+  font-size: 13px;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+
+/* ── Month picker ─────────────────────────────────────────── */
+#budget-month-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--b-radius-sm);
+  box-shadow: var(--b-shadow);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: default;
+  width: 240px;
+  flex-shrink: 0;
+}
+#budget-month-picker svg { color: var(--text-3); flex-shrink: 0; }
+#budget-month-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+#budget-month-nav-prev,
+#budget-month-nav-next {
+  width: 30px; height: 30px;
+  border-radius: var(--b-radius-xs);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+#budget-month-nav-prev:hover,
+#budget-month-nav-next:hover,
+.b-card-add-btn:hover,
+.budget-prio-btn.active[data-prio="need"] {
+  background: var(--b-green-soft);
+  color: var(--b-green);
+  border-color: var(--b-green-mid);
+}
+
+/* ── Action buttons ───────────────────────────────────────── */
+.budget-action-btn {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: var(--b-radius-xs);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.budget-action-btn.outlined {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  color: var(--text);
+  box-shadow: var(--b-shadow);
+}
+.budget-action-btn.outlined:hover {
+  background: var(--b-green-soft);
+  border-color: var(--b-green-mid);
+  color: var(--b-green);
+  box-shadow: var(--b-shadow-lg);
+  transform: translateY(-1px);
+}
+.budget-action-btn.filled {
+  background: var(--text);
+  border: 1.5px solid var(--text);
+  color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.budget-action-btn.filled:hover {
+  background: var(--b-green);
+  border-color: var(--b-green);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ROW 2: KONTOSTAND + LIQUIDITY
+═══════════════════════════════════════════════════════════ */
+#budget-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* ── Kontostand card ────────────────────────────────────── */
+#budget-kontostand-card {
+  background: var(--surface);
+  border-radius: var(--b-radius);
+  box-shadow: var(--b-shadow);
+  padding: 22px 26px;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+#budget-kontostand-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 22px;
+  border-right: 1px solid var(--border);
+}
+.b-ks-value {
+  font-family: var(--font);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -1px;
+  color: var(--b-green);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.b-ks-value.negative { color: var(--b-red); }
+
+#budget-kontostand-right {
+  flex: 1.2;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.b-status-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.b-status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.b-checklist { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.b-check-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
+.b-check-icon {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.b-check-icon.ok      { background: var(--b-green-soft); color: var(--b-green); }
+.b-check-icon.warn    { background: color-mix(in srgb, var(--bg) 70%, var(--b-status-amber) 12%); color: var(--b-status-amber-text); }
+.b-check-icon.bad     { background: var(--b-red-soft); color: var(--b-red); }
+.b-check-icon.neutral { background: var(--accent-soft); color: var(--text-3); }
+[data-theme-family="dark"] .b-check-icon.warn { background: rgba(202,138,4,0.18); }
+
+.b-status-hint {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-3);
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+.b-status-hint strong { color: var(--b-green); font-weight: 600; }
+.b-status-hint.warn strong { color: var(--b-status-amber-text); }
+.b-status-hint.bad  strong { color: var(--b-red); }
+
+
+/* ── Mid row: Liquidity (50%) + Garden slot (50%) ─────────── */
+#budget-mid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: start;
+}
+#budget-liquidity { margin-bottom: 0; }
+#budget-garden-slot { min-height: 180px; }
+
+/* Grid-Items dürfen wie Flex-Items standardmäßig nicht unter ihre
+   Content-Breite schrumpfen (min-width:auto) — .b-liq-title enthält mit
+   "LIQUIDITÄTSVORSCHAU" (uppercase, letter-spacing) ein einzelnes langes
+   Wort, das diese Karte auf schmalen Phones über den Grid-Track hinaus
+   drückt und dadurch die ganze Seite seitlich scrollen lässt. min-width:0
+   erlaubt echtes Schrumpfen/Umbrechen statt starrem Überlauf; auf Desktop
+   ohne Effekt, da dort ohnehin genug Platz vorhanden ist. */
+#budget-liquidity, #budget-garden-slot { min-width: 0; }
+.b-liq-title { min-width: 0; overflow-wrap: break-word; }
+.b-liq-expense-item > span:first-child { min-width: 0; overflow-wrap: break-word; }
+
+/* ══════════════════════════════════════════════════════════════
+   FINANZGARTEN — Hauptkarte
+══════════════════════════════════════════════════════════════ */
+#budget-garden-card {
+  background: linear-gradient(160deg, var(--b-garden-bg-1) 0%, var(--b-garden-bg-2) 100%);
+  border-radius: var(--b-radius);
+  box-shadow: var(--b-garden-shadow);
+  border: 1.5px solid var(--b-garden-border);
+  overflow: hidden;
+  position: relative;
+}
+
+.b-garden-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--b-garden-line);
+  background: var(--b-garden-header-bg);
+}
+.b-garden-title-block { display: flex; align-items: center; gap: 7px; }
+.b-garden-emoji { font-size: 16px; line-height: 1; }
+.b-garden-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.10em; color: var(--b-garden-title); }
+
+/* Ziel-Auswahl Button */
+.b-garden-select-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; color: var(--b-garden-select);
+  background: var(--b-garden-chip-bg);
+  border: 1px solid var(--b-garden-chip-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: background var(--transition);
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.b-garden-select-btn:hover { background: var(--b-garden-chip-bg-hover); }
+.b-garden-select-arrow { opacity: 0.6; font-size: 10px; }
+
+/* Emoji in Sparzielliste */
+.budget-goal-emoji { font-size: 15px; line-height: 1; vertical-align: middle; margin-right: 2px; }
+
+/* Dropdown — wird an body angehängt (fixed), umgeht overflow:hidden der Card */
+.b-garden-dropdown {
+  position: fixed;  /* wird per JS mit top/right gesetzt */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  min-width: 210px;
+  overflow: hidden;
+}
+.b-garden-dropdown-item {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; padding: 9px 14px;
+  font-size: 13px; color: var(--text);
+  background: none; border: none; cursor: pointer;
+  text-align: left;
+  transition: background var(--transition);
+  gap: 8px;
+}
+.b-garden-dropdown-item:hover { background: var(--surface-2); }
+.b-garden-dropdown-item.active { font-weight: 700; color: var(--sage-dark); }
+
+/* Scene */
+.b-garden-scene {
+  display: flex;
+  align-items: flex-end;
+  padding: 16px 20px 0;
+  gap: 8px;
+}
+
+.b-garden-plant {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding-bottom: 10px;
+}
+.b-garden-stage-label {
+  font-size: 10px; font-weight: 700;
+  color: var(--b-garden-stage);
+  background: var(--b-garden-stage-bg);
+  border-radius: 99px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+}
+.b-garden-svg { width: 80px; height: 80px; }
+.b-garden-svg svg { width: 100%; height: 100%; }
+.b-garden-svg-empty { opacity: 0.28; filter: grayscale(0.4); }
+.b-garden-plant-name { font-size: 12px; font-weight: 600; color: var(--b-garden-plant); text-align: center; }
+.b-garden-plant-val  { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--b-garden-plant-val); text-align: center; }
+
+/* Progress */
+.b-garden-progress-bar { width: 78%; height: 5px; background: var(--b-garden-track); border-radius: 99px; overflow: hidden; }
+
+/* Pips (Finanzbaum Stufen) */
+.b-garden-mini-bar { display: flex; gap: 3px; margin-top: 2px; }
+.b-garden-pip { width: 8px; height: 4px; border-radius: 2px; background: var(--b-garden-track); }
+.b-garden-pip.filled { background: var(--b-garden-pip); }
+
+/* Zaun-Trennlinie */
+.b-garden-fence {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+  width: 24px;
+  align-self: stretch;
+  position: relative;
+  padding-bottom: 10px;
+}
+.b-garden-fence-post {
+  width: 5px; height: 14px;
+  background: var(--b-garden-wood);
+  border-radius: 2px 2px 0 0;
+  margin-bottom: 7px;
+  flex-shrink: 0;
+}
+.b-garden-fence-rail {
+  position: absolute; left: 50%; top: 6px; bottom: 10px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--b-garden-rail);
+}
+
+/* Erde unten */
+.b-garden-ground {
+  height: 14px;
+  background: linear-gradient(to bottom, var(--b-garden-wood-light), var(--b-garden-wood));
+  position: relative;
+}
+.b-garden-ground::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--b-garden-highlight);
+}
+
+/* Plant selector in modal */
+.goal-plant-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+.goal-plant-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+  user-select: none;
+}
+.goal-plant-option:hover { background: var(--surface-2); }
+.goal-plant-option input[type="radio"] { display: none; }
+.goal-plant-option:has(input:checked) { border-color: var(--sage); background: var(--sage-bg); }
+.goal-plant-icon { font-size: 18px; }
+.goal-plant-name { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* Icon-Picker für Einnahmen (recurring-Modal) — selbes Grundmuster wie
+   der Pflanzen-Picker oben, nur als kompaktes umbrechendes Grid statt
+   einer Liste mit Textlabel, da hier nur das Icon selbst zählt. */
+.recurring-icon-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.recurring-icon-btn {
+  width: 36px; height: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; line-height: 1;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.recurring-icon-btn:hover { background: var(--surface-3); border-color: var(--sage); }
+.recurring-icon-btn.active { border-color: var(--sage); background: var(--sage-bg); }
+.b-liquidity-card {
+  background: var(--surface);
+  border-radius: var(--b-radius);
+  box-shadow: var(--b-shadow);
+  padding: 20px 24px;
+  border: 1.5px solid var(--b-green-soft);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.b-liquidity-card.warn { border-color: color-mix(in srgb, var(--border) 50%, var(--b-red) 30%); }
+
+.b-liq-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.b-liq-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-3);
+}
+.b-liq-badge {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 99px;
+}
+.b-liq-badge.ok   { background: var(--b-green-soft); color: var(--b-green); }
+.b-liq-badge.warn { background: var(--b-red-soft); color: var(--b-red); }
+
+.b-liq-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.b-liq-row:last-child { border-bottom: none; }
+.b-liq-row-label { font-size: 13px; color: var(--text-2); flex: 1; }
+.b-liq-row-value { font-family: var(--font); font-size: 15px; font-weight: 400; flex-shrink: 0; }
+.b-liq-row-value.income  { color: var(--b-green); }
+.b-liq-row-value.expense { color: var(--b-red); }
+
+.b-liq-expense-list {
+  background: var(--bg-2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 4px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.b-liq-expense-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--text-2);
+  gap: 8px;
+}
+.b-liq-expense-item .expense {
+  color: var(--b-red);
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+
+.b-liq-divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+.b-liq-total-row { display: flex; align-items: baseline; justify-content: space-between; padding: 8px 0 2px; }
+.b-liq-total-value { font-family: var(--font); font-size: 22px; font-weight: 400; letter-spacing: -0.5px; }
+.b-liq-total-value.income  { color: var(--b-green); }
+.b-liq-total-value.expense { color: var(--b-red); }
+
+/* ═══════════════════════════════════════════════════════════
+   ROW 3: RECURRING / ONETIME / GOALS
+═══════════════════════════════════════════════════════════ */
+#budget-row3 {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 0.9fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* ── Shared card base ─────────────────────────────────────── */
+.b-card {
+  background: var(--surface);
+  border-radius: var(--b-radius);
+  box-shadow: var(--b-shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.b-card:hover { box-shadow: var(--b-shadow-lg); }
+
+.b-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.b-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-3);
+}
+.b-card-add-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 32px; padding: 0 12px;
+  border-radius: var(--b-radius-xs);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 12px; font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.b-section-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.b-section-dot.income  { background: var(--b-green-mid); }
+.b-section-dot.expense { background: var(--b-red); }
+.b-section-dot.expense-yearly { background: var(--b-olive); }
+
+/* ── Budget rows ──────────────────────────────────────────── */
+.budget-list { padding: 4px 0 12px; min-height: 40px; }
+.budget-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 20px;
+  border-bottom: none;
+  gap: 10px;
+  transition: background var(--transition);
+  border-radius: 0;
+}
+.budget-row:hover { background: var(--bg); }
+.budget-row:hover .task-delete { opacity: 1 !important; }
+.budget-row-paid { opacity: 0.42; }
+.budget-row-paid .budget-row-name { text-decoration: line-through; }
+.budget-row-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.budget-row-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.budget-row-name { font-size: 12.5px; color: var(--text); }
+.budget-row-sub  { font-size: 11px; color: var(--text-3); }
+.budget-row-right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.budget-row-amount { font-size: 13px; font-weight: 600; font-family: var(--font); }
+
+.b-sum-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.b-sum-row-yearly { opacity: 0.75; }
+.b-sum-row-yearly .b-sum-label { font-style: italic; }
+.b-sum-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.b-sum-value { font-family: var(--font); font-size: 14px; font-weight: 400; }
+.b-sum-value.income  { color: var(--b-green); }
+.b-sum-value.expense { color: var(--b-red); }
+
+/* ── Month nav inside onetime card ───────────────────────── */
+/* ── Priority badges ──────────────────────────────────────── */
+.budget-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.budget-badge-must { background: var(--b-red-soft);   color: var(--b-red); }
+.budget-badge-need { background: var(--b-green-soft);  color: var(--b-green); }
+.budget-badge-want { background: var(--b-olive-soft);  color: var(--b-olive); }
+
+/* ── Sparziel-Karte: kompakte Aktionsleiste (ersetzt 4 volle Buttons) ── */
+.sz-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-top: 10px; flex-wrap: nowrap; }
+.sz-icon-btn {
+  width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2);
+  font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.sz-icon-btn:hover { background: var(--sage-bg); color: var(--sage-dark); border-color: var(--sage-border); }
+.sz-edit-pill { margin-left: 2px; white-space: nowrap; }
+
+/* ── Archiv (erfüllte Sparziele / beglichene Schulden) ───────── */
+.budget-archiv-section { margin-bottom: 18px; }
+.budget-archiv-section:last-child { margin-bottom: 0; }
+.budget-archiv-section-title {
+  font-size: 12px; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+}
+.budget-archiv-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.budget-archiv-row:last-child { border-bottom: none; }
+.budget-archiv-info { flex: 1; min-width: 0; }
+
+/* ── Finanzierungs-Editor ("Jedem Euro einen Job") — budget-financing.js ── */
+.fin-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; }
+.fin-row-check { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; flex: 1; }
+.fin-row-max { color: var(--text-3); font-family: var(--mono); font-size: 11.5px; }
+.fin-row-amount { max-width: 90px; flex-shrink: 0; }
+.fin-diff { font-size: 12px; margin-top: 6px; font-weight: 600; }
+
+/* ── Paid toggle ──────────────────────────────────────────── */
+.budget-paid-btn {
+  width: 21px; height: 21px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  font-size: 10px;
+  color: var(--text-3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.budget-paid-btn:hover { border-color: var(--b-green-mid); color: var(--b-green); }
+.budget-paid-btn.paid { background: var(--b-green); border-color: var(--b-green); color: var(--surface); }
+
+/* ── Edit / delete buttons ────────────────────────────────── */
+.budget-edit-btn {
+  font-size: 12px;
+  color: var(--text-3);
+  padding: 2px 4px;
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+  flex-shrink: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+.budget-row:hover .budget-edit-btn { opacity: 1; }
+.budget-edit-btn:hover { color: var(--text); }
+
+#view-budget .task-delete {
+  opacity: 0;
+  font-size: 11px;
+  color: var(--text-3);
+  transition: opacity var(--transition), color var(--transition);
+}
+#view-budget .task-delete:hover { color: var(--b-red); }
+
+/* ── Timeline ─────────────────────────────────────────────── */
+.budget-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 20px;
+  transition: background var(--transition);
+}
+.budget-timeline-row:hover { background: var(--bg); }
+.budget-timeline-row.budget-row-paid { opacity: 0.4; }
+.budget-timeline-date {
+  font-size: 11px;
+  color: var(--text-3);
+  width: 50px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.budget-timeline-name   { flex: 1; font-size: 13px; color: var(--text); }
+.budget-timeline-amount { font-size: 13px; font-family: var(--font); font-weight: 400; flex-shrink: 0; }
+
+/* ── Goals ────────────────────────────────────────────────── */
+.budget-goal-card {
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+.budget-goal-card:last-child { border-bottom: none; }
+.budget-goal-card:hover { background: var(--bg); }
+.budget-goal-card:hover .budget-edit-btn { opacity: 1; }
+.budget-goal-card:hover .task-delete { opacity: 1 !important; }
+.budget-goal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.budget-goal-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.budget-goal-bar {
+  height: 5px;
+  background: var(--border-strong);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.budget-goal-fill {
+  height: 100%;
+  background: var(--b-olive);
+  border-radius: 99px;
+  transition: width 500ms cubic-bezier(.4,0,.2,1);
+}
+.budget-goal-info-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+/* ── Priority picker in modals ────────────────────────────── */
+.budget-prio-picker { display: flex; gap: 6px; }
+.budget-prio-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: var(--b-radius-xs);
+  border: 1.5px solid var(--border-strong);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.budget-prio-btn:hover { background: var(--b-green-soft); color: var(--b-green); }
+.budget-prio-btn.active[data-prio="must"] { background: var(--b-red-soft);   color: var(--b-red);   border-color: var(--b-red); }
+.budget-prio-btn.active[data-prio="want"] { background: var(--b-olive-soft); color: var(--b-olive); border-color: var(--b-olive); }
+
+/* ── Tip banner ───────────────────────────────────────────── */
+.b-tip-banner {
+  background: var(--surface);
+  border-radius: var(--b-radius);
+  box-shadow: var(--b-shadow);
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  min-height: 110px;
+  border: 1px solid var(--border);
+}
+.b-tip-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 28px;
+  flex: 1;
+}
+.b-tip-icon { flex-shrink: 0; opacity: 0.7; }
+.b-tip-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.b-tip-text { font-size: 14px; color: var(--text); line-height: 1.6; max-width: 480px; }
+
+/* ── Empty state ──────────────────────────────────────────── */
+#view-budget .empty-state {
+  padding: 24px;
+  font-size: 13px;
+  color: var(--text-3);
+  text-align: center;
+}
+
+/* ── Frequency chips ──────────────────────────────────────── */
+.b-freq-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+.b-freq-chip.monthly { background: var(--b-green-soft); color: var(--b-green-mid); }
+.b-freq-chip.yearly  { background: var(--b-olive-soft); color: var(--b-olive); }
+
+.budget-row-sub-html { margin-top: 2px; }
+
+/* ── Misc ─────────────────────────────────────────────────── */
+
+.budget-prio-row-dimmed {
+  opacity: 0.38;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* =============================================================
+   KONTOSTAND HEADER DISPLAY
+============================================================= */
+
+/* =============================================================
+   COMPACT SUMMARY CARDS — 3 Spalten
+   Dunkler Header + heller Body
+============================================================= */
+
+#budget-main-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+
+.b-main-card {
+  border: 1px solid var(--b-card-line-5);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.b-main-card--income  { background: var(--b-card-income-bg); }
+.b-main-card--expense { background: var(--b-card-expense-bg); }
+.b-main-card--free    { background: var(--b-card-free-bg); }
+
+.b-main-card-summary {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px 11px; background: none; border: none; cursor: pointer; text-align: left; gap: 12px;
+}
+.b-main-card-summary:hover { background: var(--b-card-line-1); }
+
+.b-mcs-left { display: flex; flex-direction: column; gap: 3px; }
+.b-mcs-label { font-size: 9px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--b-card-ink-4); }
+.b-mcs-value { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--b-card-ink-1); line-height: 1.1; }
+.b-mcs-value.income  { color: var(--b-card-income-text); }
+.b-mcs-value.expense { color: var(--b-card-expense-text); }
+.b-mcs-arrow { font-size: 10px; color: var(--b-card-ink-7); flex-shrink: 0; }
+
+/* Detail panel — clearly lighter than header */
+.b-main-card-detail {
+  background: var(--b-card-panel);
+  border-top: 1px solid var(--b-card-line-4);
+  padding: 8px 14px 10px;
+  flex: 1;
+}
+
+.b-main-card-list { display: flex; flex-direction: column; }
+.b-main-empty { font-size: 12px; color: var(--b-card-ink-5); padding: 4px 0; font-style: italic; }
+
+/* ── Geldfluss — ersetzt die bisherige Finanzanalyse. Visuelle
+   Töpfe (Einnahmen-Karten) mit gestapelten Zuordnungen, plus ziehbare
+   Ausgaben-/Sparziel-/Schulden-Karten darunter. Cozy-Stil: runde Ecken,
+   sanfte Schatten, viel Weißraum — keine Tabellenoptik. ── */
+.gf-view { display: flex; flex-direction: column; gap: 22px; }
+
+/* ── Monatsrest — dezente Pille im Stil der Kontostand-Pille ── */
+.gf-monatsrest-pill {
+  align-self: center; display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl);
+  padding: 6px 18px; box-shadow: var(--shadow-sm);
+}
+.gf-monatsrest-label { font-size: 9px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-3); }
+.gf-monatsrest-value { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+
+/* ── Einnahmen-Zeitachse: Wochen als Spalten, Monatsposten als Balken ── */
+.gf-week-grid {
+  display: grid; grid-template-columns: repeat(var(--gf-week-count, 4), 1fr); gap: 0;
+  border: 1px solid var(--border); border-radius: var(--b-radius); overflow: hidden; background: var(--surface);
+}
+.gf-week-col { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+.gf-week-col + .gf-week-col { border-left: 1px dashed var(--border); }
+.gf-week-head { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin-bottom: 2px; }
+.gf-week-title { font-size: 12px; font-weight: 700; color: var(--text); }
+.gf-week-total { font-family: var(--mono); font-size: 12px; font-weight: 700; }
+@media (max-width: 760px) { .gf-week-grid { grid-template-columns: repeat(2, 1fr); } .gf-week-col + .gf-week-col { border-left: none; border-top: 1px dashed var(--border); } }
+/* ≤480px: bleibt bei 2 Spalten (siehe .gf-week-grid weiter unten im
+   Mobile-Block) statt auf 1 zu wechseln — spart vertikalen Platz. */
+
+.gf-bar-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.gf-income-bar {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--b-radius);
+  box-shadow: 0 2px 8px rgba(50,40,20,0.06); padding: 12px 16px;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.gf-income-bar.gf-drop-hover { box-shadow: 0 0 0 2px var(--sage), 0 4px 14px rgba(50,40,20,0.12); transform: translateY(-2px); }
+/* Name + Rest rücken eng zusammen in die Mitte (Hauptinformation), der
+   volle Betrag bleibt als kleine Nebeninfo direkt daneben statt am
+   Kartenrand zu kleben. */
+.gf-bar-main { display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap; text-align: center; }
+.gf-bar-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.gf-bar-rest { font-family: var(--mono); font-size: 18px; font-weight: 700; }
+.gf-bar-amount-sub { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+.gf-stack--bar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.gf-stack--bar .gf-stack-item { margin-top: 0; }
+
+.gf-income-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--b-radius-sm);
+  box-shadow: 0 2px 6px rgba(50,40,20,0.06); padding: 10px 11px 8px; width: 100%;
+  display: flex; flex-direction: column; gap: 4px; transition: box-shadow var(--transition), transform var(--transition);
+}
+.gf-income-card.gf-drop-hover { box-shadow: 0 0 0 2px var(--sage), 0 4px 14px rgba(50,40,20,0.12); transform: translateY(-2px); }
+.gf-income-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.gf-income-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+/* Nebeninfo: der ursprüngliche Betrag — bewusst klein, der Rest (oben)
+   ist jetzt die Hauptinformation der Karte. */
+.gf-income-amount-sub { font-family: var(--mono); font-size: 11px; color: var(--text-3); text-align: right; }
+
+/* Farbfamilie je Einnahmequelle (bis zu 4, rotierend) — ans Mockup
+   angelehnt: jede Einnahme bekommt eine eigene, stabile Farbe, damit man
+   auf einen Blick sieht, welcher Stapel-Eintrag zu welcher Quelle gehört.
+   Kompakte Selektoren (Karte+Klasse zusammen), damit die Reihenfolge im
+   Stylesheet keine Rolle spielt. */
+.gf-income-card.gf-income-c1, .gf-income-bar.gf-income-c1 { background: var(--b-green-soft);  border-color: var(--b-green); }
+.gf-income-card.gf-income-c2, .gf-income-bar.gf-income-c2 { background: var(--b-olive-soft);   border-color: var(--b-olive); }
+.gf-income-card.gf-income-c3, .gf-income-bar.gf-income-c3 { background: var(--b-red-soft);     border-color: var(--b-red); }
+.gf-income-card.gf-income-c4, .gf-income-bar.gf-income-c4 { background: var(--b-blue-soft);    border-color: var(--b-blue); }
+.gf-income-c1 .gf-income-name, .gf-income-c1 .gf-bar-name { color: var(--b-green); }
+.gf-income-c2 .gf-income-name, .gf-income-c2 .gf-bar-name { color: var(--b-olive); }
+.gf-income-c3 .gf-income-name, .gf-income-c3 .gf-bar-name { color: var(--b-red); }
+.gf-income-c4 .gf-income-name, .gf-income-c4 .gf-bar-name { color: var(--b-blue); }
+
+.gf-stack { display: flex; flex-direction: column; }
+.gf-stack-item {
+  display: flex; justify-content: center; align-items: baseline; gap: 6px; font-size: 11px; color: var(--text-2);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--b-radius-xs);
+  padding: 4px 8px; margin-top: calc(-1px - var(--gf-i, 0) * 0px);
+  /* pan-y statt none: die Karte selbst bleibt normales, natives Scrollen —
+     nur .gf-drag-handle (siehe unten) blockiert dort gezielt die native
+     Touch-Geste, damit Ziehen NUR über den Ziehpunkt starten kann. */
+  cursor: grab; touch-action: pan-y; user-select: none; transition: background var(--transition);
+}
+.gf-stack-item:hover { background: var(--b-red-soft); }
+.gf-stack-item--over { background: var(--b-red-soft); color: var(--b-red); border-color: var(--b-red); }
+.gf-stack-item + .gf-stack-item { margin-top: 3px; }
+
+/* Rest — jetzt die groß hervorgehobene Hauptinformation jeder Karte. */
+.gf-rest { font-size: 12px; font-weight: 700; }
+.gf-rest-hero { font-family: var(--mono); font-size: 22px; font-weight: 700; padding: 2px 0 4px; }
+.gf-rest-ok   { color: var(--b-green); }
+.gf-rest-low  { color: var(--b-olive); }
+.gf-rest-over { color: var(--b-red); }
+
+.gf-consumer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .gf-consumer-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .gf-consumer-grid { grid-template-columns: 1fr; } }
+
+.gf-group { display: flex; flex-direction: column; min-width: 0; }
+.gf-group-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.gf-group-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.gf-group-count { font-size: 10px; font-family: var(--mono); color: var(--text-3); font-weight: 400; }
+.gf-group-list { display: flex; flex-direction: column; gap: 8px; }
+
+.gf-consumer-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--b-radius-sm);
+  box-shadow: 0 1px 4px rgba(50,40,20,0.05); padding: 9px 12px; display: flex; align-items: center;
+  justify-content: space-between; gap: 8px; cursor: grab; touch-action: pan-y; user-select: none;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.gf-consumer-card:hover { box-shadow: 0 3px 10px rgba(50,40,20,0.10); transform: translateY(-1px); }
+.gf-consumer-card.gf-drag-source, .gf-stack-item.gf-drag-source { opacity: 0.35; }
+.gf-consumer-card.gf-consumer-red    { background: var(--b-red-soft);    border-left: 3px solid var(--b-red); }
+.gf-consumer-card.gf-consumer-blue   { background: var(--b-blue-soft);   border-left: 3px solid var(--b-blue); }
+.gf-consumer-card.gf-consumer-purple { background: var(--b-purple-soft); border-left: 3px solid var(--b-purple); }
+.gf-consumer-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.gf-consumer-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.gf-consumer-amount { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); flex-shrink: 0; }
+
+/* ── Ziehpunkt für Touch — auf Desktop unsichtbar (Maus zieht wie gehabt
+   von der ganzen Karte aus), auf Touch-Geräten die EINZIGE Stelle, die
+   einen Drag startet. touch-action:none NUR hier, nicht auf der Karte
+   selbst — dadurch bleibt der Rest der Karte immer normales, natives
+   Scrollen (siehe makeGeldflussDraggable in budget-analysis.js). */
+.gf-drag-handle {
+  display: none;
+  flex-shrink: 0; align-items: center; justify-content: center;
+  color: var(--text-3); font-size: 12px; line-height: 1;
+  touch-action: none; cursor: grab;
+}
+@media (hover: none) and (pointer: coarse) {
+  .gf-drag-handle {
+    display: flex;
+    /* größere Tapfläche als das sichtbare Symbol, ohne die Optik zu
+       vergrößern — bewusst moderat (nicht 44px), da .gf-stack-item mit
+       nur 3px Abstand gestapelt wird und größere Überlappung benachbarter
+       Ziehpunkte träfe. */
+    padding: 6px; margin: -6px -2px -6px -6px;
+  }
+}
+
+.gf-add-btn {
+  margin-top: 8px; padding: 8px 10px; border: 1px dashed var(--border-strong); border-radius: var(--b-radius-sm);
+  background: transparent; color: var(--text-3); font-size: 12px; cursor: pointer; text-align: center;
+  transition: background var(--transition), color var(--transition);
+}
+.gf-add-btn:hover { background: var(--surface-2); color: var(--text-2); }
+
+.gf-drag-ghost {
+  position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;
+  box-shadow: 0 8px 24px rgba(50,40,20,0.22); transform: rotate(-2deg); opacity: 0.95;
+}
+
+.b-main-row {
+  display: grid; grid-template-columns: 38px 1fr 14px auto;
+  align-items: center; gap: 5px;
+  padding: 3px 0; border-bottom: 1px solid var(--b-card-line-1); font-size: 12px; line-height: 1.2;
+}
+.b-main-row:last-child { border-bottom: none; }
+
+.b-main-row-clickable { cursor: pointer; border-radius: 4px; margin: 0 -3px; padding: 3px 3px; transition: background 100ms; }
+.b-main-row-clickable:hover  { background: var(--b-card-line-2); }
+.b-main-row-clickable:active { background: var(--b-card-line-6); }
+.b-main-row.b-main-row-paid  { opacity: 0.35; text-decoration: line-through; }
+
+.b-main-row-day    { font-family: var(--mono); font-size: 9.5px; color: var(--b-card-ink-5); }
+.b-main-row-name   { color: var(--b-card-neutral-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.b-main-row-check  { font-size: 10px; color: var(--b-card-ink-3); text-align: center; }
+.b-main-row-amount { font-family: var(--mono); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.b-main-row-amount.income  { color: var(--b-card-income-text); }
+.b-main-row-amount.expense { color: var(--b-card-expense-text); }
+
+.b-main-group-head { display: flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 700; color: var(--b-card-ink-5); padding: 4px 0 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.b-main-card-total { display: flex; justify-content: space-between; align-items: center; padding: 6px 0 0; border-top: 1px solid var(--b-card-line-3); margin-top: 3px; }
+.b-main-total-label { font-size: 9.5px; font-weight: 600; color: var(--b-card-ink-5); text-transform: uppercase; letter-spacing: 0.07em; }
+.b-main-total-value { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+.b-main-total-value.income  { color: var(--b-card-income-text); }
+.b-main-total-value.expense { color: var(--b-card-expense-text); }
+
+/* Free budget card inner */
+#b-free-content { padding: 6px 0 2px; }
+.b-free-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+.b-free-label     { font-size: 12px; color: var(--b-card-ink-2); }
+.b-free-label-big { font-size: 13px; font-weight: 600; color: var(--b-card-neutral-text); }
+.b-free-val { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--b-card-neutral-text); }
+.b-free-val.income  { color: var(--b-card-income-text); }
+.b-free-val.expense { color: var(--b-card-expense-text); }
+.b-free-val-big { font-family: var(--mono); font-size: 17px; font-weight: 700; }
+.b-free-val-big.income  { color: var(--b-card-income-text); }
+.b-free-val-big.expense { color: var(--b-card-expense-text); }
+.b-free-divider { height: 1px; background: var(--b-card-line-4); margin: 5px 0 3px; }
+.b-free-row-total { margin-top: 2px; }
+#b-status-inner { padding: 5px 0 2px; }
+
+/* Prioritätszeilen in Verfügbar-Karte */
+.b-free-prio-row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 12px;
+}
+.b-free-prio-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.b-free-prio-dot.must { background: var(--b-card-must); }
+.b-free-prio-dot.need { background: var(--b-card-need); }
+.b-free-prio-dot.want { background: var(--b-card-want); }
+.b-free-prio-label { color: var(--b-card-ink-2); font-size: 11.5px; }
+.b-free-prio-amt   { font-family: var(--mono); font-size: 11px; color: var(--b-card-expense-text); text-align: right; }
+.b-free-prio-after { font-family: var(--mono); font-size: 11px; font-weight: 600; text-align: right; min-width: 64px; }
+.b-free-prio-after.ok      { color: var(--b-card-income-text); }
+.b-free-prio-after.bad     { color: var(--b-card-bad); }
+.b-free-prio-after.neutral { color: var(--b-card-ink-6); }
+
+/* =============================================================
+   3-SPALTEN KARTEN (Wiederkehrende / Einmalige / Sparziele)
+   — In-Card Toggle
+============================================================= */
+
+.b-card-header {
+  display: flex;
+  align-items: center;
+  padding: 13px 16px 11px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.b-card-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+.b-card-arrow { font-size: 9px; color: var(--text-3); flex-shrink: 0; }
+.b-card-title { font-size: 13px; font-weight: 600; color: var(--text); }
+
+/* =============================================================
+   SPARPROGNOSE & SPARPLÄNE — Sub-Tabs innerhalb von #view-budget
+   Ausschließlich bestehende Tokens (main.css / budget.css oben).
+   Keine neuen Farben, keine hardcodierten Abstände.
+============================================================= */
+
+/* ── Sub-Tab-Umschalter (Budget ↔ Sparprognose ↔ Sparpläne) ── */
+.sp-subtab-switch {
+  display: inline-flex;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 99px;
+  padding: 3px;
+  gap: 2px;
+  margin-top: 10px;
+}
+.sp-subtab-btn {
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  transition: all var(--transition);
+}
+.sp-subtab-btn.active { background: var(--surface); color: var(--sage-dark); box-shadow: var(--shadow-xs); }
+.sp-subtab-btn:not(.active):hover { color: var(--text); }
+
+#budget-panel-budget, #budget-panel-sparplan, #budget-panel-sparplaene { display: flex; flex-direction: column; gap: 0; }
+#budget-panel-sparplan, #budget-panel-sparplaene { gap: 16px; }
+
+/* ── Szenario-Karten ───────────────────────────────────────── */
+.sp-scenarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.sp-scen-card {
+  border-radius: var(--b-radius);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  box-shadow: var(--b-shadow);
+}
+.sp-scen-card:hover { box-shadow: var(--b-shadow-lg); transform: translateY(-1px); }
+.sp-scen-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.sp-scen-desc { font-size: 11.5px; color: var(--text-3); margin-bottom: 2px; }
+.sp-scen-value { font-family: var(--mono); font-size: 24px; font-weight: 700; line-height: 1.15; margin: 4px 0 2px; }
+.sp-scen-sub { font-size: 11px; color: var(--text-3); }
+
+.sp-scen-card .sp-scen-garant { color: var(--b-green); }
+.sp-scen-card .sp-scen-real   { color: var(--b-olive); }
+.sp-scen-card .sp-scen-opt    { color: var(--sage-dark); }
+.sp-scen-card[data-scen="garant"] { background: var(--b-green-soft); }
+.sp-scen-card[data-scen="real"]   { background: var(--b-olive-soft); }
+.sp-scen-card[data-scen="opt"]    { background: var(--sage-bg); }
+
+/* ── Generisches Sparplaner-Panel (Karte) ─────────────────── */
+.sp-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--b-radius); box-shadow: var(--b-shadow); overflow: hidden; }
+.sp-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px 11px; border-bottom: 1px solid var(--border); }
+.sp-panel-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.sp-add-btn { font-size: 11.5px; font-weight: 600; color: var(--sage-dark); background: var(--sage-bg); border: 1px solid var(--sage-border); border-radius: 99px; padding: 5px 12px; transition: all var(--transition); }
+.sp-add-btn:hover { background: var(--sage); color: var(--surface); }
+
+#sparplan-grid { display: grid; grid-template-columns: 1fr 1.35fr; gap: 16px; align-items: start; }
+@media (max-width: 1080px) { #sparplan-grid { grid-template-columns: 1fr; } }
+
+/* ── Einnahmen/Ausgaben-Gruppen ────────────────────────────── */
+.sp-group { padding: 10px 16px 4px; }
+.sp-group-label { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; padding-top: 6px; }
+.sp-group-label .dot { width: 7px; height: 7px; border-radius: 50%; }
+.sp-group-label.garant .dot   { background: var(--b-green-mid); }
+.sp-group-label.variabel .dot { background: var(--b-olive); }
+.sp-group-label.sonder .dot   { background: var(--text-3); }
+
+.sp-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.sp-row:last-child { border-bottom: none; }
+.sp-row-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-row-amt { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+.sp-row-amt.income  { color: var(--budget-income); }
+.sp-row-amt.expense { color: var(--budget-expense); }
+.sp-row-range { font-family: var(--mono); font-size: 10.5px; color: var(--text-3); white-space: nowrap; }
+
+.sp-group-total { display: flex; justify-content: space-between; padding: 6px 0 10px; font-size: 11.5px; font-weight: 700; color: var(--text-2); }
+.sp-group-total span:last-child { font-family: var(--mono); }
+
+.sp-source-note { margin: 4px 16px 14px; padding: 9px 12px; background: var(--surface-2); border-radius: var(--radius-sm); font-size: 11px; color: var(--text-3); line-height: 1.6; }
+
+/* ── Sparziele & Prognose ──────────────────────────────────── */
+.sp-goal-table-head { display: grid; grid-template-columns: 56px 1.5fr 1fr auto; gap: 10px; padding: 8px 16px; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); border-bottom: 1px solid var(--border); }
+.sp-goal-row { display: grid; grid-template-columns: 56px 1.5fr 1fr auto; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.sp-goal-row:last-child { border-bottom: none; }
+.sp-goal-row:hover { background: var(--surface-3); }
+
+.sp-goal-order { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.sp-order-btn { font-size: 9px; color: var(--text-3); line-height: 1; padding: 1px 4px; border-radius: 3px; transition: color var(--transition), background var(--transition); }
+.sp-order-btn:hover:not(:disabled) { color: var(--sage-dark); background: var(--sage-bg); }
+.sp-order-btn:disabled { opacity: .25; cursor: default; }
+.sp-goal-prio { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--text-2); }
+
+.sp-goal-name { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.sp-goal-name-top { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 13px; flex-wrap: wrap; }
+.sp-goal-target { font-weight: 400; color: var(--text-3); font-size: 11px; }
+.sp-goal-bar { height: 5px; background: var(--surface-3); border-radius: 99px; overflow: hidden; width: 100%; max-width: 170px; }
+.sp-goal-fill { height: 100%; background: var(--sage); border-radius: 99px; transition: width 500ms cubic-bezier(.4,0,.2,1); }
+.sp-goal-progress-txt { font-size: 10.5px; color: var(--text-3); font-family: var(--mono); }
+
+.sp-goal-eta-block { display: flex; flex-direction: column; gap: 2px; font-family: var(--mono); font-size: 11px; }
+.sp-goal-eta-block .g { color: var(--text-3); }
+.sp-goal-eta-block .r { color: var(--b-olive); font-weight: 700; }
+.sp-goal-eta-block .o { color: var(--sage-dark); }
+
+.sp-goal-compare { font-size: 11px; font-weight: 600; padding: 5px 9px; border-radius: 99px; white-space: nowrap; text-align: center; }
+.sp-goal-compare.early { background: var(--sage-bg); color: var(--sage-dark); }
+.sp-goal-compare.late  { background: var(--b-red-soft); color: var(--b-red); }
+.sp-goal-compare.none  { background: var(--surface-2); color: var(--text-3); }
+
+/* ── Zeitstrahl — echte proportionale Zeitachse ───────────────
+   Positionen werden in budget.js aus dem tatsächlichen ETA-Datum
+   berechnet (px entlang der Achse) und per inline style gesetzt.
+   Das CSS definiert nur das visuelle Grundgerüst. ─────────────── */
+.sp-timeline-wrap { padding: 34px 40px 20px 24px; overflow-x: auto; }
+.sp-timeline-axis { position: relative; }
+
+.sp-tl-baseline { position: absolute; top: 0; left: 0; height: 2px; background: var(--border-strong); }
+
+.sp-tl-year-line {
+  position: absolute; top: -18px; bottom: 0; width: 1px;
+  background: var(--border); pointer-events: none;
+}
+.sp-tl-year-label {
+  position: absolute; top: -34px; transform: translateX(-2px);
+  font-size: 10.5px; font-weight: 700; font-family: var(--mono);
+  color: var(--text-3); letter-spacing: .02em; white-space: nowrap;
+}
+
+.sp-tl-point { position: absolute; top: 0; transform: translateX(-50%); }
+.sp-tl-dot {
+  position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--surface); border: 2.5px solid var(--sage); z-index: 1;
+}
+.sp-tl-connector {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 1.5px; background: var(--border-strong);
+}
+.sp-tl-card {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 9px 12px; text-align: center;
+  min-width: 116px; box-shadow: var(--shadow-xs);
+}
+.sp-tl-month { font-size: 10px; color: var(--text-3); font-family: var(--mono); margin-bottom: 4px; }
+.sp-tl-icon { font-size: 18px; margin-bottom: 2px; }
+.sp-tl-goal { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.sp-tl-amt { font-size: 10.5px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; }
+
+/* ── Was-wäre-wenn + Zusammenfassung ───────────────────────── */
+#sparplan-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 960px) { #sparplan-bottom-grid { grid-template-columns: 1fr; } }
+
+.sp-sim-panel { padding: 18px 20px 22px; }
+.sp-sim-value { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--sage-dark); text-align: center; margin: 14px 0 6px; }
+.sp-sim-slider { width: 100%; accent-color: var(--sage); height: 5px; }
+.sp-sim-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-3); font-family: var(--mono); margin-top: 6px; }
+.sp-sim-hint { margin-top: 14px; font-size: 11.5px; color: var(--text-3); text-align: center; }
+.sp-sim-reset { display: block; margin: 12px auto 0; font-size: 11px; font-weight: 600; color: var(--text-3); border: 1.5px solid var(--border-strong); border-radius: 99px; padding: 5px 14px; transition: all var(--transition); }
+
+
+@media (max-width: 720px) {
+  .sp-scenarios-grid { grid-template-columns: 1fr; }
+  .sp-goal-table-head, .sp-goal-row { grid-template-columns: 40px 1fr; }
+  .sp-goal-eta-block, .sp-goal-compare { grid-column: 1 / -1; }
+  .sp-plaene-grid { grid-template-columns: 1fr; }
+  .sp-wizard-custom-row { grid-template-columns: auto 1fr auto; }
+}
+
+/* =============================================================
+   SPARPLÄNE — eigenständiges Modul (Übersicht, Assistent, Detail)
+   Ausschließlich bestehende Tokens, keine neuen Farben.
+============================================================= */
+
+/* ── Kopf & Grid der Übersicht ───────────────────────────────── */
+.sp-plaene-sub { padding: 0 16px 13px; font-size: 12px; color: var(--text-3); }
+.sp-plaene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+
+/* ── Einzelne Sparplan-Karte ──────────────────────────────────── */
+.sp-plan-card {
+  border-radius: var(--b-radius);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  padding: 16px 18px;
+  box-shadow: var(--b-shadow);
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sp-plan-card:hover { box-shadow: var(--b-shadow-lg); transform: translateY(-1px); }
+.sp-plan-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sp-plan-card-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.sp-plan-badge { background: var(--sage-bg); color: var(--sage-dark); }
+.sp-plan-bar { height: 6px; }
+.sp-plan-card-row { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 12.5px; color: var(--text); }
+.sp-plan-card-amounts-of { color: var(--text-3); }
+.sp-plan-card-pct { color: var(--text-3); }
+.sp-plan-card-meta { display: flex; flex-direction: column; gap: 2px; font-size: 11.5px; color: var(--text-3); }
+.sp-plan-card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.sp-plan-open-btn { font-size: 11.5px; padding: 5px 14px; }
+.sp-plan-pay-btn { font-size: 11.5px; padding: 5px 14px; }
+
+/* ── Assistent: Variantenauswahl ─────────────────────────────── */
+.sp-wizard-variant-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.sp-wizard-variant-btn {
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--b-radius-xs);
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all var(--transition);
+}
+.sp-wizard-variant-btn:hover { border-color: var(--sage); background: var(--sage-bg); }
+.sp-wizard-variant-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.sp-wizard-variant-desc { font-size: 11.5px; color: var(--text-3); line-height: 1.4; }
+.sp-wizard-preview { margin-top: 8px; font-size: 12px; color: var(--text-3); font-family: var(--mono); min-height: 16px; }
+.sp-wizard-custom-row { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 6px; }
+.sp-wizard-custom-position { font-size: 12.5px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; min-width: 64px; }
+
+/* ── Detailansicht ────────────────────────────────────────────── */
+.sp-detail-stammdaten { display: flex; flex-direction: column; gap: 8px; }
+.sp-detail-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+.sp-detail-row > span:first-child { color: var(--text-3); }
+.sp-detail-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin: 16px 0 6px; }
+.sp-detail-entry-list { display: flex; flex-direction: column; gap: 4px; max-height: 160px; overflow-y: auto; }
+.sp-detail-entry-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 10px; border-radius: var(--b-radius-xs); background: var(--surface-2);
+  font-size: 12.5px;
+}
+.sp-detail-entry-row--done { opacity: .65; }
+.sp-detail-entry-amount { font-family: var(--mono); }
+.sp-detail-entry-btn { font-size: 11px; padding: 3px 10px; }
+
+/* ── Individuell: additive Werkzeugleiste & Generator-Formulare ──
+   Die 4 Werkzeuge sind KEINE exklusiven Varianten mehr, sondern
+   hängen ihre Ergebnisse an dieselbe Liste an — siehe budget.js
+   showSpwCustomSection()/spwCustomEntries. ── */
+.sp-wizard-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+.sp-wizard-back-link {
+  background: none; border: none; padding: 0 0 12px; margin: 0;
+  font-size: 12px; font-weight: 600; color: var(--sage-dark); cursor: pointer;
+}
+.sp-wizard-back-link:hover { text-decoration: underline; }
+.sp-template-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 12px; border-radius: var(--b-radius-xs); border: 1.5px dashed var(--border-strong);
+  color: var(--text-3); font-size: 12.5px; margin-bottom: 6px;
+}
+.sp-template-item .badge-soon {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  background: var(--sage-bg); color: var(--sage-dark); border-radius: 99px; padding: 2px 8px;
+}
+
+
+/* ── Rechenweg unter Szenario-Karten (Fix: Nachvollziehbarkeit) ── */
+.sp-scen-formula {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-strong);
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+/* ── Readonly-Zustand für automatisch berechneten Betrag (Variabel) ── */
+.modal-input-readonly {
+  background: var(--surface-2);
+  color: var(--text-3);
+  cursor: not-allowed;
+}
+
+/* ── "Gespart bis..." — Ergebnisdarstellung (vorher komplett ungestylt,
+   deshalb die Debug-Optik). Fließtext-Zusammenfassung → große Ergebnis-
+   Karte → Kennzahlen → Berechnung, sanft eingeblendet. ── */
+.sp-savedby-hint { font-size: 13px; color: var(--text-3); padding: 10px 2px; line-height: 1.5; }
+
+.sp-savedby-result { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; animation: sp-savedby-fadein 260ms ease-out; }
+@keyframes sp-savedby-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.sp-savedby-summary { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+.sp-savedby-hero {
+  background: var(--sage-bg); border: 1px solid var(--sage-border); border-radius: var(--b-radius);
+  padding: 16px; text-align: center;
+}
+.sp-savedby-hero-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sage-dark); margin-bottom: 6px; }
+.sp-savedby-hero-sub { font-size: 12.5px; color: var(--text-2); }
+.sp-savedby-hero-amount { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--sage-dark); margin: 4px 0; }
+
+.sp-savedby-section { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--b-radius-sm); padding: 10px 14px; }
+.sp-savedby-section-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.sp-savedby-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-2); padding: 4px 0; }
+.sp-savedby-row + .sp-savedby-row { border-top: 1px dashed var(--border); }
+.sp-savedby-row span:last-child { font-family: var(--mono); font-weight: 600; color: var(--text); }
+
+.sp-savedby-formula { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 8px; font-family: var(--mono); font-size: 13px; color: var(--text-2); padding: 4px 0; }
+.sp-savedby-formula-op { color: var(--text-3); }
+.sp-savedby-formula-result { font-weight: 700; color: var(--sage-dark); }
+.sp-savedby-formula + .sp-savedby-formula { border-top: 1px dashed var(--border); margin-top: 2px; padding-top: 8px; }
+
+/* =============================================================
+   RESPONSIVE
+   Budget ist der dichteste Tab im Hub (Header mit 5-teiligem Subtab-
+   Umschalter + Monatspicker, 3 gleich breite Summary-Karten, 2x2
+   Liquidität/Finanzgarten, 3 ungleich breite Listenkarten) — entsprechend
+   mehr Stufen als bei den anderen Tabs.
+============================================================= */
+
+/* Subtab-Umschalter (Übersicht/Finanzierung/Prognose/Sparpläne/Schulden):
+   5 Pills in einer Reihe passen auf keinem Phone nebeneinander. Statt
+   umzubrechen (zerstört die Pillen-Optik) wird die Leiste horizontal
+   scrollbar — gilt unabhängig von der Breite, nicht nur ≤480px, da schon
+   Tablet-Breiten knapp werden können. */
+.sp-subtab-switch {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.sp-subtab-switch::-webkit-scrollbar { height: 4px; }
+.sp-subtab-switch::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+.sp-subtab-btn { flex-shrink: 0; white-space: nowrap; }
+
+@media (max-width: 1080px) {
+  /* Header: 1fr-auto-1fr-Grid samt fest 240px breitem Monatspicker in
+     der rechten Spalte passt ab hier nicht mehr nebeneinander. */
+  #budget-header { grid-template-columns: 1fr; gap: 14px; }
+  .b-ks-header-pill { justify-self: flex-start; }
+  #budget-actions { justify-self: stretch; flex-wrap: wrap; padding-top: 0; }
+
+  /* 3 gleich breite Summary-Karten -> 2, dritte rutscht in eigene Zeile */
+  #budget-main-cards { grid-template-columns: repeat(2, 1fr); }
+
+  /* Wiederkehrend/Einmalig/Sparziele: 3 ungleiche Spalten -> 2 */
+  #budget-row3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  /* Liquiditätsvorschau + Finanzgarten nebeneinander wird auf Tablet-Breite eng */
+  #budget-mid-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  #budget-main-cards { grid-template-columns: 1fr; }
+  #budget-row3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  #budget-title-block h1 { font-size: 28px; }
+  #budget-month-picker { width: 100%; }
+  .b-tree-config-btn { width: 32px; height: 32px; }
+  .b-tip-left { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px 18px; }
+
+  /* Wiederkehrend/Einmalig/Sparziele: Karten-Header etwas kompakter,
+     "+ Hinzufügen" bleibt einzeilig (siehe .b-card-add-btn), der Titel
+     darf bei Bedarf zweizeilig umbrechen statt den Button zu quetschen. */
+  .b-card-header { padding: 12px 14px 10px; }
+  .b-card-add-btn { padding: 0 10px; font-size: 11.5px; }
+
+  /* ── Wiederkehrende/Einmalige Posten, Sparziele: Zeilen-Layout ──
+     Ursachen der "gequetschten" Optik auf Mobile:
+     1) Kartenkopf (16px), Posten-Zeilen (20px) und Summenzeile (24px)
+        haben auf Desktop bewusst unterschiedliche Innenabstände — auf
+        der schmalen Mobile-Spalte macht das drei sichtbar versetzte
+        linke Kanten statt einer sauberen Linie. Wird hier vereinheitlicht.
+     2) .budget-row zentriert den rechten Block (Status/Betrag/Icons)
+        vertikal (align-items:center) gegen den linken Block — der aber
+        durch Name-Zeile + Frequenz-Badge darunter praktisch immer
+        zweizeilig ist. Der rechte Block "schwebt" dadurch mittig
+        zwischen beiden Zeilen statt an der Namenszeile zu kleben.
+        Fix: rechter Block richtet sich an der Namenszeile aus (Beginn
+        der Zeile), analog zu einer klaren Listenzeile.
+     3) Bearbeiten-/Löschen-Icons sind rein hover-gesteuert (opacity:0)
+        — auf Touch ohne Hover unsichtbar UND unbedienbar. Sie
+        reservieren aber weiterhin unsichtbaren Platz, wodurch der
+        Betrag nicht wirklich am rechten Rand zu kleben scheint. Auf
+        Mobile deshalb dauerhaft sichtbar (kein Hover verfügbar). */
+  .b-section-label { padding: 10px 14px 6px; }
+  .budget-row { align-items: flex-start; padding: 9px 14px; gap: 8px; }
+  .budget-row-right { padding-top: 1px; }
+  .b-sum-row { padding: 10px 14px 12px; }
+  .budget-edit-btn,
+  #view-budget .task-delete { opacity: 1; }
+
+  /* ── Finanzierung (Geldfluss-Board) — eigenständiges Mobile-Layout
+     statt einer schmal gequetschten Desktop-Version. .gf-* wird
+     ausschließlich hier verwendet (budget-analysis.js), daher risikolos
+     eingrenzbar. Drag & Drop selbst bleibt unverändert (siehe
+     makeGeldflussDraggable() — Long-Press-Gate für Touch, Layout hier
+     betrifft nur die Darstellung, nicht die Zuordnungslogik. ── */
+
+  /* Wochen 1–4: 2 Spalten statt 4 einzeln gestapelter Vollbreiten-Reihen
+     — nutzt die Breite statt nur vertikal zu wachsen, bleibt aber pro
+     Karte breit genug für Name + Rest-Betrag. */
+  .gf-week-grid { grid-template-columns: repeat(2, 1fr); }
+  .gf-week-col { padding: 8px; gap: 6px; }
+  .gf-week-title, .gf-week-total { font-size: 11px; }
+
+  .gf-income-card { padding: 8px 9px 7px; }
+  .gf-rest-hero { font-size: 18px; }
+  .gf-income-bar { padding: 10px 12px; }
+  .gf-bar-rest { font-size: 16px; }
+
+  /* Lange Namen/Beträge sollen sauber umbrechen statt aus der Karte zu
+     laufen — betrifft v.a. lange Einnahme-/Postennamen auf schmalen
+     Spalten. */
+  .gf-income-name, .gf-bar-name, .gf-consumer-name,
+  .gf-stack-item span { overflow-wrap: break-word; min-width: 0; }
+
+  /* Stack-Einträge (zugeordnete Posten in einer Einnahme-Karte) und
+     Verbraucher-Karten (unten) etwas großzügiger für Touch. */
+  .gf-stack-item { padding: 6px 8px; font-size: 11.5px; }
+  .gf-consumer-card { padding: 11px 12px; }
+
+  /* Ausgaben/Sparziele/Schulden: eigene Kartenfläche statt reinem
+     Freiraum zwischen den drei Listen — macht die Trennung der
+     Bereiche auf einen Blick sichtbar statt nur durch Abstand. */
+  .gf-group {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--b-radius); box-shadow: var(--b-shadow);
+    padding: 12px;
+  }
+}
+

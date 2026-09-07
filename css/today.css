@@ -1,0 +1,604 @@
+/* =============================================================
+   TODAY.CSS — Tab: Heute  ·  v3 corrected
+   Dashboard container · Cozy sidebar · Proper depth
+============================================================= */
+
+:root {
+  --quicknote-bg:   #F9F5DC;
+  --quicknote-line: 175,155,55;   /* RGB-Tripel, für color-mix/rgba mit variabler Deckkraft */
+  --quicknote-text: #7A6E28;
+}
+[data-theme-family="dark"] {
+  --quicknote-bg:   #272510;
+  --quicknote-line: 200,180,60;
+  --quicknote-text: #A09038;
+}
+
+#view-today .view-header { display: none; }
+
+/* ═══════════════════════════════════════════════════════════
+   HAUPTBEREICH-HEADER (Begrüßung + Wetter)
+   Sitzt als erste Zeile in #today-main, damit die rechte Kante
+   der Wetterkarte exakt mit der rechten Kante von blocks-row/
+   panel-tasks abschließt.
+═══════════════════════════════════════════════════════════ */
+#today-main-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+#today-greeting-block {}
+
+.today-weather { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 18px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
+
+.today-greeting { font-family: var(--font); font-size: 32px; font-weight: 700; letter-spacing: -0.8px; color: var(--text); line-height: 1.1; margin-bottom: 6px; }
+.today-subtitle { font-size: 12.5px; color: var(--text-3); font-family: var(--mono); letter-spacing: 0.01em; }
+
+.weather-icon { width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.weather-icon svg { width: 28px; height: 28px; }
+.weather-temp { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 3px; }
+.weather-desc { font-size: 11.5px; color: var(--text-3); }
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN GRID: content + right sidebar
+═══════════════════════════════════════════════════════════ */
+#today-layout { display: grid; grid-template-columns: 1fr 314px; gap: 18px; align-items: start; }
+#today-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; background: var(--dash-bg); border: 1px solid var(--dash-border); border-radius: var(--radius-xl); box-shadow: var(--dash-shadow); padding: 20px 18px 20px; }
+/* Sidebar: feste Breite, kein flex-shrink */
+#today-right { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 24px; width: 314px; }
+
+/* ═══════════════════════════════════════════════════════════
+   BLOCKS SECTION
+═══════════════════════════════════════════════════════════ */
+#today-blocks-section { display: flex; flex-direction: column; gap: 10px; }
+.today-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: var(--text-3); text-transform: uppercase; }
+#blocks-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 8px; }
+
+.block-slot { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; min-height: 96px; box-shadow: var(--shadow-xs); transition: box-shadow var(--transition), border-color var(--transition); display: flex; flex-direction: column; }
+.block-slot:hover { box-shadow: var(--shadow-sm); }
+.block-slot.free { background: var(--surface-3); border: 1.5px dashed var(--border-strong); box-shadow: none; opacity: 0.65; }
+.block-slot.active-block { border-color: transparent; border-width: 1.5px; background: #EBE4D4; box-shadow: var(--shadow-sm); }
+[data-theme-family="dark"] .block-slot.active-block { background: rgba(235,228,212,0.12); box-shadow: var(--shadow-sm); }
+
+.block-time { font-family: var(--mono); font-size: 10px; color: var(--text-3); margin-bottom: 5px; }
+.block-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.free-tag { font-size: 10px; background: var(--surface-3); color: var(--text-3); padding: 2px 8px; border-radius: 99px; font-weight: 500; border: 1px solid var(--border); }
+.active-tag { font-size: 10px; background: var(--sage); color: var(--sage-fg); padding: 2px 8px; border-radius: 99px; font-weight: 600; letter-spacing: 0.05em; }
+
+.block-tasks { display: flex; flex-direction: column; gap: 3px; margin-top: auto; }
+.block-tasks li { font-size: 11px; background: var(--bg-2); border-radius: 5px; padding: 3px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-2); }
+.block-tasks:empty::after { content: "—"; font-size: 11px; color: var(--text-3); }
+
+/* ── Progress Bar ─────────────────────────────────────────── */
+#blocks-progress-wrap { display: flex; align-items: center; gap: 12px; }
+#blocks-progress-bar { flex: 1; height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; position: relative; }
+#blocks-progress-bar::after { content: ''; display: block; height: 100%; background: var(--sage); border-radius: 99px; width: var(--progress, 0%); opacity: 0.75; transition: width 600ms ease; }
+#blocks-progress-label { font-size: 11px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   TASK PANEL
+═══════════════════════════════════════════════════════════ */
+#panel-tasks { display: flex; flex-direction: column; }
+#task-list { flex: 1; padding: 4px 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   COZY SCROLLBARS — für die verbleibenden Today-Panels
+   (Kartensystem inkl. eigener Scrollbar-Regeln jetzt in pinboard.css)
+═══════════════════════════════════════════════════════════ */
+#today-main *::-webkit-scrollbar,
+#panel-quicknote *::-webkit-scrollbar,
+#today-mini-cal *::-webkit-scrollbar { width: 5px; height: 5px; }
+
+#today-main *::-webkit-scrollbar-track,
+#panel-quicknote *::-webkit-scrollbar-track { background: transparent; border-radius: 99px; }
+
+#today-main *::-webkit-scrollbar-thumb,
+#panel-quicknote *::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+
+#today-main *::-webkit-scrollbar-thumb:hover,
+#panel-quicknote *::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+#today-main *, #panel-quicknote * { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+
+/* ═══════════════════════════════════════════════════════════
+   RIGHT SIDEBAR
+═══════════════════════════════════════════════════════════ */
+#clock-sidebar-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 22px; width: 100%; box-sizing: border-box; }
+
+.clock-analog { flex-shrink: 0; }
+.clock-sidebar-right { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+.clock-sidebar-time { font-family: var(--mono); font-size: 30px; font-weight: 400; letter-spacing: 3px; color: var(--text); line-height: 1.1; }
+.clock-sidebar-weekday { font-size: 13px; font-weight: 600; color: var(--text-2); margin-top: 7px; }
+.clock-sidebar-date { font-size: 11.5px; color: var(--text-3); font-family: var(--mono); margin-top: 3px; }
+
+/* ── Schnellnotiz ─────────────────────────────────────────── */
+#panel-quicknote { background: var(--quicknote-bg); border: 1px solid rgba(var(--quicknote-line),0.22); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+[data-theme-family="dark"] #panel-quicknote { border-color: rgba(var(--quicknote-line),0.12); }
+#panel-quicknote .panel-header { background: rgba(0,0,0,0.03); border-bottom: 1px solid rgba(var(--quicknote-line),0.14); }
+[data-theme-family="dark"] #panel-quicknote .panel-header { background: rgba(255,255,255,0.02); border-bottom-color: rgba(var(--quicknote-line),0.08); }
+#panel-quicknote .panel-label { color: var(--quicknote-text); }
+#panel-quicknote #quicknote { width: 100%; border: none; outline: none; resize: none; padding: 14px 16px 18px; font-size: 13.5px; color: var(--text); background: transparent; min-height: 130px; line-height: 2; background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(2em - 1px), rgba(var(--quicknote-line),0.14) calc(2em - 1px), rgba(var(--quicknote-line),0.14) 2em); background-size: 100% 2em; }
+[data-theme-family="dark"] #panel-quicknote #quicknote { background-image: repeating-linear-gradient(to bottom, transparent, transparent calc(2em - 1px), rgba(var(--quicknote-line),0.07) calc(2em - 1px), rgba(var(--quicknote-line),0.07) 2em); }
+
+/* ── Mini Kalender ─────────────────────────────────────────── */
+#today-mini-cal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 18px 18px 14px; box-shadow: var(--shadow-sm); }
+.mini-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+
+.mini-cal-title { font-family: var(--font); font-size: 14px; font-weight: 700; color: var(--text); }
+
+.mini-cal-nav { display: flex; gap: 3px; }
+.mini-cal-nav-btn { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text-2); font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--transition), color var(--transition); }
+.mini-cal-nav-btn:hover { background: var(--accent-soft); color: var(--text); }
+
+.mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+.mini-cal-day-name { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); text-align: center; padding-bottom: 6px; }
+
+/* Tageszelle: immer gleich aufgebaut, unabhängig von Ereignissen. Wächst nur
+   in der Höhe, wenn mehrere Ereignisbalken gestapelt werden. */
+.mini-cal-cell { min-height: 30px; display: flex; flex-direction: column; align-items: center; border-radius: 8px; padding: 3px 1px 4px; font-size: 11px; color: var(--text-2); cursor: pointer; transition: background var(--transition); gap: 2px; }
+.mini-cal-cell:hover { background: var(--accent-soft); color: var(--text); }
+.mini-cal-cell.other-month { color: var(--text-3); opacity: 0.4; }
+
+/* Tageszahl als eigenes Element — die Heute-Markierung ist ein Kreis nur
+   hinter der Zahl, nicht mehr die ganze Zelle, damit Ereignisbalken darunter
+   sichtbar bleiben. */
+.mini-cal-daynum { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 500; }
+.mini-cal-cell.is-today .mini-cal-daynum { background: var(--sage); color: var(--sage-fg); font-weight: 700; }
+.mini-cal-cell.is-today:hover .mini-cal-daynum { opacity: 0.88; }
+
+/* Ereignisse als eigene Balken/Pillen innerhalb der Zelle — liegen über dem
+   Kalender, statt dessen Hintergrund einzufärben. Mehrere Termine stapeln
+   sich untereinander, an gleicher Woche ausgerichtet. */
+.mini-cal-bars { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: 1px; }
+.mini-cal-bar { height: 5px; border-radius: 0; }
+.mini-cal-bar.bar-empty { background: transparent; }
+.mini-cal-bar.bar-single { margin: 0 4px; border-radius: 3px; }
+.mini-cal-bar.bar-start  { margin-left: 4px; margin-right: -1px; border-radius: 3px 0 0 3px; }
+.mini-cal-bar.bar-mid    { margin-left: -1px; margin-right: -1px; }
+.mini-cal-bar.bar-end    { margin-right: 4px; margin-left: -1px; border-radius: 0 3px 3px 0; }
+
+#mini-cal-events { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; display: flex; flex-direction: column; gap: 7px; }
+.mini-cal-event-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.mini-cal-event-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.mini-cal-event-dot.prio-1 { background: var(--prio-1); }
+.mini-cal-event-dot.prio-ev { background: var(--sage); }
+.mini-cal-event-title { flex: 1; font-size: 12px; color: var(--text); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-cal-event-dot.range-ev { background: var(--sage); width: 8px; border-radius: 2px; }
+
+/* ═══════════════════════════════════════════════════════════
+   NATIONAL DAY WIDGET — Accordion-Version
+═══════════════════════════════════════════════════════════ */
+#national-day-widget {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--sage);
+  border-radius: var(--radius-xl);
+  padding: 14px 16px 10px;
+  box-shadow: var(--shadow-sm);
+}
+
+.national-day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.national-day-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--sage); }
+.national-day-date { font-size: 10px; color: var(--text-3); font-family: var(--mono); }
+
+/* Accordion-Liste */
+.national-day-list { display: flex; flex-direction: column; }
+
+.nd-item { display: flex; flex-direction: column; }
+.nd-item--bordered { border-bottom: 1px solid var(--border); }
+
+.nd-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 7px 0;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: var(--font);
+  transition: color 120ms;
+}
+.nd-title-row:hover { color: var(--sage); }
+
+.nd-arrow {
+  font-size: 8px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: transform 200ms ease;
+  display: inline-block;
+}
+.nd-item.nd-open .nd-arrow { transform: rotate(90deg); }
+.nd-title-text { flex: 1; line-height: 1.35; }
+
+/* Beschreibung — eingeklappt by default */
+.nd-desc {
+  padding: 0 0 8px 15px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 250ms ease, opacity 200ms ease;
+  opacity: 0;
+}
+.nd-item.nd-open .nd-desc { max-height: 160px; opacity: 1; }
+.nd-desc-text { font-size: 12px; color: var(--text-2); line-height: 1.55; margin: 0 0 6px; }
+.nd-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sage);
+  text-decoration: none;
+}
+.nd-more-link:hover { text-decoration: underline; }
+
+/* ═══════════════════════════════════════════════════════════
+   GRUPPENDIENSTE — Kachel im Hauptbereich, direkt unter
+   "Aufgaben diese Woche". Drei Dienste nebeneinander in einer
+   Reihe, gleiche Optik wie panel-tasks/panel-quicknote.
+═══════════════════════════════════════════════════════════ */
+.gd-week-badge { font-family: var(--mono); font-size: 11px; color: var(--sage); font-weight: 600; }
+.gd-edit-btn { flex-shrink: 0; }
+
+.gd-body { padding: 14px 18px 16px; }
+.gd-row { display: flex; }
+.gd-col { flex: 1; min-width: 0; padding: 0 16px; }
+.gd-col + .gd-col { border-left: 1px solid var(--border); }
+.gd-col:first-child { padding-left: 0; }
+.gd-col:last-child { padding-right: 0; }
+.gd-col-title { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-2); margin-bottom: 6px; white-space: nowrap; }
+.gd-col-icon { font-size: 14px; line-height: 1; }
+.gd-col-names { font-size: 12px; color: var(--text-3); line-height: 1.6; }
+.gd-empty { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+/* Kachel-Kopf: Wochen-Navigation (reine Lese-Navigation, kein Modal mehr) */
+.gd-week-nav { display: flex; align-items: center; gap: 6px; }
+#gd-week-nav-label { font-size: 12px; font-family: var(--mono); color: var(--text-2); min-width: 78px; text-align: center; }
+
+/* Kachel: einzelne Pflicht-Zeile (Regulär + Ersatz) */
+.gd-col-ersatz { color: var(--text-3); font-size: 11px; margin-top: 2px; }
+
+/* =========================
+   PFLICHTEN VERWALTEN — Übersichts-Modal
+========================= */
+.gd-overview-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; }
+.gd-overview-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+.gd-overview-icon { font-size: 18px; flex-shrink: 0; }
+.gd-overview-info { flex: 1; min-width: 0; }
+.gd-overview-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.gd-overview-meta { font-size: 11.5px; color: var(--text-3); margin-top: 1px; }
+.gd-overview-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.gd-overview-empty { font-size: 13px; color: var(--text-3); padding: 10px 2px; }
+
+/* =========================
+   PFLICHT-EDITOR — Section-Tabs (gleiche Umschalt-Technik wie der
+   Sparplan-Wizard: JS togglet .hidden, hier nur die Optik)
+========================= */
+.gd-section-tabs {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  background: var(--surface-2); border-radius: var(--radius-md); padding: 4px;
+}
+.gd-section-tab {
+  flex: 1; min-width: 0;
+  font-size: 12px; font-weight: 600; color: var(--text-3);
+  background: none; border: none; border-radius: var(--radius-sm);
+  padding: 7px 6px; cursor: pointer; white-space: nowrap;
+  transition: all 120ms;
+}
+.gd-section-tab:hover { color: var(--text-2); }
+.gd-section-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-xs); }
+.gd-duty-section { display: flex; flex-direction: column; gap: 14px; }
+
+/* Chip-Auswahl (Personen/Gruppen an-/abwählen) */
+.gd-chip-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.gd-chip-picker:empty::after { content: 'Noch nichts angelegt.'; font-size: 12px; color: var(--text-3); font-style: italic; }
+.gd-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12.5px; color: var(--text-2);
+  background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: 99px; padding: 5px 12px; cursor: pointer;
+  transition: all 120ms;
+}
+.gd-chip:hover { border-color: var(--border-strong); }
+.gd-chip.active { background: var(--sage,#5a9467); color: var(--sage-fg); border-color: var(--sage,#5a9467); }
+.gd-chip-remove { font-size: 11px; opacity: 0.7; margin-left: 2px; }
+.gd-chip-remove:hover { opacity: 1; }
+
+.gd-inline-add { display: flex; gap: 6px; margin-top: 8px; }
+.gd-inline-add .modal-input { flex: 1; }
+.gd-new-group-form { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 10px; border: 1px dashed var(--border-strong); border-radius: var(--radius-md); }
+
+.gd-participants-overview { display: flex; flex-wrap: wrap; gap: 6px; }
+.gd-participants-overview:empty::after { content: 'Noch keine Teilnehmer ausgewählt.'; font-size: 12px; color: var(--text-3); font-style: italic; }
+
+/* Feste Reihenfolge — sortierbare Liste, Auf/Ab-Buttons (gleiches Muster
+   wie die Pinnwand-Kartenreihenfolge) */
+.gd-order-list { display: flex; flex-direction: column; gap: 6px; }
+.gd-order-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); font-size: 12.5px; color: var(--text);
+}
+.gd-order-row-label { flex: 1; min-width: 0; }
+.gd-order-row-btns { display: flex; gap: 4px; flex-shrink: 0; }
+
+/* Verknüpfte Pflichten */
+.gd-links-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.gd-links-summary { font-size: 12.5px; color: var(--text-2); }
+
+/* =========================
+   TASK-LIST — Layout-Bug-Fix
+   style.css setzt grid-template-columns: 20px 8px 1fr auto auto
+   mit gap:10px → 48px Einzug vor dem Text + 20px padding links = 68px.
+   Override: kompaktere Spalten, weniger Padding.
+========================= */
+.task-item {
+  grid-template-columns: 18px 6px 1fr auto auto;
+  gap: 7px;
+  padding: 9px 14px;
+}
+
+/* =========================
+   BLOCK-CHIPS — Mehrfach-Auswahl im Modal
+========================= */
+.task-block-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.task-chip {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 12.5px;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+.task-chip:hover {
+  border-color: var(--sage);
+  color: var(--text);
+}
+.task-chip.active {
+  border-color: var(--sage);
+  background: var(--sage-bg);
+  color: var(--sage-dark, var(--sage));
+  font-weight: 500;
+}
+
+/* =========================
+   AUFGABEN-STATISTIK — Übersicht über die drei Status
+   (offen / in Bearbeitung / abgeschlossen), automatisch berechnet.
+========================= */
+.task-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 2px 14px 10px;
+  font-size: 11.5px;
+  font-family: var(--mono);
+  color: var(--text-2);
+}
+.task-stats.hidden { display: none; }
+.task-stat { display: flex; align-items: center; gap: 5px; }
+.task-stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.task-stat-pct { color: var(--text-3); margin-left: auto; }
+
+/* =========================
+   STATUS-KONTROLLE je Aufgabe — ersetzt die reine Checkbox durch einen
+   dreistufigen Status (○ offen / ◐ in Bearbeitung / ✓ abgeschlossen),
+   umschaltbar über ein kleines Dropdown. Gleiches Interaktionsmuster wie
+   guide-detail-menu-dropdown (Anleitungen), für visuelle Konsistenz.
+========================= */
+.task-status-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.task-status-btn {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 10.5px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.task-status-btn:hover { background: var(--accent-soft); }
+.task-item.task-status-in_progress .task-status-btn { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 14%, transparent); }
+.task-item.task-status-completed   .task-status-btn { border-color: var(--sage);  background: var(--sage-bg); }
+
+.task-status-dropdown {
+  display: none;
+  /* fixed statt absolute: das Element hängt an <body> (siehe today.js), damit
+     es nicht vom overflow:hidden des umgebenden .panel abgeschnitten wird. */
+  position: fixed; z-index: 90;
+  min-width: 150px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 6px;
+  flex-direction: column;
+  gap: 2px;
+}
+.task-status-dropdown.open { display: flex; }
+.task-status-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: var(--radius-sm);
+  font-size: 12.5px; color: var(--text-2); text-align: left;
+  background: none; border: none; cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.task-status-option:hover { background: var(--accent-soft); color: var(--text); }
+.task-status-option.active { color: var(--text); font-weight: 600; background: var(--accent-soft); }
+.task-status-option-icon { width: 14px; text-align: center; flex-shrink: 0; }
+
+/* Block-Ansicht — Status-Icon-Präfix vor dem Titel, zusätzlich zur
+   bestehenden .block-task-done-Regel (index.html) für "abgeschlossen". */
+.block-tasks li.block-task-status-in_progress { color: var(--amber); }
+
+/* =============================================================
+   RESPONSIVE
+   ≤1024px: rechte Spalte (Uhr/Quicknote/Mini-Kalender/National-Day)
+   passt bei 314px fixer Breite + App-Sidebar nicht mehr komfortabel
+   neben den Hauptbereich — wird unter #today-main gestapelt.
+============================================================= */
+@media (max-width: 1024px) {
+  #today-layout { grid-template-columns: 1fr; }
+  #today-right { position: static; width: 100%; }
+}
+
+@media (max-width: 480px) {
+  #today-main-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .today-weather { width: 100%; box-sizing: border-box; }
+
+  .gd-row { flex-direction: column; }
+  .gd-col { padding: 10px 0 !important; }
+  .gd-col + .gd-col { border-left: none; border-top: 1px solid var(--border); }
+}
+
+/* =============================================================
+   MOBILE TODAY-ÜBERARBEITUNG (≤480px, gleiche Phone-Schwelle wie
+   #mobile-bottom-nav in main.css)
+   Desktop-Layout bleibt komplett unverändert — alle Regeln hier sind
+   auf die Phone-Breite beschränkt.
+============================================================= */
+
+@media (max-width: 480px) {
+  /* Uhr entfällt auf Mobile — Begrüßung + Datum/KW oben reichen aus. */
+  #clock-sidebar-panel { display: none; }
+}
+
+/* ── Unterrichtsblöcke: horizontal scrollbare Karten ─────────── */
+@media (max-width: 480px) {
+  #blocks-row {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 10px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  #blocks-row .block-slot {
+    flex: 0 0 86%;
+    scroll-snap-align: center;
+  }
+}
+
+/* ── Aufgaben: kompakte Zähler-Kachel statt voller Liste ─────── */
+.today-tasks-tile { display: none; }
+
+@media (max-width: 480px) {
+  .today-tasks-tile { display: block; cursor: pointer; }
+  .today-tasks-tile:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
+  .ttt-row { display: flex; padding: 12px 18px 16px; gap: 4px; }
+  .ttt-stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+  .ttt-num { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
+  .ttt-label { font-size: 10.5px; color: var(--text-3); }
+
+  /* Desktop-Karte bleibt Desktop vorbehalten — Kachel + eigenes
+     Mobile-Modal (unten) übernehmen ihre Rolle auf Mobile. */
+  #panel-tasks { display: none; }
+}
+
+/* =========================
+   AUFGABEN-MODAL (Mobile) — eigenständige, kompakte Detailansicht statt
+   einer verkleinerten Desktop-Karte: schlichter Header + nach Status
+   gruppierte Liste (renderTasksMobileModal()/buildMobileTaskItem() in
+   today.js). Nur ≤480px aktiv, Desktop-Modal-Nutzung gibt es nicht mehr.
+========================= */
+@media (max-width: 480px) {
+  .tasks-modal-box { padding: 0; gap: 0; overflow: hidden; max-height: 82vh; display: flex; flex-direction: column; }
+
+  .tasks-mobile-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 12px 14px 18px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tasks-mobile-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; color: var(--text); }
+  .tasks-mobile-header-actions { display: flex; align-items: center; gap: 2px; }
+  .tasks-mobile-add-btn {
+    width: 30px; height: 30px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: none;
+    background: var(--sage); color: #fff;
+    font-size: 18px; line-height: 1;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .tasks-mobile-add-btn:active { background: var(--sage-dark, var(--sage)); }
+
+  .tasks-mobile-list { list-style: none; margin: 0; padding: 4px 0; overflow-y: auto; min-height: 0; }
+
+  .tasks-mobile-group-label {
+    padding: 10px 18px 6px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-3);
+  }
+
+  .tasks-mobile-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px 8px 14px;
+    min-height: 46px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tasks-mobile-item:last-child { border-bottom: none; }
+  .tasks-mobile-item .task-status-wrap { flex-shrink: 0; padding: 4px; }
+  .tasks-mobile-item .task-status-btn { width: 26px; height: 26px; font-size: 13px; }
+
+  .tasks-mobile-item-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 0; }
+  .tasks-mobile-item-title {
+    flex: 1; min-width: 0;
+    font-size: 14px; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tasks-mobile-item.task-status-completed .tasks-mobile-item-title { color: var(--text-3); text-decoration: line-through; }
+  .tasks-mobile-item-badge {
+    font-size: 10px; font-family: var(--mono); font-weight: 500;
+    color: var(--sage-dark); background: var(--sage-bg); border: 1px solid var(--sage-border);
+    border-radius: 99px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap;
+  }
+  .tasks-mobile-item-delete {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-3); font-size: 12px;
+    border-radius: 50%;
+    transition: background var(--transition), color var(--transition);
+  }
+  .tasks-mobile-item-delete:active { background: var(--accent-soft); color: var(--prio-1); }
+
+  #tasks-mobile-empty { padding: 30px 18px; text-align: center; }
+
+  /* Größerer Tapbereich fürs Status-Dropdown auf Touch. */
+  .task-status-option { padding: 9px 10px; font-size: 13px; }
+}
+
+/* ── Gruppenpflichten: Accordion, standardmäßig eingeklappt ──── */
+.gd-title-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: none; border: none; padding: 0; margin: 0;
+  cursor: default; color: inherit; text-align: left;
+}
+.gd-arrow { display: none; font-size: 8px; color: var(--text-3); transition: transform 200ms ease; }
+
+@media (max-width: 480px) {
+  .gd-title-btn { cursor: pointer; }
+  .gd-arrow { display: inline-block; }
+  #gd-widget.gd-open .gd-arrow { transform: rotate(90deg); }
+  #gd-widget .gd-body {
+    max-height: 0; overflow: hidden; padding: 0 18px;
+    opacity: 0;
+    transition: max-height 250ms ease, opacity 200ms ease, padding 250ms ease;
+  }
+  #gd-widget.gd-open .gd-body { max-height: 600px; opacity: 1; padding: 14px 18px 16px; }
+}
