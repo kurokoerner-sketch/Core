@@ -44,16 +44,146 @@ const THEME_REGISTRY = [
 
 // Tokens, die ein eigenes Theme inline überschreibt. --dash-bg/-border
 // gehören bewusst NICHT dazu (main.css: .dash-content & Co. haben keinen
-// Hintergrund mehr) — Sage-Familie, Navigation und Modal sind einstellbar.
-// Prio-/Budget-/Code-Panel-Farben bleiben bewusst invariant (main.css-
-// Kommentar) und sind hier nicht enthalten.
+// Hintergrund mehr) — Sage-Familie, Navigation, Modal und Schriftart sind
+// einstellbar. Prio-/Budget-/Code-Panel-Farben bleiben bewusst invariant
+// (main.css-Kommentar) und sind hier nicht enthalten.
 const CUSTOM_THEME_VARS = [
   '--bg', '--bg-2', '--surface', '--surface-2', '--surface-3',
   '--border', '--border-strong',
   '--text', '--text-2', '--text-3', '--accent-soft',
   '--sage', '--sage-dark', '--sage-light', '--sage-bg', '--sage-border',
   '--core-nav-bg', '--core-modal-bg', '--core-card-opacity',
+  '--font',
 ];
+
+// =========================================================================
+// SCHRIFTART
+// --font ist main.css' bereits vorhandene, zentrale Font-Variable (body
+// { font-family: var(--font) } main.css:250 u.a.) — es wird bewusst KEINE
+// zweite/parallele Variable eingeführt, sondern dieselbe von eigenen
+// Themes mit überschrieben (siehe CUSTOM_THEME_VARS oben). --mono (Zahlen/
+// Zeitangaben) bleibt unangetastet, wie im restlichen main.css auch.
+//
+// Klassisch/Modern/Exotisch brauchen keine eigenen Font-Dateien im Projekt:
+// Klassisch = Systemschriften (immer vorhanden), Modern/Exotisch = Google
+// Fonts über denselben CDN-Link, den main.css für DM Sans/DM Mono ohnehin
+// schon lädt (siehe index.html <head>), alle SIL Open Font License.
+const FONT_CATEGORIES = [
+  { label: 'Standard', fonts: [
+    { label: 'CORE Standard (DM Sans)', stack: "'DM Sans', system-ui, sans-serif" },
+  ]},
+  { label: 'Klassisch', fonts: [
+    { label: 'Arial',            stack: "Arial, Helvetica, sans-serif" },
+    { label: 'Georgia',          stack: "Georgia, 'Times New Roman', serif" },
+    { label: 'Verdana',          stack: "Verdana, Geneva, sans-serif" },
+    { label: 'Trebuchet MS',     stack: "'Trebuchet MS', sans-serif" },
+    { label: 'Times New Roman',  stack: "'Times New Roman', Times, serif" },
+    { label: 'Courier New',      stack: "'Courier New', Courier, monospace" },
+  ]},
+  { label: 'Modern', fonts: [
+    { label: 'Inter',      stack: "'Inter', sans-serif" },
+    { label: 'Montserrat', stack: "'Montserrat', sans-serif" },
+    { label: 'Poppins',    stack: "'Poppins', sans-serif" },
+    { label: 'Roboto',     stack: "'Roboto', sans-serif" },
+  ]},
+  { label: 'Exotisch', fonts: [
+    { label: 'Orbitron (Sci-Fi)',            stack: "'Orbitron', sans-serif" },
+    { label: 'Cinzel (Mystic)',              stack: "'Cinzel', serif" },
+    { label: 'UnifrakturCook (Gothic)',      stack: "'UnifrakturCook', cursive" },
+    { label: 'Press Start 2P (Pixel)',       stack: "'Press Start 2P', monospace" },
+    { label: 'Bangers (Comic)',              stack: "'Bangers', cursive" },
+    { label: 'Permanent Marker (Handschrift)', stack: "'Permanent Marker', cursive" },
+  ]},
+];
+const DEFAULT_FONT_STACK = FONT_CATEGORIES[0].fonts[0].stack;
+
+// ── Eigene Fonts aus assets/fonts/ ───────────────────────────────────────
+// Bewusst KEINE automatische Erkennung beliebiger Dateien (siehe Auftrag)
+// — jede Datei wird hier einmal manuell eingetragen. Mehrere Schnitte
+// derselben Familie bekommen denselben `family`-Wert mit passendem
+// weight/style, z.B.:
+//   { family: 'Shock Rumble', source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' },
+//   { family: 'Shock Rumble', source: 'assets/fonts/Shock Rumble Italic Demo.ttf', weight: '400', style: 'italic' },
+// (Nur die Regular-Datei liegt tatsächlich in assets/fonts/ — die Italic-
+// Datei aus der Referenz-ZIP wurde nicht übernommen, da beide Dateien laut
+// eigener Font-Metadaten "Demo"-Versionen mit Alle-Rechte-vorbehalten-
+// Lizenz sind; nur die vom Nutzer selbst bereits ins Projekt gelegte Datei
+// wird hier registriert.)
+const CUSTOM_FONT_FILES = [
+  { family: 'Shock Rumble', source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' },
+];
+
+function fontFormatFromPath(path) {
+  const ext = (path.split('.').pop() || '').toLowerCase();
+  return { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' }[ext] || 'truetype';
+}
+
+// Erzeugt @font-face-Regeln aus CUSTOM_FONT_FILES — einmalig beim Laden.
+function injectCustomFontFaces() {
+  if (!CUSTOM_FONT_FILES.length) return;
+  const css = CUSTOM_FONT_FILES.map(f => `
+@font-face {
+  font-family: "${f.family}";
+  src: url("${f.source}") format("${fontFormatFromPath(f.source)}");
+  font-weight: ${f.weight || '400'};
+  font-style: ${f.style || 'normal'};
+  font-display: swap;
+}`).join('\n');
+  const styleEl = document.createElement('style');
+  styleEl.id = 'core-custom-fonts';
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+}
+
+// Baut die Schriftart-Auswahl (mit <optgroup>-Kategorien) im Theme-Builder
+// auf und stellt jede <option> in ihrer eigenen Schriftart dar — dadurch
+// zeigt die native Dropdown-Liste bereits eine kompakte Vorschau, ohne
+// eigene UI-Komponente. `currentStack` wählt den passenden Eintrag vor.
+function renderFontSelect(currentStack) {
+  const select = document.getElementById('theme-builder-font');
+  if (!select) return;
+  select.innerHTML = '';
+
+  const addOption = (label, stack) => {
+    const opt = document.createElement('option');
+    opt.value = stack;
+    opt.textContent = label;
+    opt.style.fontFamily = stack;
+    if (stack === currentStack) opt.selected = true;
+    return opt;
+  };
+
+  FONT_CATEGORIES.forEach(cat => {
+    const group = document.createElement('optgroup');
+    group.label = cat.label;
+    cat.fonts.forEach(f => group.appendChild(addOption(f.label, f.stack)));
+    select.appendChild(group);
+  });
+
+  if (CUSTOM_FONT_FILES.length) {
+    const group = document.createElement('optgroup');
+    group.label = 'Eigene Fonts';
+    // Eine Option je Familie (nicht je Dateischnitt) — style/weight regelt
+    // der Browser über die passende @font-face-Regel automatisch.
+    const seen = new Set();
+    CUSTOM_FONT_FILES.forEach(f => {
+      if (seen.has(f.family)) return;
+      seen.add(f.family);
+      group.appendChild(addOption(f.family, `"${f.family}"`));
+    });
+    select.appendChild(group);
+  }
+
+  if (!select.value) select.value = DEFAULT_FONT_STACK;
+  updateThemeBuilderFontPreview();
+}
+
+function updateThemeBuilderFontPreview() {
+  const select = document.getElementById('theme-builder-font');
+  const preview = document.getElementById('theme-builder-font-preview');
+  if (!select || !preview) return;
+  preview.style.fontFamily = select.value;
+}
 
 let customThemes     = DB.get('customThemes', []);
 let themeBackgrounds = DB.get('themeBackgrounds', {});
@@ -122,6 +252,7 @@ function deriveThemeVars(core, cardOpacityPct) {
     '--sage-border':   hexToRgba(core.accent, 0.32),
     '--core-nav-bg':   mix(core.nav),
     '--core-modal-bg': mix(core.modal),
+    '--font':          core.font || DEFAULT_FONT_STACK,
     '--core-card-opacity': opacity,
   };
 }
@@ -297,15 +428,14 @@ let _teBuilderBgCleared   = false;  // Nutzer hat "Entfernen" geklickt
 
 const DEFAULT_BUILDER_CORE = {
   bg: '#1a1815', surface: '#252119', nav: '#20201e', modal: '#252119',
-  text: '#ede6d8', border: '#f0dcb4', accent: '#728460',
+  text: '#ede6d8', border: '#f0dcb4', accent: '#728460', font: DEFAULT_FONT_STACK,
 };
 
 function openThemeBuilder(editId) {
   _teBuilderEditId = editId || null;
   const existing = editId ? getCustomTheme(editId) : null;
-  // Fallbacks für Themes, die noch mit dem alten (4-Felder-)Builder aus
-  // einer früheren Version erstellt wurden — deren coreColors kennt
-  // accent/nav/modal noch nicht.
+  // Fallbacks für Themes, die noch mit einem älteren Builder erstellt
+  // wurden — deren coreColors kennt manche Felder (u.a. font) noch nicht.
   const core = Object.assign({}, DEFAULT_BUILDER_CORE, existing && existing.coreColors);
   const cardOpacity = existing ? (existing.cardOpacity ?? 100) : 100;
 
@@ -321,6 +451,7 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-opacity').value = cardOpacity;
   document.getElementById('theme-builder-opacity-label').textContent = cardOpacity + '%';
   document.getElementById('theme-builder-delete').style.display = existing ? '' : 'none';
+  renderFontSelect(core.font);
 
   _teBuilderPendingFile = null;
   _teBuilderExistingBg = existing ? (existing.bg || null) : null;
@@ -399,6 +530,7 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-border').value = t.core.border;
   document.getElementById('theme-builder-accent').value = t.core.accent;
   document.getElementById('theme-builder-opacity').value = t.cardOpacity;
+  renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
   // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
   // eine manuell gewählte Datei (_teBuilderPendingFile), dadurch erzeugt
@@ -513,6 +645,7 @@ function saveThemeBuilder() {
     text:    document.getElementById('theme-builder-text').value,
     border:  document.getElementById('theme-builder-border').value,
     accent:  document.getElementById('theme-builder-accent').value,
+    font:    document.getElementById('theme-builder-font').value,
   };
   const cardOpacity = parseInt(document.getElementById('theme-builder-opacity').value, 10);
   const vars = deriveThemeVars(core, cardOpacity);
@@ -704,10 +837,12 @@ function injectThemeBuilderListeners() {
     document.getElementById(id).addEventListener('input', updateThemeBuilderPreview);
   });
   document.getElementById('theme-builder-opacity').addEventListener('input', updateThemeBuilderPreview);
+  document.getElementById('theme-builder-font').addEventListener('change', updateThemeBuilderFontPreview);
   document.getElementById('theme-builder-modal-overlay').addEventListener('click', e => {
     if (e.target.id === 'theme-builder-modal-overlay') closeThemeBuilder();
   });
 }
+injectCustomFontFaces();
 injectThemeBuilderListeners();
 initThemeBuilderBgControls();
 initThemeBgControls();

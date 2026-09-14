@@ -10,6 +10,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Modul: Theme-Engine (js/theme-engine.js) — Schriftarten-Katalog für
+       den Theme-Editor ("Modern"/"Exotisch"). Gleicher CDN wie DM Sans/DM
+       Mono oben, keine neue Quelle. Alle Familien SIL Open Font License. -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Orbitron:wght@400;700&family=Cinzel:wght@400;600&family=UnifrakturCook:wght@700&family=Press+Start+2P&family=Bangers&family=Permanent+Marker&display=swap" rel="stylesheet">
   <!-- main.css: globale Basis-Styles (Layout, Theme, Sidebar, gemeinsame Komponenten) -->
   <link rel="stylesheet" href="css/main.css" />
   <!-- Ab hier: ein Stylesheet je Modul/Tab (Dateiname = Modulname) -->
@@ -2588,6 +2592,17 @@
         <div class="tb-color-fields">
           <div class="tb-color-field"><input type="color" id="theme-builder-border" value="#f0dcb4"/><span>Rahmenfarbe</span></div>
         </div>
+      </div>
+
+      <!-- Schriftart — Modul: Theme-Engine. Optionen (inkl. Kategorien via
+           <optgroup>) werden von renderFontSelect() (js/theme-engine.js)
+           aus FONT_CATEGORIES + CUSTOM_FONT_FILES aufgebaut; jede <option>
+           bekommt inline die eigene font-family, dadurch zeigt die native
+           Dropdown-Liste bereits eine Vorschau je Schriftart. -->
+      <div class="tb-group">
+        <span class="panel-label">Schriftart</span>
+        <select class="modal-select" id="theme-builder-font"></select>
+        <span id="theme-builder-font-preview" style="font-size:15px;color:var(--text-2);">The quick brown fox</span>
       </div>
 
       <div class="tb-group">
