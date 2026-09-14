@@ -16,9 +16,21 @@
   --bg-2:      #E5E0D5;
 
   /* ── Surface hierarchy — layered elevation ────────────── */
-  --surface:   #FDFAF5;   /* top-level cards */
-  --surface-2: #F4F0E8;   /* secondary panels */
-  --surface-3: #EAE5DA;   /* subtle insets */
+  /* Kartendurchlässigkeit (Theme-Editor) — 100% = deckend, identisch zum
+     bisherigen Verhalten. --surface/-2/-3 werden ab hier über color-mix()
+     berechnet, damit jede bestehende "background: var(--surface)"-Regel
+     im ganzen Projekt automatisch transluzent wird, ohne selbst geändert
+     zu werden müssen. --surface-solid hält den undurchsichtigen Rohwert,
+     u.a. für --core-nav-bg/--core-modal-bg (eigene Opacity, siehe unten). */
+  --core-card-opacity:  100%;
+  --core-nav-opacity:   100%;
+  --core-modal-opacity: 100%;
+  --surface-solid: #FDFAF5;   /* top-level cards */
+  --surface:   color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2: color-mix(in srgb, #F4F0E8 var(--core-card-opacity), transparent);   /* secondary panels */
+  --surface-3: color-mix(in srgb, #EAE5DA var(--core-card-opacity), transparent);   /* subtle insets */
+  --core-nav-bg:   color-mix(in srgb, var(--surface-solid) var(--core-nav-opacity), transparent);
+  --core-modal-bg: color-mix(in srgb, var(--surface-solid) var(--core-modal-opacity), transparent);
 
   /* ── Dashboard container (today main area) ────────────── */
   --dash-bg:     #F7F3EB;
@@ -95,9 +107,10 @@
 [data-theme-family="dark"] {
   --bg:        #1A1815;
   --bg-2:      #201E1A;
-  --surface:   #252119;
-  --surface-2: #2C2820;
-  --surface-3: #322E24;
+  --surface-solid: #252119;
+  --surface:   color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2: color-mix(in srgb, #2C2820 var(--core-card-opacity), transparent);
+  --surface-3: color-mix(in srgb, #322E24 var(--core-card-opacity), transparent);
   --dash-bg:     #242019;
   --dash-border: rgba(240,220,180,0.07);
   --dash-shadow: 0 2px 16px rgba(0,0,0,0.30), 0 1px 4px rgba(0,0,0,0.20);
@@ -142,9 +155,10 @@
 [data-theme="dark"] {
   --bg:          #181817;
   --bg-2:        #1e1d1c;
-  --surface:     #20201e;
-  --surface-2:   #272625;
-  --surface-3:   #2d2c2a;
+  --surface-solid: #20201e;
+  --surface:     color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2:   color-mix(in srgb, #272625 var(--core-card-opacity), transparent);
+  --surface-3:   color-mix(in srgb, #2d2c2a var(--core-card-opacity), transparent);
   --dash-bg:     #201f1d;
   --dash-border: rgba(203,200,194,0.07);
   --border:        rgba(203,200,194,0.09);
@@ -159,9 +173,10 @@
 [data-theme="midnight"] {
   --bg:          #121419;
   --bg-2:        #16191f;
-  --surface:     #141925;
-  --surface-2:   #1a202c;
-  --surface-3:   #1e2432;
+  --surface-solid: #141925;
+  --surface:     color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2:   color-mix(in srgb, #1a202c var(--core-card-opacity), transparent);
+  --surface-3:   color-mix(in srgb, #1e2432 var(--core-card-opacity), transparent);
   --dash-bg:     #141924;
   --dash-border: rgba(176,190,221,0.07);
   --border:        rgba(176,190,221,0.10);
@@ -176,9 +191,10 @@
 [data-theme="forest"] {
   --bg:          #131915;
   --bg-2:        #181f1b;
-  --surface:     #16251b;
-  --surface-2:   #1c2c22;
-  --surface-3:   #203227;
+  --surface-solid: #16251b;
+  --surface:     color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2:   color-mix(in srgb, #1c2c22 var(--core-card-opacity), transparent);
+  --surface-3:   color-mix(in srgb, #203227 var(--core-card-opacity), transparent);
   --dash-bg:     #16241b;
   --dash-border: rgba(181,217,194,0.07);
   --border:        rgba(181,217,194,0.10);
@@ -193,9 +209,10 @@
 [data-theme="espresso"] {
   --bg:          #1a1815;
   --bg-2:        #201d1a;
-  --surface:     #252019;
-  --surface-2:   #2c2620;
-  --surface-3:   #322c24;
+  --surface-solid: #252019;
+  --surface:     color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2:   color-mix(in srgb, #2c2620 var(--core-card-opacity), transparent);
+  --surface-3:   color-mix(in srgb, #322c24 var(--core-card-opacity), transparent);
   --dash-bg:     #241f19;
   --dash-border: rgba(230,201,168,0.07);
   --border:        rgba(230,201,168,0.11);
@@ -210,9 +227,10 @@
 [data-theme="oled"] {
   --bg:          #070707;
   --bg-2:        #080808;
-  --surface:     #090909;
-  --surface-2:   #0b0b0b;
-  --surface-3:   #0c0c0c;
+  --surface-solid: #090909;
+  --surface:     color-mix(in srgb, var(--surface-solid) var(--core-card-opacity), transparent);
+  --surface-2:   color-mix(in srgb, #0b0b0b var(--core-card-opacity), transparent);
+  --surface-3:   color-mix(in srgb, #0c0c0c var(--core-card-opacity), transparent);
   --dash-bg:     #090908;
   --dash-border: rgba(199,199,199,0.06);
   --border:        rgba(199,199,199,0.08);
@@ -255,7 +273,7 @@ ul { list-style: none; }
    SIDEBAR
 ============================================================= */
 #sidebar {
-  background: var(--surface);
+  background: var(--core-nav-bg);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -490,7 +508,7 @@ ul { list-style: none; }
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 90;
-  background: var(--surface);
+  background: var(--core-nav-bg);
   border-top: 1px solid var(--border-strong);
   box-shadow: 0 -2px 10px rgba(50,40,20,0.06);
   /* env() für's Home-Indicator-Gebiet auf iPhones ohne Home-Button —
@@ -584,13 +602,13 @@ ul { list-style: none; }
 .countdown-view-all-btn:hover { color: var(--text); }
 
 /* ── Dashboard container — unified across all views ──────── */
-/* Applied to the inner content wrapper in each view.        */
-/* Identical to today's #today-main visual appearance.       */
+/* Applied to the inner content wrapper in each view. Bewusst OHNE eigenen
+   Hintergrund/Rahmen/Schatten (siehe Theme-Engine: ein Hintergrundbild
+   soll zwischen den einzelnen Karten sichtbar sein, nicht von einer
+   großen deckenden Sammelbox verdeckt werden) — nur noch Layout/Abstand.
+   --dash-bg/--dash-border/--dash-shadow bleiben als Tokens bestehen,
+   werden aber aktuell von nichts mehr konsumiert. */
 .dash-content {
-  background: var(--dash-bg);
-  border: 1px solid var(--dash-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--dash-shadow);
   padding: 24px 22px 28px;
 }
 
@@ -817,7 +835,7 @@ ul { list-style: none; }
 .modal-backdrop.hidden { display: none; }
 
 .modal-box {
-  background: var(--surface);
+  background: var(--core-modal-bg);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-strong);
   width: 480px;

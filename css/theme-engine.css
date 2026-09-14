@@ -77,3 +77,50 @@
 #theme-builder-preview {
   transition: background var(--transition), color var(--transition), border-color var(--transition);
 }
+
+/* ── Gruppierte Abschnitte im Theme-Builder (Allgemein/Oberflächen/
+   Rahmen/Transparenz/Hintergrund) ───────────────────────────────────── */
+.tb-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.tb-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tb-slider-label { font-size: 13px; color: var(--text-2); }
+.tb-slider-label span { font-family: var(--mono); color: var(--sage); font-weight: 600; }
+.tb-slider-hint { font-size: 11px; color: var(--text-3); }
+.tb-slider-row input[type="range"] { width: 100%; accent-color: var(--sage); }
+
+.tb-bg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+
+.tb-bg-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+.tb-bg-opt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.tb-bg-opt-row input[type="range"] { width: 120px; accent-color: var(--sage); }

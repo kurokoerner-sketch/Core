@@ -2,9 +2,11 @@
    GAMES HUB
 ========================================== */
 
+/* Bewusst ohne Hintergrund/Rahmen/Schatten auf #view-games und
+   .games-mock-wrapper — siehe .dash-content in main.css, gleiche
+   Begründung (Theme-Hintergrundbild soll durchscheinen). */
 #view-games {
   padding: 28px 28px 16px;
-  background: var(--bg);
   min-height: 100vh;
 }
 
@@ -13,11 +15,8 @@
 }
 
 .games-mock-wrapper {
-  background: var(--dash-bg);
   border-radius: 32px;
   padding: 26px;
-  border: 1px solid var(--dash-border);
-  box-shadow: var(--dash-shadow);
 }
 
 /* =========================

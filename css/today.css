@@ -39,7 +39,9 @@
    MAIN GRID: content + right sidebar
 ═══════════════════════════════════════════════════════════ */
 #today-layout { display: grid; grid-template-columns: 1fr 314px; gap: 18px; align-items: start; }
-#today-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; background: var(--dash-bg); border: 1px solid var(--dash-border); border-radius: var(--radius-xl); box-shadow: var(--dash-shadow); padding: 20px 18px 20px; }
+/* Bewusst ohne Hintergrund/Rahmen/Schatten — siehe .dash-content in
+   main.css, gleiche Begründung (Theme-Hintergrundbild soll durchscheinen). */
+#today-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; border-radius: var(--radius-xl); padding: 20px 18px 20px; }
 /* Sidebar: feste Breite, kein flex-shrink */
 #today-right { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 24px; width: 314px; }
 

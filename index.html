@@ -1140,7 +1140,13 @@
                 </div>
               </div>
               <!-- Hintergrundbild — Modul: Theme-Engine (js/theme-engine.js).
-                   Wirkt auf das jeweils aktive Theme (eingebaut oder eigen). -->
+                   Nur für die 6 eingebauten Themes (feste CSS, kein eigenes
+                   Theme-Objekt zum Speichern). Eigene Themes bringen ihr
+                   Hintergrundbild direkt aus dem Theme-Editor mit — siehe
+                   #theme-builder-bg-* im Theme-Builder-Modal weiter unten. -->
+              <div class="settings-row-sub hidden" id="bg-image-custom-note" style="padding:15px 18px;">
+                Hintergrundbilder für eigene Themes werden im Theme-Editor eingestellt (✎ am jeweiligen Theme-Button).
+              </div>
               <div class="settings-row" id="bg-image-row">
                 <div>
                   <div class="settings-row-title">Hintergrundbild</div>
@@ -2535,38 +2541,85 @@
   </div>
 
   <!-- Theme-Builder — Modul: Theme-Engine (js/theme-engine.js). Statisch wie
-       jedes andere Modal (nicht dynamisch injiziert), toggelt nur .hidden. -->
+       jedes andere Modal (nicht dynamisch injiziert), toggelt nur .hidden.
+       Gruppiert wie im CORE-Briefing gefordert, aber mit echten Nook-Tokens
+       statt frei erfundener Felder — jede Farbe entspricht einem konkreten
+       UI-Bereich (siehe js/theme-engine.js: deriveThemeVars()). -->
   <div id="theme-builder-modal-overlay" class="modal-backdrop hidden">
-    <div class="modal-box" style="width:420px;">
+    <div class="modal-box" style="width:480px;">
       <div class="modal-head">
         <span id="theme-builder-title">Theme erstellen</span>
         <button class="modal-x" id="theme-builder-close">✕</button>
       </div>
       <div class="modal-row">
         <label>Name</label>
-        <input type="text" class="modal-input" id="theme-builder-name" placeholder="z.B. Ozean" maxlength="32"/>
+        <input type="text" class="modal-input" id="theme-builder-name" placeholder="z.B. Cyberpunk Night" maxlength="32"/>
       </div>
-      <div class="modal-row">
-        <label>Farben</label>
+
+      <div class="tb-group">
+        <span class="panel-label">Allgemein</span>
         <div class="tb-color-fields">
-          <div class="tb-color-field">
-            <input type="color" id="theme-builder-bg" value="#1a1815"/>
-            <span>Hintergrund</span>
+          <div class="tb-color-field"><input type="color" id="theme-builder-bg" value="#1a1815"/><span>Seitenhintergrund</span></div>
+          <div class="tb-color-field"><input type="color" id="theme-builder-text" value="#ede6d8"/><span>Haupttext</span></div>
+          <div class="tb-color-field"><input type="color" id="theme-builder-accent" value="#728460"/><span>Akzent</span></div>
+        </div>
+      </div>
+
+      <div class="tb-group">
+        <span class="panel-label">Oberflächen</span>
+        <div class="tb-color-fields">
+          <div class="tb-color-field"><input type="color" id="theme-builder-surface" value="#252119"/><span>Karten</span></div>
+          <div class="tb-color-field"><input type="color" id="theme-builder-nav" value="#20201e"/><span>Navigation</span></div>
+          <div class="tb-color-field"><input type="color" id="theme-builder-modal" value="#252119"/><span>Modalfenster</span></div>
+        </div>
+      </div>
+
+      <div class="tb-group">
+        <span class="panel-label">Rahmen</span>
+        <div class="tb-color-fields">
+          <div class="tb-color-field"><input type="color" id="theme-builder-border" value="#f0dcb4"/><span>Rahmenfarbe</span></div>
+        </div>
+      </div>
+
+      <div class="tb-group">
+        <span class="panel-label">Transparenz</span>
+        <div class="tb-slider-row">
+          <span class="tb-slider-label">Kartendurchlässigkeit: <span id="theme-builder-opacity-label">100%</span></span>
+          <input type="range" id="theme-builder-opacity" min="20" max="100" value="100" step="5"/>
+          <span class="tb-slider-hint">0% = unsichtbar · 100% = deckend</span>
+        </div>
+      </div>
+
+      <div class="tb-group">
+        <span class="panel-label">Hintergrund</span>
+        <div class="tb-bg-row">
+          <span id="theme-builder-bg-filename">Kein Bild ausgewählt</span>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn-ghost" id="theme-builder-bg-pick-btn" style="font-size:12.5px;">Bild wählen</button>
+            <button type="button" class="btn-ghost" id="theme-builder-bg-clear-btn" style="font-size:12.5px;">Entfernen</button>
           </div>
-          <div class="tb-color-field">
-            <input type="color" id="theme-builder-surface" value="#252119"/>
-            <span>Fläche</span>
+          <input type="file" id="theme-builder-bg-file-input" accept="image/*" style="display:none;"/>
+        </div>
+        <div class="tb-bg-options hidden" id="theme-builder-bg-options">
+          <div class="tb-bg-opt-row">
+            <span>Größe</span>
+            <select class="modal-select" id="theme-builder-bg-size" style="width:auto;">
+              <option value="cover">Ausfüllen</option>
+              <option value="contain">Einpassen</option>
+              <option value="center">Zentriert</option>
+            </select>
           </div>
-          <div class="tb-color-field">
-            <input type="color" id="theme-builder-text" value="#ede6d8"/>
-            <span>Text</span>
+          <div class="tb-bg-opt-row">
+            <span>Overlay: <span id="theme-builder-bg-dim-label">40%</span></span>
+            <input type="range" id="theme-builder-bg-dim" min="0" max="90" value="40"/>
           </div>
-          <div class="tb-color-field">
-            <input type="color" id="theme-builder-border" value="#f0dcb4"/>
-            <span>Rahmen</span>
+          <div class="tb-bg-opt-row">
+            <span>Bild aktiv</span>
+            <label class="toggle"><input type="checkbox" id="theme-builder-bg-enabled" checked/><span class="toggle-slider"></span></label>
           </div>
         </div>
       </div>
+
       <div class="modal-row">
         <label>Vorschau</label>
         <div id="theme-builder-preview" style="border-radius:var(--radius-sm);border:1px solid var(--border-strong);padding:14px 16px;">
