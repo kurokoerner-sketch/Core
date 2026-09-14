@@ -26,6 +26,8 @@
   <link rel="stylesheet" href="css/positivity.css" />
   <link rel="stylesheet" href="css/national_day.css" />
   <link rel="stylesheet" href="css/tools.css" />
+  <!-- Modul: Theme-Engine (js/theme-engine.js) — eigene Themes + Hintergrundbilder -->
+  <link rel="stylesheet" href="css/theme-engine.css" />
   <style>
     /* ================================================================
        GEMEINSAME STATUS-STYLES — keinem einzelnen Modul zugeordnet.
@@ -1137,8 +1139,33 @@
                   <button class="clock-type-btn theme-picker-btn" data-theme-value="oled">OLED</button>
                 </div>
               </div>
+              <!-- Hintergrundbild — Modul: Theme-Engine (js/theme-engine.js).
+                   Wirkt auf das jeweils aktive Theme (eingebaut oder eigen). -->
+              <div class="settings-row" id="bg-image-row">
+                <div>
+                  <div class="settings-row-title">Hintergrundbild</div>
+                  <div class="settings-row-sub" id="bg-image-filename">Kein Bild ausgewählt</div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn-ghost" id="bg-image-pick-btn" style="font-size:13px;">Bild wählen</button>
+                  <button class="btn-ghost" id="bg-image-clear-btn" style="font-size:13px;">Entfernen</button>
+                </div>
+                <input type="file" id="bg-image-file-input" accept="image/*" style="display:none;"/>
+              </div>
+              <div class="settings-row hidden" id="bg-image-options-row">
+                <div><div class="settings-row-title">Darstellung</div></div>
+                <select class="modal-select" id="bg-image-size" style="width:auto;">
+                  <option value="cover">Ausfüllen</option>
+                  <option value="contain">Einpassen</option>
+                  <option value="center">Zentriert</option>
+                </select>
+              </div>
+              <div class="settings-row hidden" id="bg-image-dim-row">
+                <div><div class="settings-row-title">Abdunkeln: <span id="bg-dim-label">40%</span></div></div>
+                <input type="range" id="bg-dim-slider" min="0" max="90" value="40" style="width:140px;accent-color:var(--sage);"/>
+              </div>
             </div>
- 
+
             <div class="panel settings-panel">
               <div class="panel-header"><span class="panel-label">Wetter Widget</span></div>
               <div class="settings-row">
@@ -2507,6 +2534,54 @@
     </div>
   </div>
 
+  <!-- Theme-Builder — Modul: Theme-Engine (js/theme-engine.js). Statisch wie
+       jedes andere Modal (nicht dynamisch injiziert), toggelt nur .hidden. -->
+  <div id="theme-builder-modal-overlay" class="modal-backdrop hidden">
+    <div class="modal-box" style="width:420px;">
+      <div class="modal-head">
+        <span id="theme-builder-title">Theme erstellen</span>
+        <button class="modal-x" id="theme-builder-close">✕</button>
+      </div>
+      <div class="modal-row">
+        <label>Name</label>
+        <input type="text" class="modal-input" id="theme-builder-name" placeholder="z.B. Ozean" maxlength="32"/>
+      </div>
+      <div class="modal-row">
+        <label>Farben</label>
+        <div class="tb-color-fields">
+          <div class="tb-color-field">
+            <input type="color" id="theme-builder-bg" value="#1a1815"/>
+            <span>Hintergrund</span>
+          </div>
+          <div class="tb-color-field">
+            <input type="color" id="theme-builder-surface" value="#252119"/>
+            <span>Fläche</span>
+          </div>
+          <div class="tb-color-field">
+            <input type="color" id="theme-builder-text" value="#ede6d8"/>
+            <span>Text</span>
+          </div>
+          <div class="tb-color-field">
+            <input type="color" id="theme-builder-border" value="#f0dcb4"/>
+            <span>Rahmen</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-row">
+        <label>Vorschau</label>
+        <div id="theme-builder-preview" style="border-radius:var(--radius-sm);border:1px solid var(--border-strong);padding:14px 16px;">
+          <strong style="font-size:15px;">Mein Hub</strong>
+          <div style="font-size:12.5px;margin-top:4px;">Beispieltext in diesem Theme</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="theme-builder-delete" style="margin-right:auto;display:none;">Löschen</button>
+        <button type="button" class="btn-ghost" id="theme-builder-cancel">Abbrechen</button>
+        <button type="button" class="btn-primary" id="theme-builder-save">Speichern</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Games: Statistik-Modal — Modul: Games (js/games.js) -->
   <div id="games-stats-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:480px;">
@@ -2666,6 +2741,9 @@
   <!-- Kern (shared, alle Module hängen hiervon ab) -->
   <script src="js/main.js"></script>
   <script src="js/hub-utils.js"></script>
+  <!-- Modul: Theme-Engine — braucht DB/theme/mixHex/hexToRgba/hubConfirm
+       aus main.js + hub-utils.js, muss vor settings.js laden -->
+  <script src="js/theme-engine.js"></script>
   <!-- Supabase-SDK per CDN (UMD-Build, kein npm/Build-Step für die Kern-App
        nötig) — stellt window.supabase bereit, das js/sync.js direkt danach
        nutzt. Explizit der UMD-Pfad, nicht das bloße Paket (das würde den

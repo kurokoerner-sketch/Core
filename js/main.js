@@ -182,17 +182,34 @@ document.documentElement.setAttribute('data-theme-family', THEME_FAMILY[theme]);
 // hub-utils.js), damit diese sofort statt erst beim nächsten Tab-Wechsel
 // aktualisiert werden.
 // Wird von der Theme-Auswahl in den Einstellungen (settings.js) aufgerufen.
+// Akzeptiert neben den 6 eingebauten Namen auch eigene Theme-IDs (siehe
+// js/theme-engine.js) — über typeof-Guards, damit main.js ohne diese
+// Datei weiterhin exakt wie vorher funktioniert.
 function setTheme(name) {
-  if (!THEME_FAMILY.hasOwnProperty(name)) name = 'light';
+  const customTheme = typeof getCustomTheme === 'function' ? getCustomTheme(name) : null;
+  if (!customTheme && !THEME_FAMILY.hasOwnProperty(name)) name = 'light';
   theme = name;
-  darkMode = THEME_FAMILY[theme] === 'dark';
+
+  // Eigene Theme-Farben sind Inline-Styles auf <html> — vor jedem Wechsel
+  // entfernen, damit ein Rücksprung zu einem eingebauten Theme keine alten
+  // Überschreibungen behält.
+  if (typeof clearCustomThemeVars === 'function') clearCustomThemeVars();
+
+  if (customTheme) {
+    darkMode = customTheme.family === 'dark';
+    applyCustomThemeVars(theme);
+  } else {
+    darkMode = THEME_FAMILY[theme] === 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme-family', THEME_FAMILY[theme]);
+  }
+
   DB.set('theme', theme);
-  document.documentElement.setAttribute('data-theme', theme);
-  document.documentElement.setAttribute('data-theme-family', THEME_FAMILY[theme]);
   if (typeof updateThemeIcon === 'function') updateThemeIcon();
   if (typeof renderDesk === 'function') renderDesk();
   if (typeof renderCalendar === 'function') renderCalendar();
   if (typeof renderGuideShelf === 'function') renderGuideShelf();
+  if (typeof applyThemeBackground === 'function') applyThemeBackground(theme);
 }
 
 // Schnellumschalter (Sidebar Sonne/Mond) — schaltet nur zwischen Light und

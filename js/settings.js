@@ -9,6 +9,7 @@ function renderSettings(){
   renderWeatherSettings();
   renderColorSettings();
   if (typeof renderPositivitySettings === 'function') renderPositivitySettings();
+  if (typeof renderThemeGallery === 'function') renderThemeGallery();
 }
 
 // ── Theme-Auswahl (Phase 2 Theme-Engine) ─────────────────────────────────
