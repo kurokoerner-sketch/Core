@@ -16,26 +16,37 @@
 //    unabhängige Hintergrundbild-Sektion in den Einstellungen.
 //  - Bilddaten liegen in IndexedDB, nicht localStorage (das sich Nook-
 //    weit ein Speicherlimit mit allen anderen Daten teilt).
+//  - Theme-Editor: eine "Vorlage"-Leiste im Editor selbst erlaubt es,
+//    die Werte eines bereits vorhandenen Themes (eingebaut oder eigen)
+//    in die aktuell offenen Formularfelder zu übernehmen. Das ist KEIN
+//    separates Verwaltungssystem — nichts wird dabei angelegt/verändert,
+//    erst der normale "Speichern"-Klick erzeugt/ändert ein Theme.
 // =============================================================
 
-// ── Eingebaute Themes: nur Anzeige-Metadaten für die Galerie, NICHT die
-//    CSS-Kaskade selbst (die bleibt vollständig in main.css) ────────────
+// ── Eingebaute Themes: Anzeige-Metadaten, NICHT die CSS-Kaskade selbst
+//    (die bleibt vollständig in main.css). `core` dupliziert absichtlich
+//    die literalen Werte aus main.css (:root + [data-theme="x"]) — nötig,
+//    weil eingebaute Themes reines CSS sind und kein JS-Objekt haben, aus
+//    dem sich Werte für die Vorlagen-Leiste im Theme-Editor lesen ließen.
+//    Nav/Modal entsprechen bei den eingebauten Themes --surface (siehe
+//    main.css: --core-nav-bg/-modal-bg leiten sich dort von
+//    --surface-solid ab). Akzent hat im ganzen main.css nur zwei echte
+//    Werte (Light vs. gemeinsame Dark-Familie — keine der 5 benannten
+//    Dark-Varianten überschreibt --sage einzeln).
 const THEME_REGISTRY = [
-  { id: 'light',    label: 'Light' },
-  { id: 'dark',     label: 'Classic Dark' },
-  { id: 'midnight', label: 'Midnight' },
-  { id: 'forest',   label: 'Forest' },
-  { id: 'espresso', label: 'Espresso' },
-  { id: 'oled',     label: 'OLED' },
+  { id: 'light',    label: 'Light',        core: { bg: '#EFEBe3', surface: '#FDFAF5', nav: '#FDFAF5', modal: '#FDFAF5', text: '#24211C', border: '#786541', accent: '#6B7F58' } },
+  { id: 'dark',     label: 'Classic Dark', core: { bg: '#181817', surface: '#20201e', nav: '#20201e', modal: '#20201e', text: '#e6e3df', border: '#CBC8C2', accent: '#728460' } },
+  { id: 'midnight', label: 'Midnight',     core: { bg: '#121419', surface: '#141925', nav: '#141925', modal: '#141925', text: '#dde0e8', border: '#B0BEDD', accent: '#728460' } },
+  { id: 'forest',   label: 'Forest',       core: { bg: '#131915', surface: '#16251b', nav: '#16251b', modal: '#16251b', text: '#dee7e1', border: '#B5D9C2', accent: '#728460' } },
+  { id: 'espresso', label: 'Espresso',     core: { bg: '#1a1815', surface: '#252019', nav: '#252019', modal: '#252019', text: '#ede3d8', border: '#E6C9A8', accent: '#728460' } },
+  { id: 'oled',     label: 'OLED',         core: { bg: '#070707', surface: '#090909', nav: '#090909', modal: '#090909', text: '#e3e3e2', border: '#C7C7C7', accent: '#728460' } },
 ];
 
 // Tokens, die ein eigenes Theme inline überschreibt. --dash-bg/-border
-// gehören bewusst NICHT mehr dazu (main.css: .dash-content & Co. haben
-// keinen Hintergrund mehr, siehe Problem 3 des Theme-Redesigns) — Sage-
-// Familie, Navigation und Modal sind neu dazugekommen (waren vorher
-// Markenidentität bzw. an --surface gekoppelt, sind jetzt pro Theme
-// einstellbar). Prio-/Budget-/Code-Panel-Farben bleiben weiterhin bewusst
-// invariant (main.css-Kommentar) und sind hier nicht enthalten.
+// gehören bewusst NICHT dazu (main.css: .dash-content & Co. haben keinen
+// Hintergrund mehr) — Sage-Familie, Navigation und Modal sind einstellbar.
+// Prio-/Budget-/Code-Panel-Farben bleiben bewusst invariant (main.css-
+// Kommentar) und sind hier nicht enthalten.
 const CUSTOM_THEME_VARS = [
   '--bg', '--bg-2', '--surface', '--surface-2', '--surface-3',
   '--border', '--border-strong',
@@ -280,7 +291,7 @@ let _teBuilderEditId = null;
 // Hintergrundbild wird erst beim Speichern tatsächlich in IndexedDB
 // geschrieben (nicht schon bei der Dateiauswahl) — so hinterlässt ein
 // Abbrechen des Builders keine verwaisten Einträge.
-let _teBuilderPendingFile = null;   // neu gewählte, noch nicht gespeicherte Datei
+let _teBuilderPendingFile = null;   // neu gewählte/aus Vorlage übernommene, noch nicht gespeicherte Datei
 let _teBuilderExistingBg  = null;   // bg-Metadaten des bearbeiteten Themes beim Öffnen
 let _teBuilderBgCleared   = false;  // Nutzer hat "Entfernen" geklickt
 
@@ -293,7 +304,7 @@ function openThemeBuilder(editId) {
   _teBuilderEditId = editId || null;
   const existing = editId ? getCustomTheme(editId) : null;
   // Fallbacks für Themes, die noch mit dem alten (4-Felder-)Builder aus
-  // der vorherigen Version erstellt wurden — deren coreColors kennt
+  // einer früheren Version erstellt wurden — deren coreColors kennt
   // accent/nav/modal noch nicht.
   const core = Object.assign({}, DEFAULT_BUILDER_CORE, existing && existing.coreColors);
   const cardOpacity = existing ? (existing.cardOpacity ?? 100) : 100;
@@ -316,6 +327,7 @@ function openThemeBuilder(editId) {
   _teBuilderBgCleared = false;
   syncThemeBuilderBgUI();
 
+  renderThemeTemplateStrip();
   updateThemeBuilderPreview();
   document.getElementById('theme-builder-modal-overlay').classList.remove('hidden');
   document.getElementById('theme-builder-name').focus();
@@ -340,6 +352,71 @@ function updateThemeBuilderPreview() {
   preview.style.background = `color-mix(in srgb, ${surface} ${opacity}%, transparent)`;
   preview.style.color = text;
   preview.style.borderColor = hexToRgba(border, 0.35);
+}
+
+// ── "Vorlage"-Leiste im Theme-Editor ─────────────────────────────────────
+// Reine Formular-Vorbelegung aus bereits vorhandenen Themes (eingebaut +
+// eigen) — kein separates Verwaltungssystem, keine neue Theme-ID, nichts
+// wird angelegt/verändert. Wird bei jedem Öffnen des Editors neu aus den
+// aktuellen Datenquellen (THEME_REGISTRY, customThemes) aufgebaut, damit
+// ein zuletzt gespeichertes Theme beim nächsten Öffnen ebenfalls auftaucht.
+function renderThemeTemplateStrip() {
+  const row = document.getElementById('theme-builder-template-row');
+  if (!row) return;
+  row.innerHTML = '';
+
+  const templates = THEME_REGISTRY
+    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, bg: themeBackgrounds[reg.id] || null }))
+    .concat(customThemes.map(ct => ({
+      name: ct.name,
+      core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
+      cardOpacity: ct.cardOpacity ?? 100,
+      bg: ct.bg || null,
+    })));
+
+  templates.forEach(t => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'clock-type-btn';
+    btn.textContent = t.name;
+    btn.addEventListener('click', () => applyThemeTemplate(t));
+    row.appendChild(btn);
+  });
+}
+
+// Übernimmt die Werte einer Vorlage (siehe renderThemeTemplateStrip()) in
+// die gerade offenen Editor-Felder. Ändert NICHT den Theme-Namen — der
+// Nutzer vergibt weiterhin selbst einen Namen — und legt nichts an; erst
+// der normale "Speichern"-Klick erzeugt/ändert ein Theme, unverändert über
+// dieselbe _teBuilderEditId-Logik wie zuvor. Das Ausgangstheme bleibt
+// dadurch in jedem Fall unangetastet.
+function applyThemeTemplate(t) {
+  document.getElementById('theme-builder-bg').value = t.core.bg;
+  document.getElementById('theme-builder-surface').value = t.core.surface;
+  document.getElementById('theme-builder-nav').value = t.core.nav;
+  document.getElementById('theme-builder-modal').value = t.core.modal;
+  document.getElementById('theme-builder-text').value = t.core.text;
+  document.getElementById('theme-builder-border').value = t.core.border;
+  document.getElementById('theme-builder-accent').value = t.core.accent;
+  document.getElementById('theme-builder-opacity').value = t.cardOpacity;
+
+  // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
+  // eine manuell gewählte Datei (_teBuilderPendingFile), dadurch erzeugt
+  // resolveThemeBuilderBg() beim Speichern automatisch einen eigenen,
+  // unabhängigen IndexedDB-Eintrag statt eine Referenz zu teilen.
+  _teBuilderPendingFile = null;
+  _teBuilderExistingBg = null;
+  _teBuilderBgCleared = false;
+  if (t.bg && t.bg.assetId && t.bg.enabled !== false) {
+    getBackgroundAsset(t.bg.assetId).then(blob => {
+      if (!blob) return;
+      _teBuilderPendingFile = new File([blob], t.bg.name || 'hintergrund.jpg', { type: blob.type });
+      syncThemeBuilderBgUI();
+    }).catch(() => {});
+  }
+
+  syncThemeBuilderBgUI();
+  updateThemeBuilderPreview();
 }
 
 // ── Hintergrundbild-Sektion innerhalb des Builders ──────────────────────

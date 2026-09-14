@@ -48,6 +48,14 @@
   border-style: solid;
 }
 
+/* ── "Vorlage"-Leiste im Theme-Builder — reine Formular-Vorbelegung aus
+   bereits vorhandenen Themes, kein separates Verwaltungs-UI ─────────── */
+.tb-template-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 /* ── Theme-Builder Modal ─────────────────────────────────────────────── */
 .tb-color-fields {
   display: flex;

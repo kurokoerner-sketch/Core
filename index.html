@@ -167,8 +167,8 @@
         <div id="sidebar-brand">
           <img id="brand-icon" src="assets/nook_icon.svg" alt="nook Icon" />
           <div id="brand-text">
-            <span id="brand-name">nook.</span>
-            <span id="brand-subtitle">deine kleine digitale ecke.</span>
+            <span id="brand-name">CORE</span>
+            <span id="brand-subtitle">Central Organization & Resource Engine</span>
           </div>
         </div>
         <button id="theme-toggle-btn" title="Design wechseln" aria-label="Theme toggle">
@@ -2550,6 +2550,15 @@
       <div class="modal-head">
         <span id="theme-builder-title">Theme erstellen</span>
         <button class="modal-x" id="theme-builder-close">✕</button>
+      </div>
+      <!-- Vorlage — übernimmt die Werte eines bereits vorhandenen Themes
+           (eingebaut oder eigen) in die Felder unten. Reine Formular-
+           Vorbelegung, kein eigenes Verwaltungs-UI: renderThemeTemplateStrip()
+           befüllt diese Reihe bei jedem Öffnen neu aus THEME_REGISTRY +
+           customThemes (js/theme-engine.js). -->
+      <div class="modal-row">
+        <label>Vorlage</label>
+        <div class="tb-template-row" id="theme-builder-template-row"></div>
       </div>
       <div class="modal-row">
         <label>Name</label>
