@@ -186,11 +186,46 @@ function setThemeBgMeta(id, meta) {
 
 let _teCurrentBgObjectUrl = null;
 
+// Parst einen CSS-Farbwert (#rgb, #rrggbb oder rgb[a](...)) in {r,g,b}.
+// Zentral hier statt pro Farbe manuell hinterlegt — deckt alle Formate ab,
+// die im Theme-System vorkommen können (main.css: Hex; eigene Themes:
+// ebenfalls Hex, siehe deriveThemeVars()). Gibt null zurück, wenn der Wert
+// nicht geparst werden konnte.
+function parseColorToRgb(str) {
+  if (!str) return null;
+  str = str.trim();
+  let m = str.match(/^#([0-9a-f]{3})$/i);
+  if (m) {
+    const h = m[1];
+    return { r: parseInt(h[0] + h[0], 16), g: parseInt(h[1] + h[1], 16), b: parseInt(h[2] + h[2], 16) };
+  }
+  m = str.match(/^#([0-9a-f]{6})$/i);
+  if (m) {
+    const h = m[1];
+    return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
+  }
+  m = str.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+  if (m) return { r: Math.round(+m[1]), g: Math.round(+m[2]), b: Math.round(+m[3]) };
+  return null;
+}
+
+// Liest die tatsächlich aktive Hintergrundfarbe des aktuellen Themes direkt
+// aus der lebenden CSS-Variable --bg (main.css bzw. inline bei eigenen
+// Themes, siehe deriveThemeVars()) — eine einzige Quelle der Wahrheit statt
+// einer zweiten, separat gepflegten Farbliste pro Theme.
+function getThemeBgOverlayColor() {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--bg');
+  return parseColorToRgb(raw) || { r: 0, g: 0, b: 0 };
+}
+
 // Ein einziger background-image-Stack aus Abdunkelungs-Layer + Bild, statt
 // einem eigenen Overlay-Element — body-Hintergrund wird laut CSS-Spec auf
 // das Canvas propagiert (siehe main.css: body hat background, html nicht)
 // und malt daher garantiert hinter #app, unabhängig von dessen Stacking-
 // Context. Kein Risiko, versehentlich über der App-UI zu landen.
+// Das Overlay nutzt bewusst die Theme-Hintergrundfarbe (--bg) statt eines
+// neutralen Schwarz/Grau — das Bild soll wirken, als schiene es durch die
+// gewählte Farbe hindurch, nicht einfach nur dunkler werden.
 function applyBgToDom(blob, meta) {
   if (_teCurrentBgObjectUrl) { URL.revokeObjectURL(_teCurrentBgObjectUrl); _teCurrentBgObjectUrl = null; }
   if (!blob) {
@@ -204,7 +239,8 @@ function applyBgToDom(blob, meta) {
   const url = URL.createObjectURL(blob);
   _teCurrentBgObjectUrl = url;
   const dim = ((meta.dim ?? 40) / 100).toFixed(2);
-  document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,${dim}), rgba(0,0,0,${dim})), url("${url}")`;
+  const { r, g, b } = getThemeBgOverlayColor();
+  document.body.style.backgroundImage = `linear-gradient(rgba(${r},${g},${b},${dim}), rgba(${r},${g},${b},${dim})), url("${url}")`;
   document.body.style.backgroundRepeat = 'no-repeat';
   document.body.style.backgroundAttachment = 'fixed';
   const size = meta.size || 'cover';
