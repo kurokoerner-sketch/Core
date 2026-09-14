@@ -10,7 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- main.css: globale Basis-Styles (Layout, Theme, Sidebar, gemeinsame Komponenten) -->
   <link rel="stylesheet" href="css/main.css" />
+  <!-- Ab hier: ein Stylesheet je Modul/Tab (Dateiname = Modulname) -->
   <link rel="stylesheet" href="css/budget.css" />
   <link rel="stylesheet" href="css/calendar.css" />
   <link rel="stylesheet" href="css/flashcards.css" />
@@ -25,6 +27,11 @@
   <link rel="stylesheet" href="css/national_day.css" />
   <link rel="stylesheet" href="css/tools.css" />
   <style>
+    /* ================================================================
+       GEMEINSAME STATUS-STYLES — keinem einzelnen Modul zugeordnet.
+       Betrifft Markup aus: Today/Aufgaben, Kalender, Projekte/Archiv.
+       ================================================================ */
+
     /* =========================
        TASKS — erledigte sichtbar
     ========================= */
@@ -115,6 +122,10 @@
 <body>
  
   <div id="app">
+
+    <!-- ================================================================
+         MODUL: NAVIGATION — js/main.js · css/main.css (shared, kein Tab)
+         ================================================================ -->
 
     <!-- Mobile-Bottom-Nav (nur ≤480px sichtbar, siehe main.css) — schnelle,
          App-artige Navigation für die 4 meistgenutzten Tabs. Nutzt bewusst
@@ -235,7 +246,9 @@
     <!-- Main -->
     <main id="main">
  
-      <!-- TODAY -->
+      <!-- ================================================================
+           MODUL: TODAY — js/today.js · css/today.css
+           ================================================================ -->
       <section id="view-today" class="view active">
  
         <!-- Haupt-Grid + rechte Sidebar -->
@@ -314,7 +327,9 @@
  
       </section>
  
-      <!-- PINNWAND -->
+      <!-- ================================================================
+           MODUL: PINNWAND — js/pinboard.js · css/pinboard.css
+           ================================================================ -->
       <section id="view-pinboard" class="view">
         <div class="view-header">
           <h1 class="view-title">Pinnwand</h1>
@@ -332,7 +347,10 @@
         </div><!-- /dash-content -->
       </section>
  
-      <!-- PROJEKTE -->
+      <!-- ================================================================
+           MODUL: PROJEKTE — js/projects.js + js/project-tree.js + js/forest.js
+                   css/projects.css + css/project-tree.css
+           ================================================================ -->
       <section id="view-projects" class="view">
         <div class="dash-content forest-active" id="project-dash-content">
           <!-- Waldansicht — Hintergrundbild füllt die komplette verfügbare Fläche,
@@ -542,7 +560,9 @@
         </div>
       </section>
  
-      <!-- FLASHCARDS -->
+      <!-- ================================================================
+           MODUL: KARTEIKARTEN — js/flashcards.js · css/flashcards.css
+           ================================================================ -->
       <section id="view-flashcards" class="view">
         <div class="view-header">
           <h1 class="view-title">Karteikarten</h1>
@@ -632,7 +652,9 @@
         </div>
       </section>
  
-      <!-- GUIDES -->
+      <!-- ================================================================
+           MODUL: ANLEITUNGEN — js/guides.js · css/guides.css
+           ================================================================ -->
       <section id="view-guides" class="view">
         <div class="dash-content">
  
@@ -707,7 +729,9 @@
         </div>
       </section>
  
-      <!-- CALENDAR -->
+      <!-- ================================================================
+           MODUL: KALENDER — js/calendar.js · css/calendar.css
+           ================================================================ -->
       <section id="view-calendar" class="view">
 
         <div id="cal-body">
@@ -793,7 +817,11 @@
 
       </section>
  
-      <!-- BUDGET -->
+      <!-- ================================================================
+           MODUL: BUDGET — js/budget.js + budget-sparziele/-financing/
+                   -analysis/-debts/-sparprognose/-sparplaene.js
+                   css/budget.css
+           ================================================================ -->
       <section id="view-budget" class="view">
         <div id="budget-dashboard" class="dash-content">
  
@@ -1055,13 +1083,23 @@
         </div>
       </section>
  
-      <!-- GAMES -->
+      <!-- ================================================================
+           MODUL: GAMES — js/games.js + games/games-list.js + games/<id>/*.js
+                   css/games.css
+                   Inhalt wird komplett per JS gerendert (leerer Container).
+           ================================================================ -->
       <section id="view-games" class="view games-view"></section>
 
-      <!-- TOOLS -->
+      <!-- ================================================================
+           MODUL: TOOLS — js/tools.js + tools-calculator/-timer/-converter/
+                   -datarate/-notenmanager.js · css/tools.css
+                   Inhalt wird komplett per JS gerendert (leerer Container).
+           ================================================================ -->
       <section id="view-tools" class="view"></section>
- 
-      <!-- SETTINGS -->
+
+      <!-- ================================================================
+           MODUL: EINSTELLUNGEN — js/settings.js · css/settings.css
+           ================================================================ -->
       <section id="view-settings" class="view">
         <div class="view-header"><h1 class="view-title">Einstellungen</h1></div>
         <div class="dash-content">
@@ -1169,6 +1207,11 @@
         </div><!-- /dash-content -->
       </section>
 
+      <!-- ================================================================
+           MODUL: NAVIGATION — Mobile "Mehr"-Ansicht (js/main.js)
+           Verlinkt nur zu anderen Modulen, besitzt keine eigenen Daten.
+           ================================================================ -->
+
       <!-- MEHR — nur Mobile, ersetzt den früheren Sidebar-Drawer (siehe
            css/main.css und js/main.js: bottom-nav-more-btn zeigt diese
            View statt einen Drawer zu öffnen). Nav-Punkte hier sind wie
@@ -1231,7 +1274,13 @@
     </main>
   </div>
  
-  <!-- Task Modal -->
+  <!-- ================================================================
+       MODALS — ab hier folgen alle Modal-Overlays des Hubs, zentral hier
+       deklariert (siehe CLAUDE.md: "globale Container" dürfen in
+       index.html bleiben). Jeder Kommentar nennt das zuständige Modul.
+       ================================================================ -->
+
+  <!-- Task Modal — Modul: Today (js/today.js) -->
   <div id="modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-head"><span id="modal-title">Neue Aufgabe</span><button class="modal-x" id="modal-close">✕</button></div>
@@ -1256,7 +1305,7 @@
     </div>
   </div>
  
-  <!-- Event Modal -->
+  <!-- Event Modal — Modul: Kalender (js/calendar.js) -->
   <div id="event-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-head"><span id="event-modal-title">Neuer Termin</span><button class="modal-x" id="event-modal-close">✕</button></div>
@@ -1331,7 +1380,7 @@
     </div>
   </div>
 
-  <!-- Wiederholungs-Umfang Modal (Bearbeiten/Löschen von Serienterminen) -->
+  <!-- Wiederholungs-Umfang Modal (Bearbeiten/Löschen von Serienterminen) — Modul: Kalender (js/calendar.js) -->
   <div id="recur-scope-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:400px;">
       <div class="modal-head"><span id="recur-scope-modal-title">Wiederholenden Termin bearbeiten</span><button class="modal-x" id="recur-scope-modal-close">✕</button></div>
@@ -1345,7 +1394,7 @@
     </div>
   </div>
  
-  <!-- Note Modal -->
+  <!-- Note Modal — Modul: Pinnwand (js/pinboard.js) -->
   <div id="note-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:400px;">
       <div class="modal-head"><span id="note-modal-title">Notiz hinzufügen</span><button class="modal-x" id="note-modal-close">✕</button></div>
@@ -1354,7 +1403,7 @@
     </div>
   </div>
  
-  <!-- Custom Tile Modal -->
+  <!-- Custom Tile Modal — Modul: Pinnwand (js/pinboard.js) -->
   <div id="tile-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:460px;">
       <div class="modal-head"><span id="tile-modal-head-title">Neue Karte</span><button class="modal-x" id="tile-modal-close">✕</button></div>
@@ -1426,7 +1475,7 @@
     </div>
   </div>
  
-  <!-- Calendar Day Modal -->
+  <!-- Calendar Day Modal — Modul: Kalender (js/calendar.js) -->
   <div id="cal-day-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-head"><span id="cal-day-modal-title">—</span><button class="modal-x" id="cal-day-modal-close">✕</button></div>
@@ -1435,7 +1484,7 @@
     </div>
   </div>
  
-  <!-- Countdown Modal -->
+  <!-- Countdown Modal — Modul: Kalender (js/calendar.js) -->
   <div id="countdown-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-head"><span>Countdowns</span><button class="modal-x" id="countdown-modal-close">✕</button></div>
@@ -1444,7 +1493,7 @@
     </div>
   </div>
  
-  <!-- Geburtstage verwalten -->
+  <!-- Geburtstage verwalten — Modul: Kalender (js/calendar.js) -->
   <div id="birthday-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head"><span>Geburtstage verwalten</span><button class="modal-x" id="birthday-modal-close">✕</button></div>
@@ -1464,6 +1513,7 @@
     </div>
   </div>
 
+  <!-- Kalender-Einstellungen (Bundesland für Feiertage) — Modul: Kalender (js/calendar.js) -->
   <div id="calendar-settings-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:380px;">
       <div class="modal-head"><span>Kalender-Einstellungen</span><button class="modal-x" id="calendar-settings-modal-close">✕</button></div>
@@ -1526,7 +1576,7 @@
     </div>
   </div>
 
-  <!-- Flashcard Modal — Karte bearbeiten/erstellen -->
+  <!-- Flashcard Modal — Karte bearbeiten/erstellen — Modul: Karteikarten (js/flashcards.js) -->
   <div id="fc-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-head"><span id="fc-modal-title">Karteikarte</span><button class="modal-x" id="fc-modal-close">✕</button></div>
@@ -1536,7 +1586,7 @@
     </div>
   </div>
  
-  <!-- Fach erstellen Modal -->
+  <!-- Fach erstellen Modal — Modul: Karteikarten (js/flashcards.js) -->
   <div id="fc-subject-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head"><span>Neues Fach</span><button class="modal-x" id="fc-subject-modal-close">✕</button></div>
@@ -1555,7 +1605,7 @@
     </div>
   </div>
  
-  <!-- Themengruppe erstellen/umbenennen Modal -->
+  <!-- Themengruppe erstellen/umbenennen Modal — Modul: Karteikarten (js/flashcards.js) -->
   <div id="fc-group-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head"><span id="fc-group-modal-title">Neue Themengruppe</span><button class="modal-x" id="fc-group-modal-close">✕</button></div>
@@ -1570,7 +1620,7 @@
     </div>
   </div>
  
-  <!-- Fach bearbeiten Modal -->
+  <!-- Fach bearbeiten Modal — Modul: Karteikarten (js/flashcards.js) -->
   <div id="fc-subject-edit-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head"><span>Fach bearbeiten</span><button class="modal-x" id="fc-subject-edit-modal-close">✕</button></div>
@@ -1589,7 +1639,7 @@
     </div>
   </div>
  
-  <!-- Guide Category Modal -->
+  <!-- Guide Category Modal — Modul: Anleitungen (js/guides.js) -->
   <div id="guide-cat-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:460px;">
       <div class="modal-head">
@@ -1621,7 +1671,7 @@
     </div>
   </div>
  
-  <!-- Guide Entry Modal -->
+  <!-- Guide Entry Modal — Modul: Anleitungen (js/guides.js) -->
   <div id="guide-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box guide-modal-box">
       <div class="modal-head">
@@ -1664,7 +1714,7 @@
     </div>
   </div>
  
-  <!-- Recurring Budget Modal -->
+  <!-- Recurring Budget Modal — Modul: Budget (js/budget.js) -->
   <div id="recurring-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:440px;">
       <div class="modal-head"><span id="recurring-modal-title">Wiederkehrender Posten</span><button class="modal-x" id="recurring-modal-close">&#10005;</button></div>
@@ -1764,7 +1814,7 @@
     </div>
   </div>
  
-  <!-- One-time Budget Modal -->
+  <!-- One-time Budget Modal — Modul: Budget (js/budget.js) -->
   <div id="onetime-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head"><span>Einmalige Buchung</span><button class="modal-x" id="onetime-modal-close">&#10005;</button></div>
@@ -1791,7 +1841,7 @@
     </div>
   </div>
  
-  <!-- Goal Modal -->
+  <!-- Goal Modal — Modul: Budget (js/budget.js) -->
   <div id="goal-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head"><span id="goal-modal-title">Neues Sparziel</span><button class="modal-x" id="goal-modal-close">&#10005;</button></div>
@@ -1834,7 +1884,7 @@
     </div>
   </div>
  
-  <!-- Goal Deposit/Withdraw Modal -->
+  <!-- Goal Deposit/Withdraw Modal — Modul: Budget (js/budget.js) -->
   <div id="goal-tx-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:360px;">
       <div class="modal-head"><span id="goal-tx-title">Einzahlen</span><button class="modal-x" id="goal-tx-close">&#10005;</button></div>
@@ -1878,7 +1928,8 @@
   </div>
 
   <!-- Sparplan-Assistent (Wizard) — 3 Varianten, unabhängig von der
-       Sparprognose. Reserviert keinerlei Budget-Beträge. -->
+       Sparprognose. Reserviert keinerlei Budget-Beträge.
+       Modul: Budget (js/budget-sparplaene.js) -->
   <div id="sparplan-wizard-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:480px;max-height:85vh;overflow-y:auto;">
       <div class="modal-head"><span id="sparplan-wizard-title">Neuer Sparplan</span><button class="modal-x" id="sparplan-wizard-close">&#10005;</button></div>
@@ -2060,7 +2111,7 @@
     </div>
   </div>
 
-  <!-- Sparplan-Detailansicht -->
+  <!-- Sparplan-Detailansicht — Modul: Budget (js/budget-sparplaene.js) -->
   <div id="sparplan-detail-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:480px;max-height:85vh;overflow-y:auto;">
       <div class="modal-head">
@@ -2079,7 +2130,8 @@
   </div>
  
   <!-- "Gespart bis..." Modal — kleine, eigenständige Zusatzrechnung,
-       unabhängig von Sparzielen. Ändert nichts am Sparplan. -->
+       unabhängig von Sparzielen. Ändert nichts am Sparplan.
+       Modul: Budget (js/budget-sparprognose.js) -->
   <div id="sparplan-savedby-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:400px;">
       <div class="modal-head"><span>⭐ Gespart bis...</span><button class="modal-x" id="sparplan-savedby-close">&#10005;</button></div>
@@ -2103,7 +2155,7 @@
     </div>
   </div>
  
-  <!-- Finanzbaum Konfigurations-Modal -->
+  <!-- Finanzbaum Konfigurations-Modal — Modul: Budget (js/budget.js) -->
   <div id="finanzbaum-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:400px;">
       <div class="modal-head">
@@ -2119,7 +2171,7 @@
     </div>
   </div>
 
-  <!-- Budget-Archiv (erfüllte Sparziele / beglichene Schulden) -->
+  <!-- Budget-Archiv (erfüllte Sparziele / beglichene Schulden) — Modul: Budget (js/budget.js) -->
   <div id="budget-archiv-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:480px;max-height:76vh;display:flex;flex-direction:column;">
       <div class="modal-head">
@@ -2140,7 +2192,7 @@
     </div>
   </div>
 
-  <!-- Kontostand Modal -->
+  <!-- Kontostand Modal — Modul: Budget (js/budget.js) -->
   <div id="kontostand-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:360px;">
       <div class="modal-head"><span>Kontostand aktualisieren</span><button class="modal-x" id="kontostand-modal-close">&#10005;</button></div>
@@ -2150,7 +2202,7 @@
     </div>
   </div>
  
-  <!-- Projekt erstellen / bearbeiten Modal -->
+  <!-- Projekt erstellen / bearbeiten Modal — Modul: Projekte (js/projects.js) -->
   <div id="project-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:440px;">
       <div class="modal-head">
@@ -2188,7 +2240,7 @@
     </div>
   </div>
  
-  <!-- Projekt-Aufgabe hinzufügen Modal -->
+  <!-- Projekt-Aufgabe hinzufügen Modal — Modul: Projekte (js/projects.js) -->
   <div id="project-task-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:420px;">
       <div class="modal-head">
@@ -2214,7 +2266,7 @@
     </div>
   </div>
  
-  <!-- Projekt Archiv Modal -->
+  <!-- Projekt Archiv Modal — Modul: Projekte (js/projects.js) -->
   <div id="project-archive-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:580px;max-height:70vh;display:flex;flex-direction:column;">
       <div class="modal-head">
@@ -2226,7 +2278,7 @@
     </div>
   </div>
  
-  <!-- Unterprojekt hinzufügen Modal -->
+  <!-- Unterprojekt hinzufügen Modal — Modul: Projekte (js/projects.js) -->
   <div id="proj-sub-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:400px;">
       <div class="modal-head">
@@ -2241,7 +2293,7 @@
     </div>
   </div>
  
-  <!-- Bestätigungs-Modal (Archivieren / Löschen) -->
+  <!-- Bestätigungs-Modal (Archivieren / Löschen) — Modul: Projekte (js/projects.js) -->
   <div id="proj-confirm-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:400px;">
       <div class="modal-head">
@@ -2256,7 +2308,7 @@
     </div>
   </div>
  
-  <!-- Aufgabe verschieben Modal -->
+  <!-- Aufgabe verschieben Modal — Modul: Projekte (js/projects.js) -->
   <div id="proj-move-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:380px;">
       <div class="modal-head">
@@ -2276,7 +2328,7 @@
   </div>
  
   <!-- Projekt Detailansicht (Fullscreen Overlay) -->
-  <!-- Aufgaben Detail Modal -->
+  <!-- Aufgaben Detail Modal — Modul: Projekte (js/forest.js) -->
   <div id="task-detail-overlay" class="modal-backdrop hidden" style="z-index:300;">
     <div class="modal-box" style="width:480px;max-height:80vh;overflow-y:auto;">
       <div class="modal-head">
@@ -2312,7 +2364,7 @@
     </div>
   </div>
  
-  <!-- Positivity: Karten-Detail Modal -->
+  <!-- Positivity: Karten-Detail Modal — Modul: Positivity (js/positivity.js, Sidebar-Widget) -->
   <div id="positivity-card-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:380px;">
       <div class="modal-head">
@@ -2327,7 +2379,7 @@
     </div>
   </div>
  
-  <!-- Positivity: Kategorie bearbeiten Modal -->
+  <!-- Positivity: Kategorie bearbeiten Modal — Modul: Positivity (js/positivity.js) -->
   <div id="positivity-cat-edit-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:360px;">
       <div class="modal-head">
@@ -2349,7 +2401,7 @@
     </div>
   </div>
  
-  <!-- Positivity: Karten verwalten Modal -->
+  <!-- Positivity: Karten verwalten Modal — Modul: Positivity (js/positivity.js) -->
   <div id="positivity-cards-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:440px;max-height:80vh;display:flex;flex-direction:column;">
       <div class="modal-head">
@@ -2367,7 +2419,7 @@
     </div>
   </div>
  
-  <!-- Positivity: Kategorie-Menü (Burger) -->
+  <!-- Positivity: Kategorie-Menü (Burger) — Modul: Positivity (js/positivity.js) -->
   <div id="positivity-cat-menu" class="positivity-cat-menu hidden">
     <button class="positivity-cat-menu-item" data-action="edit">Bearbeiten</button>
     <button class="positivity-cat-menu-item" data-action="new">Neue Karte erstellen</button>
@@ -2376,7 +2428,7 @@
   </div>
   <input type="file" id="positivity-import-input" accept=".json" style="display:none;"/>
 
-  <!-- Games: Play-Modal -->
+  <!-- Games: Play-Modal — Modul: Games (js/games.js) -->
   <div id="games-play-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box games-play-modal-box">
       <div class="modal-head">
@@ -2455,7 +2507,7 @@
     </div>
   </div>
 
-  <!-- Games: Statistik-Modal -->
+  <!-- Games: Statistik-Modal — Modul: Games (js/games.js) -->
   <div id="games-stats-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:480px;">
       <div class="modal-head">
@@ -2470,6 +2522,7 @@
     </div>
   </div>
 
+  <!-- Modul: Today (js/today.js) -->
   <!-- Today Mobile: Aufgaben-Modal — eigene kompakte Mobile-Ansicht (nicht
        die Desktop-Karte #panel-tasks), gerendert von today.js:
        renderTasksMobileModal()/buildMobileTaskItem(). -->
@@ -2487,7 +2540,8 @@
     </div>
   </div>
 
-  <!-- Gruppendienste: Übersicht aller Pflichten -->
+  <!-- Gruppendienste: Übersicht aller Pflichten — Modul: Gruppendienste
+       (js/gruppendienste.js — kein eigener Tab, Einstieg z.B. aus Today) -->
   <div id="gd-overview-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:480px;">
       <div class="modal-head"><span>Pflichten verwalten</span><button class="modal-x" id="gd-overview-close">&#10005;</button></div>
@@ -2498,7 +2552,7 @@
     </div>
   </div>
 
-  <!-- Gruppendienste: Pflicht-Editor -->
+  <!-- Gruppendienste: Pflicht-Editor — Modul: Gruppendienste (js/gruppendienste.js) -->
   <div id="gd-duty-modal-overlay" class="modal-backdrop hidden">
     <div class="modal-box" style="width:520px;max-height:88vh;overflow-y:auto;">
       <div class="modal-head"><span id="gd-duty-modal-title">Neue Pflicht</span><button class="modal-x" id="gd-duty-modal-close">&#10005;</button></div>
@@ -2609,6 +2663,7 @@
     </div>
   </div>
 
+  <!-- Kern (shared, alle Module hängen hiervon ab) -->
   <script src="js/main.js"></script>
   <script src="js/hub-utils.js"></script>
   <!-- Supabase-SDK per CDN (UMD-Build, kein npm/Build-Step für die Kern-App
@@ -2622,12 +2677,21 @@
        bewusst fehlerfrei rein lokal weiter (siehe sync.js). -->
   <script src="js/sync-config.js"></script>
   <script src="js/sync.js"></script>
+  <!-- Modul: Kalender -->
   <script src="js/calendar.js"></script>
+  <!-- Modul: Today -->
   <script src="js/today.js"></script>
+  <!-- Modul: Gruppendienste (kein eigener Tab) -->
   <script src="js/gruppendienste.js"></script>
+  <!-- Modul: Pinnwand -->
   <script src="js/pinboard.js"></script>
+  <!-- Modul: Karteikarten -->
   <script src="js/flashcards.js"></script>
+  <!-- Modul: Anleitungen -->
   <script src="js/guides.js"></script>
+  <!-- Modul: Budget — mehrere Dateien, Ladereihenfolge ist Abhängigkeit
+       (budget.js zuerst, dann sparziele/financing/analysis/debts/
+       sparprognose/sparplaene, siehe CLAUDE.md) -->
   <script src="js/budget.js"></script>
   <script src="js/budget-sparziele.js"></script>
   <script src="js/budget-financing.js"></script>
@@ -2635,22 +2699,31 @@
   <script src="js/budget-debts.js"></script>
   <script src="js/budget-sparprognose.js"></script>
   <script src="js/budget-sparplaene.js"></script>
+  <!-- Modul: Projekte -->
   <script src="js/projects.js"></script>
   <script src="js/project-tree.js"></script>
   <script src="js/forest.js"></script>
-  <!-- Spiele: games.js ist der Hub, games-list.js die einzige Stelle,
-       die beim Hinzufügen/Entfernen eines Spiels angepasst werden muss -->
+  <!-- Modul: Games — games.js ist der Hub, games-list.js die einzige Stelle,
+       die beim Hinzufügen/Entfernen eines Spiels angepasst werden muss.
+       Die eigentlichen Spiele (games/<id>/*.js) laden erst lazy beim
+       Öffnen, siehe games.js. -->
   <script src="js/games.js"></script>
   <script src="games/games-list.js"></script>
+  <!-- Modul: Einstellungen -->
   <script src="js/settings.js"></script>
+  <!-- Modul: Positivity (Sidebar-Widget, kein eigener Tab) -->
   <script src="js/positivity.js"></script>
+  <!-- Modul: National Day (Sidebar/Today-Zusatzinfo, kein eigener Tab) -->
   <script src="js/national_day.js"></script>
+  <!-- Modul: Tools — mehrere Dateien, tools.js ist der Hub für die
+       Unter-Tools (Rechner/Timer/Umrechner/Datenrate/Notenmanager) -->
   <script src="js/tools.js"></script>
   <script src="js/tools-calculator.js"></script>
   <script src="js/tools-timer.js"></script>
   <script src="js/tools-converter.js"></script>
   <script src="js/tools-datarate.js"></script>
   <script src="js/tools-notenmanager.js"></script>
+  <!-- Shared: PWA-Update-Logik (js/pwa.js), kein eigenes Modul -->
   <script src="js/pwa.js"></script>
 </body>
 </html>
