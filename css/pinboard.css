@@ -57,7 +57,7 @@
 /* Code — Textarea bekommt maximalen Platz, Copy-Button dezent im Codeblock, nur bei Hover sichtbar */
 .desk-card--code .desk-card-body { position: relative; background: var(--surface-2); }
 [data-theme-family="dark"] .desk-card--code .desk-card-body { background: var(--code-bg); }
-.desk-card--code .desk-textarea { font-family: var(--mono); font-size: calc(12.5px * var(--core-font-scale)); line-height: 1.7; padding: 14px 16px; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+.desk-card--code .desk-textarea { font-family: var(--core-code-font); font-size: calc(12.5px * var(--core-font-scale)); line-height: 1.7; padding: 14px 16px; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
 .desk-code-copy {
   position: absolute; top: 8px; right: 8px; width: 26px; height: 26px;
   display: flex; align-items: center; justify-content: center;

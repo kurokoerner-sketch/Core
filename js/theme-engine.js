@@ -53,7 +53,7 @@ const CUSTOM_THEME_VARS = [
   '--text', '--text-2', '--text-3', '--accent-soft',
   '--sage', '--sage-dark', '--sage-light', '--sage-bg', '--sage-border',
   '--core-nav-bg', '--core-modal-bg', '--core-card-opacity',
-  '--font', '--core-font-scale',
+  '--font', '--core-font-scale', '--mono',
 ];
 
 // =========================================================================
@@ -273,12 +273,32 @@ function isCustomThemeId(id) { return !!getCustomTheme(id); }
 function clearCustomThemeVars() {
   CUSTOM_THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v));
 }
+// GEFUNDENE URSACHE (Font-Vererbung griff trotz korrektem deriveThemeVars()
+// nicht überall): ct.vars ist eine zum Speicherzeitpunkt eingefrorene
+// Momentaufnahme (saveThemeBuilder() schreibt sie einmalig weg). Jedes
+// bereits vorhandene eigene Theme wurde gespeichert, BEVOR --mono/
+// --core-font-scale zu deriveThemeVars() hinzukamen — dessen ct.vars
+// enthält diese Schlüssel schlicht nicht, Object.entries(ct.vars) kann sie
+// also nie setzen. --mono blieb dadurch beim :root-Standard (DM Mono),
+// unabhängig von der im Editor gewählten Schrift — genau das erklärt KW,
+// Datum, Finanzzahlen, Scores, Timer, Block-Zeiten, Positivity-Zähler usw.
+// Deshalb hier NICHT mehr die eingefrorene ct.vars anwenden, sondern bei
+// jedem Aktivieren live aus den Rohdaten (coreColors/cardOpacity/fontSize
+// — die werden bei jedem Speichern korrekt aktualisiert) neu ableiten.
+// Das repariert automatisch auch jedes ältere, nicht neu gespeicherte
+// Theme, und verhindert dieselbe Klasse von Bug bei jeder künftigen
+// Erweiterung von deriveThemeVars().
 function applyCustomThemeVars(id) {
   const ct = getCustomTheme(id);
   if (!ct) return false;
+  // Object.assign-Fallback wie in openThemeBuilder() — sehr alte Themes
+  // (vor accent/nav/modal/font) kennen manche coreColors-Felder noch
+  // nicht; deriveThemeVars() bekäme sonst undefined statt eines Hex-Werts.
+  const core = Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors);
+  const vars = deriveThemeVars(core, ct.cardOpacity ?? 100, ct.fontSize ?? 100);
   document.documentElement.setAttribute('data-theme', id);
   document.documentElement.setAttribute('data-theme-family', ct.family);
-  Object.entries(ct.vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
   return true;
 }
 
@@ -327,6 +347,12 @@ function deriveThemeVars(core, cardOpacityPct, fontSizePct) {
     '--core-nav-bg':   mix(core.nav),
     '--core-modal-bg': mix(core.modal),
     '--font':          core.font || DEFAULT_FONT_STACK,
+    // --mono ist die Zahlen-/Zeit-Spur (Uhrzeiten, Daten, Beträge, Scores,
+    // Timer, Formeln …) — bekommt hier bewusst dieselbe Schrift wie --font,
+    // damit die gewählte Theme-Schrift wirklich überall greift, nicht nur
+    // bei "normalem" Text. Echte Code-Darstellung hängt stattdessen an
+    // --core-code-font (main.css, von Themes nicht überschrieben).
+    '--mono':          core.font || DEFAULT_FONT_STACK,
     '--core-card-opacity': opacity,
     '--core-font-scale': ((fontSizePct || 100) / 100).toFixed(2),
   };

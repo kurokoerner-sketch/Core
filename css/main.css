@@ -9,7 +9,18 @@
 :root {
   /* ── Fonts ────────────────────────────────────────────── */
   --font: 'DM Sans', system-ui, sans-serif;
+  /* --mono ist die "Zahlen/Zeiten"-Spur (Uhrzeiten, Daten, Beträge,
+     Scores, Timer, Formeln …) — für eigene Themes überschreibt
+     js/theme-engine.js sie auf dieselbe Schrift wie --font, damit die
+     gewählte Theme-Schrift wirklich überall greift (siehe
+     deriveThemeVars()). Eingebaute Themes lassen --mono unverändert. */
   --mono: 'DM Mono', 'Courier New', monospace;
+  /* Bewusst NICHT von Themes überschrieben — echte Quelltext-/Code-
+     Darstellung (Guides-Codeblöcke, Pinnwand-Code-Karte) braucht
+     tatsächlich eine feste Monospace-Schrift zur Ausrichtung, unabhängig
+     von der gewählten Theme-Schrift. Die einzige bewusste Ausnahme von
+     "Theme-Schrift überall". */
+  --core-code-font: 'DM Mono', 'Courier New', monospace;
   /* Schriftgrößen-Skalierung (Theme-Editor) — reiner Zahlenwert, keine
      Prozentangabe: color-mix() akzeptiert Prozente, calc()-Multiplikation
      von Längen (font-size: calc(Npx * --core-font-scale)) braucht eine
