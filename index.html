@@ -2594,14 +2594,23 @@
         </div>
       </div>
 
-      <!-- Schriftart — Modul: Theme-Engine. Optionen (inkl. Kategorien via
-           <optgroup>) werden von renderFontSelect() (js/theme-engine.js)
-           aus FONT_CATEGORIES + CUSTOM_FONT_FILES aufgebaut; jede <option>
-           bekommt inline die eigene font-family, dadurch zeigt die native
-           Dropdown-Liste bereits eine Vorschau je Schriftart. -->
+      <!-- Schriftart — Modul: Theme-Engine. Eigener Dropdown statt nativem
+           <select>, weil Browser font-family auf <option> nicht zuverlässig
+           darstellen — renderFontSelect() (js/theme-engine.js) baut die
+           Liste aus FONT_CATEGORIES + CUSTOM_FONT_FILES auf, jeder Eintrag
+           bekommt inline seine eigene font-family. #theme-builder-font
+           (hidden input) hält weiterhin den ausgewählten Wert, damit
+           saveThemeBuilder()/applyThemeTemplate() unverändert bleiben. -->
       <div class="tb-group">
         <span class="panel-label">Schriftart</span>
-        <select class="modal-select" id="theme-builder-font"></select>
+        <div class="tb-font-picker" id="theme-builder-font-picker">
+          <button type="button" class="modal-select tb-font-trigger" id="theme-builder-font-trigger">
+            <span id="theme-builder-font-trigger-label">CORE Standard (DM Sans)</span>
+            <span class="tb-font-trigger-arrow">▾</span>
+          </button>
+          <div class="tb-font-panel hidden" id="theme-builder-font-panel"></div>
+        </div>
+        <input type="hidden" id="theme-builder-font" value="" />
         <span id="theme-builder-font-preview" style="font-size:15px;color:var(--text-2);">The quick brown fox</span>
       </div>
 
@@ -2611,6 +2620,21 @@
           <span class="tb-slider-label">Kartendurchlässigkeit: <span id="theme-builder-opacity-label">100%</span></span>
           <input type="range" id="theme-builder-opacity" min="20" max="100" value="100" step="5"/>
           <span class="tb-slider-hint">0% = unsichtbar · 100% = deckend</span>
+        </div>
+      </div>
+
+      <!-- Schriftgröße — Modul: Theme-Engine. Skaliert --core-font-scale,
+           worüber css/*.css seine font-size-Regeln über calc() legt
+           (font-size: calc(Npx * var(--core-font-scale))). 100% = exakt
+           die bisherige Größe jeder einzelnen Regel, dadurch bleiben alle
+           relativen Größenverhältnisse (z.B. Uhrzeit größer als Label)
+           erhalten — es wird nichts einzeln auf dieselbe Größe gesetzt. -->
+      <div class="tb-group">
+        <span class="panel-label">Schriftgröße</span>
+        <div class="tb-slider-row">
+          <span class="tb-slider-label">Grundgröße: <span id="theme-builder-fontsize-label">100%</span></span>
+          <input type="range" id="theme-builder-fontsize" min="70" max="150" value="100" step="5"/>
+          <span class="tb-slider-hint">70% = kleiner · 100% = normal · 150% = größer</span>
         </div>
       </div>
 
@@ -2646,9 +2670,9 @@
 
       <div class="modal-row">
         <label>Vorschau</label>
-        <div id="theme-builder-preview" style="border-radius:var(--radius-sm);border:1px solid var(--border-strong);padding:14px 16px;">
-          <strong style="font-size:15px;">Mein Hub</strong>
-          <div style="font-size:12.5px;margin-top:4px;">Beispieltext in diesem Theme</div>
+        <div id="theme-builder-preview" style="border-radius:var(--radius-sm);border:1px solid var(--border-strong);padding:14px 16px;font-size:15px;">
+          <strong>Mein Hub</strong>
+          <div style="font-size:0.83em;margin-top:4px;">Beispieltext in diesem Theme</div>
         </div>
       </div>
       <div class="modal-actions">

@@ -14,14 +14,14 @@
 .project-task-cb { accent-color: var(--sage); }
 
 /* Archive rows */
-.archive-project-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; font-family: var(--mono); }
+.archive-project-meta { font-size: calc(12px * var(--core-font-scale)); color: var(--text-3); margin-top: 2px; font-family: var(--mono); }
 
 /* --- Bestätigungs-Modal --- */
 .proj-confirm-danger { background: #dc2626 !important; }
 
 /* --- Verschieben Modal --- */
 #proj-move-modal-overlay .modal-hint {
-  font-size: 13px;
+  font-size: calc(13px * var(--core-font-scale));
   font-weight: 500;
   color: var(--text);
   margin-bottom: 12px;
@@ -94,7 +94,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: var(--text-3);
-  font-size: 14px;
+  font-size: calc(14px * var(--core-font-scale));
   text-align: center;
 }
 
@@ -125,7 +125,7 @@
 .forest-overlay-titles { display: flex; flex-direction: column; }
 .forest-overlay-title {
   font-family: var(--font);
-  font-size: 26px;
+  font-size: calc(26px * var(--core-font-scale));
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--text);
@@ -136,7 +136,7 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 2px 16px rgba(0,0,0,0.7);
 }
 .forest-overlay-subtitle {
-  font-size: 13px;
+  font-size: calc(13px * var(--core-font-scale));
   color: var(--text-2);
   margin: 2px 0 0;
   text-shadow: 0 1px 4px rgba(255,255,255,0.85);
@@ -171,7 +171,7 @@
   backdrop-filter: blur(6px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   color: var(--text-2);
-  font-size: 13px;
+  font-size: calc(13px * var(--core-font-scale));
   font-weight: 500;
   cursor: pointer;
   transition: all 120ms;
@@ -180,7 +180,7 @@
 .forest-tab:hover { color: var(--text); }
 .forest-tab.active { background: var(--sage); color: var(--sage-fg); }
 .forest-tab.active .forest-tab-count { color: var(--sage-fg); opacity: 0.85; }
-.forest-tab-count { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+.forest-tab-count { font-family: var(--mono); font-size: calc(11px * var(--core-font-scale)); color: var(--text-3); }
 
 .forest-toolbar-right { display: flex; align-items: center; gap: 10px; }
 
@@ -199,7 +199,7 @@
   border: none;
   border-radius: var(--radius-lg);
   padding: 8px 12px 8px 32px;
-  font-size: 13px;
+  font-size: calc(13px * var(--core-font-scale));
   width: 200px;
   background: transparent;
   color: var(--text);
@@ -241,14 +241,14 @@
   min-width: 140px;
 }
 .forest-filter-title {
-  font-size: 10px;
+  font-size: calc(10px * var(--core-font-scale));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-3);
   padding: 0 2px 2px;
 }
-.forest-filter-panel .toggle-select-btn { padding: 6px 10px; font-size: 12.5px; text-align: left; }
+.forest-filter-panel .toggle-select-btn { padding: 6px 10px; font-size: calc(12.5px * var(--core-font-scale)); text-align: left; }
 
 /* =========================
    LEGENDE — Overlay am unteren Bildrand
@@ -270,7 +270,7 @@
   background: rgba(255,252,246,0.86);
   backdrop-filter: blur(6px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-  font-size: 12px;
+  font-size: calc(12px * var(--core-font-scale));
   color: var(--text-2);
 }
 [data-theme-family="dark"] .forest-legend { background: rgba(26,24,18,0.82); }
@@ -334,7 +334,7 @@
   border: 1px solid var(--border-strong);
   background: var(--sage);
   color: #fff;
-  font-size: 13px;
+  font-size: calc(13px * var(--core-font-scale));
   cursor: pointer;
   transition: filter 120ms;
 }
@@ -367,7 +367,7 @@
 }
 .pdt-back-btn {
   display: flex; align-items: center; gap: 6px;
-  font-size: 13px; font-weight: 500; color: var(--text-2);
+  font-size: calc(13px * var(--core-font-scale)); font-weight: 500; color: var(--text-2);
   background: rgba(255,252,246,0.86);
   backdrop-filter: blur(6px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
@@ -380,7 +380,7 @@
 .pdt-toolbar-right { display: flex; align-items: center; gap: 10px; }
 .pdt-action-btn {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12.5px; color: var(--text-2);
+  font-size: calc(12.5px * var(--core-font-scale)); color: var(--text-2);
   background: rgba(255,252,246,0.86);
   backdrop-filter: blur(6px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
@@ -444,16 +444,16 @@
 
 .pdt-status-badge {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 10px; font-weight: 700;
+  font-size: calc(10px * var(--core-font-scale)); font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.12em;
   color: var(--proj-success); background: color-mix(in srgb, var(--proj-success) 10%, transparent);
   border-radius: 99px; padding: 3px 12px; width: fit-content;
 }
 .pdt-status-badge.archived { color: #d97706; background: rgba(217,119,6,0.1); }
-.pdt-status-badge::before { content: '●'; font-size: 6px; }
+.pdt-status-badge::before { content: '●'; font-size: calc(6px * var(--core-font-scale)); }
 
 .pdt-project-name {
-  font-size: 52px;
+  font-size: calc(52px * var(--core-font-scale));
   font-weight: 700;
   color: var(--text);
   line-height: 1.08;
@@ -464,7 +464,7 @@
 [data-theme-family="dark"] .pdt-project-name { text-shadow: none; }
 
 .pdt-project-desc {
-  font-size: 14px; color: var(--text-3);
+  font-size: calc(14px * var(--core-font-scale)); color: var(--text-3);
   line-height: 1.7; margin: 0;
   max-width: 280px;
 }
@@ -472,7 +472,7 @@
 /* Fortschritt */
 .pdt-progress-section { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
 .pdt-progress-label-row { display: flex; justify-content: flex-start; align-items: center; gap: 6px; }
-.pdt-progress-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.pdt-progress-label { font-size: calc(11px * var(--core-font-scale)); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
 /* Pct: klein, über Balken rechts */
 .pdt-progress-pct-wrap {
   position: relative;
@@ -483,7 +483,7 @@
   position: absolute;
   right: 0;
   top: calc(-16px);
-  font-size: 11px;
+  font-size: calc(11px * var(--core-font-scale));
   font-weight: 600;
   color: var(--text-2);
   font-family: var(--mono);
@@ -496,7 +496,7 @@
 .pdt-progress-fill { height: 100%; border-radius: 99px; transition: width 600ms ease; }
 .pdt-progress-meta {
   display: flex; flex-direction: column; gap: 1px;
-  font-size: 12px; color: var(--text-2); font-family: var(--mono);
+  font-size: calc(12px * var(--core-font-scale)); color: var(--text-2); font-family: var(--mono);
   margin-top: 4px;
 }
 .pdt-meta-sep { display: none; }
@@ -527,7 +527,7 @@
 }
 
 .pdt-info-card-title {
-  font-size: 10px; font-weight: 700;
+  font-size: calc(10px * var(--core-font-scale)); font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.12em;
   color: var(--text-3); margin-bottom: 10px;
 }
@@ -546,15 +546,15 @@
   color: var(--text-3); margin-top: 1px;
 }
 .pdt-info-content { display: flex; flex-direction: column; gap: 1px; }
-.pdt-info-key { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
-.pdt-info-val { font-size: 13.5px; font-weight: 500; color: var(--text); margin-top: 2px; }
+.pdt-info-key { font-size: calc(11px * var(--core-font-scale)); color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+.pdt-info-val { font-size: calc(13.5px * var(--core-font-scale)); font-weight: 500; color: var(--text); margin-top: 2px; }
 .pdt-status-val { color: var(--proj-success); }
 
 .pdt-info-divider { height: 1px; background: var(--border); margin: 14px 0; }
 
 .pdt-info-quote {
   display: flex; gap: 10px; align-items: flex-start;
-  font-size: 12.5px; color: var(--text-3);
+  font-size: calc(12.5px * var(--core-font-scale)); color: var(--text-3);
   font-style: italic; line-height: 1.6;
   margin-top: 4px;
 }
@@ -574,12 +574,12 @@
   border-bottom: 1px solid var(--border);
 }
 .pdt-tasks-header-left { display: flex; flex-direction: column; gap: 3px; }
-.pdt-tasks-title { font-size: 18px; font-weight: 600; color: var(--text); }
-.pdt-tasks-sub { font-size: 12px; color: var(--text-3); }
+.pdt-tasks-title { font-size: calc(18px * var(--core-font-scale)); font-weight: 600; color: var(--text); }
+.pdt-tasks-sub { font-size: calc(12px * var(--core-font-scale)); color: var(--text-3); }
 
 .pdt-add-branch-btn {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12.5px; color: var(--text-2);
+  font-size: calc(12.5px * var(--core-font-scale)); color: var(--text-2);
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-sm); padding: 6px 14px;
   cursor: pointer; transition: all 120ms; flex-shrink: 0;
@@ -618,7 +618,7 @@
 
 /* Aufgabenliste */
 .detail-tile-tasks { border-top: 1px solid var(--border); padding: 6px 0 8px; }
-.detail-tile-empty { font-size: 12.5px; color: var(--text-3); padding: 12px 18px; font-style: italic; }
+.detail-tile-empty { font-size: calc(12.5px * var(--core-font-scale)); color: var(--text-3); padding: 12px 18px; font-style: italic; }
 
 .detail-tile-task-row {
   display: flex; align-items: center; gap: 10px;
@@ -630,12 +630,12 @@
 .detail-tile-task-row.done { opacity: 0.58; }
 
 .detail-tile-task-label {
-  flex: 1; font-size: 13px; color: var(--text);
+  flex: 1; font-size: calc(13px * var(--core-font-scale)); color: var(--text);
   line-height: 1.45; cursor: pointer; transition: color 100ms;
 }
 .detail-tile-task-label:hover { color: var(--sage-dark, #3d6b4a); }
-.detail-tile-extra-badge { font-size: 10px; color: var(--text-3); flex-shrink: 0; }
-.detail-task-has-detail { color: var(--text-3); margin-left: 4px; font-size: 15px; line-height: 1; vertical-align: middle; }
+.detail-tile-extra-badge { font-size: calc(10px * var(--core-font-scale)); color: var(--text-3); flex-shrink: 0; }
+.detail-task-has-detail { color: var(--text-3); margin-left: 4px; font-size: calc(15px * var(--core-font-scale)); line-height: 1; vertical-align: middle; }
 
 /* Umbenennen/Verschieben/Löschen je Aufgabenzeile — nur bei Hover sichtbar,
    damit die Liste im Ruhezustand aufgeräumt bleibt (gleiches Prinzip wie
@@ -649,19 +649,19 @@
   width: 22px; height: 22px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   border: none; background: none; border-radius: 6px;
-  font-size: 12px; color: var(--text-3); cursor: pointer;
+  font-size: calc(12px * var(--core-font-scale)); color: var(--text-3); cursor: pointer;
   transition: background 100ms, color 100ms;
 }
 .detail-task-icon-btn:hover { background: var(--bg); color: var(--text); }
 
 .detail-tile-divider {
-  font-size: 10px; color: var(--text-3); letter-spacing: 0.02em;
+  font-size: calc(10px * var(--core-font-scale)); color: var(--text-3); letter-spacing: 0.02em;
   padding: 8px 18px 2px;
 }
 
 .detail-tile-add-btn {
   width: 100%; text-align: left;
-  padding: 9px 18px; font-size: 12.5px; color: var(--text-3);
+  padding: 9px 18px; font-size: calc(12.5px * var(--core-font-scale)); color: var(--text-3);
   background: none; border: none;
   border-top: 1px dashed var(--border);
   cursor: pointer; transition: color 120ms, background 120ms;
@@ -671,7 +671,7 @@
 /* Checkliste im Task-Modal */
 .task-cl-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }
 .task-cl-row:last-child { border-bottom: none; }
-.task-cl-label { flex: 1; font-size: 13px; color: var(--text); }
+.task-cl-label { flex: 1; font-size: calc(13px * var(--core-font-scale)); color: var(--text); }
 .task-cl-row.done .task-cl-label { text-decoration: line-through; color: var(--text-3); }
 
 /* ── WALD ── */
@@ -682,7 +682,7 @@
 
 /* Toggle Buttons */
 .toggle-select-btn {
-  font-size: 12px; padding: 4px 12px;
+  font-size: calc(12px * var(--core-font-scale)); padding: 4px 12px;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   background: none; color: var(--text-3); cursor: pointer; transition: all 120ms;
 }
@@ -698,7 +698,7 @@
 @media (max-width: 1024px) {
   .pdt-hero { grid-template-columns: 1fr; height: auto; min-height: 0; }
   .pdt-left { padding: 22px 24px 8px; }
-  .pdt-project-name { font-size: 38px; }
+  .pdt-project-name { font-size: calc(38px * var(--core-font-scale)); }
   /* Die volle-Hero-Überlagerung der Baumspalte (siehe project-tree.css) gilt
      nur für das 3-Spalten-Desktop-Layout — hier wird wieder normal gestapelt.
      .pdt-tree-col hat dann keine definierte Höhe mehr (normaler Fluss statt
@@ -714,7 +714,7 @@
 @media (max-width: 480px) {
   .pdt-hero { border-radius: var(--radius-lg); }
   .pdt-left { padding: 18px 16px 6px; }
-  .pdt-project-name { font-size: 28px; }
+  .pdt-project-name { font-size: calc(28px * var(--core-font-scale)); }
   .pdt-project-desc { max-width: none; }
   .pdt-info-card { margin: 0 16px 18px; }
   .pdt-tasks-section { padding: 20px 16px 32px; }

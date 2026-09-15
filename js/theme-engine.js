@@ -53,7 +53,7 @@ const CUSTOM_THEME_VARS = [
   '--text', '--text-2', '--text-3', '--accent-soft',
   '--sage', '--sage-dark', '--sage-light', '--sage-bg', '--sage-border',
   '--core-nav-bg', '--core-modal-bg', '--core-card-opacity',
-  '--font',
+  '--font', '--core-font-scale',
 ];
 
 // =========================================================================
@@ -98,19 +98,61 @@ const FONT_CATEGORIES = [
 const DEFAULT_FONT_STACK = FONT_CATEGORIES[0].fonts[0].stack;
 
 // ── Eigene Fonts aus assets/fonts/ ───────────────────────────────────────
-// Bewusst KEINE automatische Erkennung beliebiger Dateien (siehe Auftrag)
-// — jede Datei wird hier einmal manuell eingetragen. Mehrere Schnitte
-// derselben Familie bekommen denselben `family`-Wert mit passendem
-// weight/style, z.B.:
-//   { family: 'Shock Rumble', source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' },
-//   { family: 'Shock Rumble', source: 'assets/fonts/Shock Rumble Italic Demo.ttf', weight: '400', style: 'italic' },
-// (Nur die Regular-Datei liegt tatsächlich in assets/fonts/ — die Italic-
-// Datei aus der Referenz-ZIP wurde nicht übernommen, da beide Dateien laut
-// eigener Font-Metadaten "Demo"-Versionen mit Alle-Rechte-vorbehalten-
-// Lizenz sind; nur die vom Nutzer selbst bereits ins Projekt gelegte Datei
-// wird hier registriert.)
+// Bewusst KEINE automatische Erkennung beliebiger Dateien (siehe Auftrag,
+// unter file:// technisch ohnehin nicht zuverlässig möglich — kein
+// fetch()/Verzeichnis-Listing) — jede Datei wird hier einmal eingetragen.
+// Mehrere Schnitte derselben Familie bekommen denselben `family`-Wert mit
+// passendem weight/style (aktuell kommt jede Datei als einzelner Schnitt
+// vor, keine Regular/Bold/Italic-Gruppen unter den vorhandenen Dateien).
+//
+// Anzeigenamen kommen aus den echten Font-Metadaten (family-Feld der
+// Datei, per `fc-scan` ausgelesen — kein Parsing im Projekt selbst, nur
+// zur Erstellung dieser Liste verwendet), mit leichter manueller
+// Nachbearbeitung, wo die Metadaten Rauschen enthalten (z.B. eingebettete
+// Lizenztexte oder "PERSONAL USE"-Zusätze im Namen selbst).
 const CUSTOM_FONT_FILES = [
-  { family: 'Shock Rumble', source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' },
+  { family: 'Shock Rumble',       source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' },
+  { family: 'Another Tag',        source: 'assets/fonts/aAnotherTag.ttf', weight: '400', style: 'normal' },
+  { family: 'Alice in Wonderland', source: 'assets/fonts/Alice_in_Wonderland_3.ttf', weight: '400', style: 'normal' },
+  { family: 'Ancient Greek',      source: 'assets/fonts/Ancient Greek.ttf', weight: '400', style: 'normal' },
+  { family: 'Bing Boss',          source: 'assets/fonts/Bing Boss.otf', weight: '400', style: 'normal' },
+  { family: 'Black North',        source: 'assets/fonts/Black North.ttf', weight: '400', style: 'normal' },
+  { family: 'Blade Knight',       source: 'assets/fonts/Blade Knight Regular.otf', weight: '400', style: 'normal' },
+  { family: 'California',         source: 'assets/fonts/CALIFORNIA PERSONAL USE.ttf', weight: '400', style: 'normal' },
+  { family: 'Celtic Garamond',    source: 'assets/fonts/CELTG___.TTF', weight: '400', style: 'normal' },
+  { family: "Coraline's Cat",     source: "assets/fonts/Coraline's Cat.ttf", weight: '400', style: 'normal' },
+  { family: 'Cubic',              source: 'assets/fonts/cubic.ttf', weight: '400', style: 'normal' },
+  { family: 'Cyber Digital',      source: 'assets/fonts/CyberDigital.ttf', weight: '400', style: 'normal' },
+  { family: 'Darling Letter',     source: 'assets/fonts/Darling Letter.otf', weight: '400', style: 'normal' },
+  { family: 'Diogenes',           source: 'assets/fonts/DIOGENES.ttf', weight: '400', style: 'normal' },
+  { family: 'Dune Rise',          source: 'assets/fonts/Dune_Rise.ttf', weight: '400', style: 'normal' },
+  { family: 'Evanescent',         source: 'assets/fonts/evanescent_p.ttf', weight: '400', style: 'normal' },
+  { family: 'Father Galaxy',      source: 'assets/fonts/FatherGalaxy-Regular.otf', weight: '400', style: 'normal' },
+  { family: 'First Order',        source: 'assets/fonts/firstorder.ttf', weight: '400', style: 'normal' },
+  { family: 'Game Of Squids',     source: 'assets/fonts/Game Of Squids.ttf', weight: '400', style: 'normal' },
+  { family: 'Gang of Three',      source: 'assets/fonts/go3v2.ttf', weight: '400', style: 'normal' },
+  { family: 'Greek Freak',        source: 'assets/fonts/Greek-Freak.ttf', weight: '400', style: 'normal' },
+  { family: 'Harry P',            source: 'assets/fonts/HARRYP__.TTF', weight: '400', style: 'normal' },
+  { family: 'Help Me',            source: 'assets/fonts/HelpMe.ttf', weight: '400', style: 'normal' },
+  { family: 'Hoshiko Satsuki',    source: 'assets/fonts/Hoshiko Satsuki.ttf', weight: '400', style: 'normal' },
+  { family: 'Impact Label SWL Reversed', source: 'assets/fonts/Impact Label SWL Reversed.ttf', weight: '400', style: 'normal' },
+  { family: 'JMH Typewriter',     source: 'assets/fonts/JMH Typewriter.ttf', weight: '400', style: 'normal' },
+  { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' },
+  { family: 'Laugh Tales',        source: 'assets/fonts/Laugh Tales Demo.otf', weight: '400', style: 'normal' },
+  { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' },
+  { family: 'Milky Matcha',       source: 'assets/fonts/Milky Matcha.otf', weight: '400', style: 'normal' },
+  { family: 'Minecraft PE',       source: 'assets/fonts/MINECRAFT PE.ttf', weight: '400', style: 'normal' },
+  { family: 'Nasalization',       source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' },
+  { family: 'Norse',              source: 'assets/fonts/Norse.otf', weight: '400', style: 'normal' },
+  { family: 'Ruritania',          source: 'assets/fonts/Ruritania.ttf', weight: '400', style: 'normal' },
+  { family: 'Saluki Juice',       source: 'assets/fonts/SalukiJuice_PERSONAL_USE_ONLY.otf', weight: '400', style: 'normal' },
+  { family: 'Searle',             source: 'assets/fonts/Searle.ttf', weight: '400', style: 'normal' },
+  { family: 'Shanghai',           source: 'assets/fonts/shanghai.ttf', weight: '400', style: 'normal' },
+  { family: 'Shizuoka Cyberpunk', source: 'assets/fonts/Shizuoka Cyberpunk.otf', weight: '400', style: 'normal' },
+  { family: 'Slacker Devil',      source: 'assets/fonts/SlackerDevil.ttf', weight: '400', style: 'normal' },
+  { family: 'Smashed Graffiti',   source: 'assets/fonts/SmashedGraffiti.otf', weight: '400', style: 'normal' },
+  { family: 'Tempting',           source: 'assets/fonts/Tempting - PERSONAL USE ONLY.ttf', weight: '400', style: 'normal' },
+  { family: 'Vengeance at Sea',   source: 'assets/fonts/Vengeance at Sea.otf', weight: '400', style: 'normal' },
 ];
 
 function fontFormatFromPath(path) {
@@ -135,54 +177,86 @@ function injectCustomFontFaces() {
   document.head.appendChild(styleEl);
 }
 
-// Baut die Schriftart-Auswahl (mit <optgroup>-Kategorien) im Theme-Builder
-// auf und stellt jede <option> in ihrer eigenen Schriftart dar — dadurch
-// zeigt die native Dropdown-Liste bereits eine kompakte Vorschau, ohne
-// eigene UI-Komponente. `currentStack` wählt den passenden Eintrag vor.
+// Baut die Schriftart-Auswahl im Theme-Builder als eigenes Dropdown auf
+// (bewusst KEIN natives <select>/<option> — Browser stellen font-family
+// auf <option> nicht zuverlässig dar, gerade im geschlossenen Zustand).
+// #theme-builder-font (hidden input) hält weiterhin den Font-Stack-String
+// als Wert, damit saveThemeBuilder()/applyThemeTemplate() unverändert
+// funktionieren — nur die Anzeige ist neu. `currentStack` wählt vor.
 function renderFontSelect(currentStack) {
-  const select = document.getElementById('theme-builder-font');
-  if (!select) return;
-  select.innerHTML = '';
+  const hiddenInput = document.getElementById('theme-builder-font');
+  const panel = document.getElementById('theme-builder-font-panel');
+  if (!hiddenInput || !panel) return;
+  if (!currentStack) currentStack = hiddenInput.value || DEFAULT_FONT_STACK;
+  panel.innerHTML = '';
 
-  const addOption = (label, stack) => {
-    const opt = document.createElement('option');
-    opt.value = stack;
-    opt.textContent = label;
-    opt.style.fontFamily = stack;
-    if (stack === currentStack) opt.selected = true;
-    return opt;
+  const addGroup = (label, fonts) => {
+    const groupLabel = document.createElement('div');
+    groupLabel.className = 'tb-font-group-label';
+    groupLabel.textContent = label;
+    panel.appendChild(groupLabel);
+    fonts.forEach(f => {
+      const opt = document.createElement('div');
+      opt.className = 'tb-font-option' + (f.stack === currentStack ? ' active' : '');
+      opt.textContent = f.label;
+      opt.style.fontFamily = f.stack;
+      opt.dataset.stack = f.stack;
+      opt.addEventListener('click', () => selectThemeFont(f.stack));
+      panel.appendChild(opt);
+    });
   };
 
-  FONT_CATEGORIES.forEach(cat => {
-    const group = document.createElement('optgroup');
-    group.label = cat.label;
-    cat.fonts.forEach(f => group.appendChild(addOption(f.label, f.stack)));
-    select.appendChild(group);
-  });
+  FONT_CATEGORIES.forEach(cat => addGroup(cat.label, cat.fonts));
 
   if (CUSTOM_FONT_FILES.length) {
-    const group = document.createElement('optgroup');
-    group.label = 'Eigene Fonts';
-    // Eine Option je Familie (nicht je Dateischnitt) — style/weight regelt
+    // Eine Zeile je Familie (nicht je Dateischnitt) — style/weight regelt
     // der Browser über die passende @font-face-Regel automatisch.
     const seen = new Set();
+    const customFonts = [];
     CUSTOM_FONT_FILES.forEach(f => {
       if (seen.has(f.family)) return;
       seen.add(f.family);
-      group.appendChild(addOption(f.family, `"${f.family}"`));
+      customFonts.push({ label: f.family, stack: `"${f.family}"` });
     });
-    select.appendChild(group);
+    addGroup('Eigene Fonts', customFonts);
   }
 
-  if (!select.value) select.value = DEFAULT_FONT_STACK;
+  hiddenInput.value = currentStack;
+  syncThemeFontTrigger();
+}
+
+// Klick auf eine Zeile im Panel: Wert übernehmen, Panel schließen, Trigger
+// + Vorschau aktualisieren.
+function selectThemeFont(stack) {
+  const hiddenInput = document.getElementById('theme-builder-font');
+  const panel = document.getElementById('theme-builder-font-panel');
+  hiddenInput.value = stack;
+  panel.querySelectorAll('.tb-font-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.stack === stack);
+  });
+  panel.classList.add('hidden');
+  syncThemeFontTrigger();
+}
+
+// Zeigt den aktuell gewählten Font im Trigger-Button — im Namen selbst in
+// dessen Schriftart dargestellt — und stößt die Vorschauzeile darunter an.
+function syncThemeFontTrigger() {
+  const hiddenInput = document.getElementById('theme-builder-font');
+  const triggerLabel = document.getElementById('theme-builder-font-trigger-label');
+  const trigger = document.getElementById('theme-builder-font-trigger');
+  if (!hiddenInput || !triggerLabel || !trigger) return;
+  const stack = hiddenInput.value || DEFAULT_FONT_STACK;
+  const activeOpt = document.querySelector(`#theme-builder-font-panel .tb-font-option[data-stack="${CSS.escape(stack)}"]`);
+  triggerLabel.textContent = activeOpt ? activeOpt.textContent : stack;
+  trigger.style.fontFamily = stack;
   updateThemeBuilderFontPreview();
 }
 
 function updateThemeBuilderFontPreview() {
-  const select = document.getElementById('theme-builder-font');
+  const hiddenInput = document.getElementById('theme-builder-font');
   const preview = document.getElementById('theme-builder-font-preview');
-  if (!select || !preview) return;
-  preview.style.fontFamily = select.value;
+  if (!hiddenInput || !preview) return;
+  preview.style.fontFamily = hiddenInput.value || DEFAULT_FONT_STACK;
 }
 
 let customThemes     = DB.get('customThemes', []);
@@ -226,7 +300,7 @@ function teLuminance(hex) {
 // color-mix() mit der gewählten Kartendurchlässigkeit verrechnet — exakt
 // derselbe Mechanismus wie bei den 6 eingebauten Themes in main.css,
 // hier nur zur Speicherzeit in JS statt im Stylesheet berechnet.
-function deriveThemeVars(core, cardOpacityPct) {
+function deriveThemeVars(core, cardOpacityPct, fontSizePct) {
   const isDark = teLuminance(core.bg) < 128;
   const tint = isDark ? '#ffffff' : '#000000';
   const borderAlphaLow  = isDark ? 0.09 : 0.16;
@@ -254,6 +328,7 @@ function deriveThemeVars(core, cardOpacityPct) {
     '--core-modal-bg': mix(core.modal),
     '--font':          core.font || DEFAULT_FONT_STACK,
     '--core-card-opacity': opacity,
+    '--core-font-scale': ((fontSizePct || 100) / 100).toFixed(2),
   };
 }
 
@@ -438,6 +513,7 @@ function openThemeBuilder(editId) {
   // wurden — deren coreColors kennt manche Felder (u.a. font) noch nicht.
   const core = Object.assign({}, DEFAULT_BUILDER_CORE, existing && existing.coreColors);
   const cardOpacity = existing ? (existing.cardOpacity ?? 100) : 100;
+  const fontSize = existing ? (existing.fontSize ?? 100) : 100;
 
   document.getElementById('theme-builder-title').textContent = existing ? 'Theme bearbeiten' : 'Theme erstellen';
   document.getElementById('theme-builder-name').value = existing ? existing.name : '';
@@ -450,6 +526,8 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-accent').value = core.accent;
   document.getElementById('theme-builder-opacity').value = cardOpacity;
   document.getElementById('theme-builder-opacity-label').textContent = cardOpacity + '%';
+  document.getElementById('theme-builder-fontsize').value = fontSize;
+  document.getElementById('theme-builder-fontsize-label').textContent = fontSize + '%';
   document.getElementById('theme-builder-delete').style.display = existing ? '' : 'none';
   renderFontSelect(core.font);
 
@@ -477,12 +555,15 @@ function updateThemeBuilderPreview() {
   const text = document.getElementById('theme-builder-text').value;
   const border = document.getElementById('theme-builder-border').value;
   const opacity = document.getElementById('theme-builder-opacity').value;
+  const fontSize = document.getElementById('theme-builder-fontsize').value;
   document.getElementById('theme-builder-opacity-label').textContent = opacity + '%';
+  document.getElementById('theme-builder-fontsize-label').textContent = fontSize + '%';
   const preview = document.getElementById('theme-builder-preview');
   if (!preview) return;
   preview.style.background = `color-mix(in srgb, ${surface} ${opacity}%, transparent)`;
   preview.style.color = text;
   preview.style.borderColor = hexToRgba(border, 0.35);
+  preview.style.fontSize = (15 * fontSize / 100).toFixed(1) + 'px';
 }
 
 // ── "Vorlage"-Leiste im Theme-Editor ─────────────────────────────────────
@@ -497,11 +578,12 @@ function renderThemeTemplateStrip() {
   row.innerHTML = '';
 
   const templates = THEME_REGISTRY
-    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, bg: themeBackgrounds[reg.id] || null }))
+    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null }))
     .concat(customThemes.map(ct => ({
       name: ct.name,
       core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
       cardOpacity: ct.cardOpacity ?? 100,
+      fontSize: ct.fontSize ?? 100,
       bg: ct.bg || null,
     })));
 
@@ -530,6 +612,7 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-border').value = t.core.border;
   document.getElementById('theme-builder-accent').value = t.core.accent;
   document.getElementById('theme-builder-opacity').value = t.cardOpacity;
+  document.getElementById('theme-builder-fontsize').value = t.fontSize;
   renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
   // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
@@ -648,7 +731,8 @@ function saveThemeBuilder() {
     font:    document.getElementById('theme-builder-font').value,
   };
   const cardOpacity = parseInt(document.getElementById('theme-builder-opacity').value, 10);
-  const vars = deriveThemeVars(core, cardOpacity);
+  const fontSize = parseInt(document.getElementById('theme-builder-fontsize').value, 10);
+  const vars = deriveThemeVars(core, cardOpacity, fontSize);
   const family = teLuminance(core.bg) < 128 ? 'dark' : 'light';
   const editId = _teBuilderEditId;
 
@@ -657,13 +741,13 @@ function saveThemeBuilder() {
       const ct = getCustomTheme(editId);
       if (ct) {
         ct.name = name; ct.coreColors = core; ct.vars = vars; ct.family = family;
-        ct.cardOpacity = cardOpacity; ct.bg = bg;
+        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg;
         saveCustomThemes();
         if (theme === ct.id) setTheme(ct.id); // sofort neu anwenden, falls gerade aktiv
       }
     } else {
       const id = 'custom_' + Date.now();
-      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, bg });
+      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg });
       saveCustomThemes();
       setTheme(id);
       if (typeof renderThemeSettings === 'function') renderThemeSettings();
@@ -837,9 +921,24 @@ function injectThemeBuilderListeners() {
     document.getElementById(id).addEventListener('input', updateThemeBuilderPreview);
   });
   document.getElementById('theme-builder-opacity').addEventListener('input', updateThemeBuilderPreview);
-  document.getElementById('theme-builder-font').addEventListener('change', updateThemeBuilderFontPreview);
+  document.getElementById('theme-builder-fontsize').addEventListener('input', updateThemeBuilderPreview);
   document.getElementById('theme-builder-modal-overlay').addEventListener('click', e => {
     if (e.target.id === 'theme-builder-modal-overlay') closeThemeBuilder();
+  });
+
+  // Schriftart-Dropdown öffnen/schließen — gleiches Muster wie
+  // #forest-filter-panel (js/forest.js): Trigger togglet, Klick
+  // außerhalb schließt.
+  document.getElementById('theme-builder-font-trigger').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('theme-builder-font-panel').classList.toggle('hidden');
+  });
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('theme-builder-font-panel');
+    const trigger = document.getElementById('theme-builder-font-trigger');
+    if (panel && !panel.classList.contains('hidden') && !panel.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) {
+      panel.classList.add('hidden');
+    }
   });
 }
 injectCustomFontFaces();
