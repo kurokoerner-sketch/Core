@@ -140,7 +140,6 @@ const CUSTOM_FONT_FILES = [
   { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' },
   { family: 'Laugh Tales',        source: 'assets/fonts/Laugh Tales Demo.otf', weight: '400', style: 'normal' },
   { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' },
-  { family: 'Milky Matcha',       source: 'assets/fonts/Milky Matcha.otf', weight: '400', style: 'normal' },
   { family: 'Minecraft PE',       source: 'assets/fonts/MINECRAFT PE.ttf', weight: '400', style: 'normal' },
   { family: 'Nasalization',       source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' },
   { family: 'Norse',              source: 'assets/fonts/Norse.otf', weight: '400', style: 'normal' },
@@ -175,6 +174,27 @@ function injectCustomFontFaces() {
   styleEl.id = 'core-custom-fonts';
   styleEl.textContent = css;
   document.head.appendChild(styleEl);
+
+  // GEFUNDENE URSACHE für "Vorschau zeigt trotzdem die Standardschrift":
+  // @font-face allein lädt eine Schriftdatei erst "lazy" beim ersten
+  // tatsächlichen Rendern mit dieser font-family (Browser-Standard-
+  // verhalten) — und der Theme-Editor ist für die meisten der hier
+  // registrierten Fonts die allererste Stelle im ganzen Projekt, die sie
+  // überhaupt referenziert. Öffnet man das Panel, bevor der Ladevorgang
+  // abgeschlossen ist, zeigt font-display:swap kurzzeitig noch die
+  // Fallback-Schrift. Deshalb hier über die Font Loading API sofort beim
+  // Start aktiv anstoßen (nicht erst warten, bis der Editor geöffnet
+  // wird) — dadurch sind die Fonts längst bereit, bis der Nutzer die
+  // Auswahl je aufklappt. Reine Ladevorschrift, ändert nichts an Auswahl,
+  // Speicherung oder Anwendung der Schrift.
+  if (window.FontFace && document.fonts && document.fonts.load) {
+    const seen = new Set();
+    CUSTOM_FONT_FILES.forEach(f => {
+      if (seen.has(f.family)) return;
+      seen.add(f.family);
+      document.fonts.load(`16px "${f.family}"`).catch(() => {});
+    });
+  }
 }
 
 // Baut die Schriftart-Auswahl im Theme-Builder als eigenes Dropdown auf

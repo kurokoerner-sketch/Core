@@ -981,26 +981,9 @@ function refreshTodayTextareas() {
 
 
 // =========================
-// THEME TOGGLE
-// =========================
-
-function updateThemeIcon() {
-  const sunIcon  = document.getElementById('theme-icon-sun');
-  const moonIcon = document.getElementById('theme-icon-moon');
-  if (!sunIcon || !moonIcon) return;
-  sunIcon.style.display  = darkMode ? 'none'  : 'block';
-  moonIcon.style.display = darkMode ? 'block' : 'none';
-}
-
-document.getElementById('theme-toggle-btn')?.addEventListener('click', () => {
-  setDarkMode(!darkMode);
-});
-
-// =========================
 // INIT SIDEBAR + GREETING
 // =========================
 renderTodayHeader();
 renderWeather();
 startSidebarClock();
 renderMiniCal();
-updateThemeIcon();

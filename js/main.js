@@ -205,20 +205,10 @@ function setTheme(name) {
   }
 
   DB.set('theme', theme);
-  if (typeof updateThemeIcon === 'function') updateThemeIcon();
   if (typeof renderDesk === 'function') renderDesk();
   if (typeof renderCalendar === 'function') renderCalendar();
   if (typeof renderGuideShelf === 'function') renderGuideShelf();
   if (typeof applyThemeBackground === 'function') applyThemeBackground(theme);
-}
-
-// Schnellumschalter (Sidebar Sonne/Mond) — schaltet nur zwischen Light und
-// dem zuletzt aktiven Dark-Theme hin und her, ohne die übrigen Dark-Varianten
-// aus der Einstellungsseite zu berühren.
-let lastDarkTheme = THEME_FAMILY[theme] === 'dark' ? theme : 'dark';
-function setDarkMode(dark) {
-  if (dark) { lastDarkTheme = THEME_FAMILY[theme] === 'dark' ? theme : lastDarkTheme; setTheme(lastDarkTheme); }
-  else      { setTheme('light'); }
 }
 
 function applyColors() {

@@ -175,15 +175,6 @@
             <span id="brand-subtitle">Central Organization & Resource Engine</span>
           </div>
         </div>
-        <button id="theme-toggle-btn" title="Design wechseln" aria-label="Theme toggle">
-          <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
       </div>
  
       <ul id="nav-list">
@@ -2614,15 +2605,6 @@
         <span id="theme-builder-font-preview" style="font-size:15px;color:var(--text-2);">The quick brown fox</span>
       </div>
 
-      <div class="tb-group">
-        <span class="panel-label">Transparenz</span>
-        <div class="tb-slider-row">
-          <span class="tb-slider-label">Kartendurchlässigkeit: <span id="theme-builder-opacity-label">100%</span></span>
-          <input type="range" id="theme-builder-opacity" min="20" max="100" value="100" step="5"/>
-          <span class="tb-slider-hint">0% = unsichtbar · 100% = deckend</span>
-        </div>
-      </div>
-
       <!-- Schriftgröße — Modul: Theme-Engine. Skaliert --core-font-scale,
            worüber css/*.css seine font-size-Regeln über calc() legt
            (font-size: calc(Npx * var(--core-font-scale))). 100% = exakt
@@ -2635,6 +2617,15 @@
           <span class="tb-slider-label">Grundgröße: <span id="theme-builder-fontsize-label">100%</span></span>
           <input type="range" id="theme-builder-fontsize" min="70" max="150" value="100" step="5"/>
           <span class="tb-slider-hint">70% = kleiner · 100% = normal · 150% = größer</span>
+        </div>
+      </div>
+
+      <div class="tb-group">
+        <span class="panel-label">Transparenz</span>
+        <div class="tb-slider-row">
+          <span class="tb-slider-label">Kartendurchlässigkeit: <span id="theme-builder-opacity-label">100%</span></span>
+          <input type="range" id="theme-builder-opacity" min="20" max="100" value="100" step="5"/>
+          <span class="tb-slider-hint">0% = unsichtbar · 100% = deckend</span>
         </div>
       </div>
 

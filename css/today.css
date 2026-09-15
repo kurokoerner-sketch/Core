@@ -21,11 +21,62 @@
    Sitzt als erste Zeile in #today-main, damit die rechte Kante
    der Wetterkarte exakt mit der rechten Kante von blocks-row/
    panel-tasks abschließt.
-═══════════════════════════════════════════════════════════ */
-#today-main-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-#today-greeting-block {}
 
-.today-weather { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 18px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
+   Bild-Banner, technisch an .cal-hero angelehnt (css/calendar.css):
+   Foto + theme-abhängiges Überlagerungs-Gradient liegen zusammen in
+   einem ::before (kein festes Schwarz-Overlay — die color-mix()-Stops
+   nutzen --surface/--bg, passen sich also automatisch jedem Theme an,
+   genau wie beim Kalender-Hero). Begrüßung + Wetterkarte bekommen
+   position:relative, damit sie über dem absolut positionierten
+   ::before liegen (sonst würde das Overlay den Text verdecken). */
+#today-main-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 190px;
+  padding: 24px 28px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+#today-main-header::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(100deg,
+      color-mix(in srgb, var(--surface) 88%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 62%, transparent) 30%,
+      color-mix(in srgb, var(--surface) 32%, transparent) 55%,
+      color-mix(in srgb, var(--surface) 14%, transparent) 80%,
+      color-mix(in srgb, var(--surface) 8%, transparent) 100%
+    ),
+    url('../assets/images sci-fi/sci-fi start banner.png');
+  background-size: auto, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+[data-theme-family="dark"] #today-main-header::before {
+  background-image:
+    linear-gradient(100deg,
+      color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 62%, transparent) 30%,
+      color-mix(in srgb, var(--bg) 32%, transparent) 55%,
+      color-mix(in srgb, var(--bg) 14%, transparent) 80%,
+      color-mix(in srgb, var(--bg) 8%, transparent) 100%
+    ),
+    url('../assets/images sci-fi/sci-fi start banner.png');
+}
+#today-greeting-block { position: relative; z-index: 1; }
+
+.today-weather { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 18px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
 
 .today-greeting { font-family: var(--font); font-size: calc(32px * var(--core-font-scale)); font-weight: 700; letter-spacing: -0.8px; color: var(--text); line-height: 1.1; margin-bottom: 6px; }
 .today-subtitle { font-size: calc(12.5px * var(--core-font-scale)); color: var(--text-3); font-family: var(--mono); letter-spacing: 0.01em; }
@@ -458,7 +509,7 @@
 }
 
 @media (max-width: 480px) {
-  #today-main-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  #today-main-header { flex-direction: column; align-items: flex-start; gap: 12px; height: auto; min-height: 170px; padding: 20px 20px; }
   .today-weather { width: 100%; box-sizing: border-box; }
 
   .gd-row { flex-direction: column; }
