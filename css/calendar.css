@@ -368,10 +368,10 @@
   background: radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--bg) 45%, transparent) 0%, transparent 72%);
 }
 
-.cal-hero-spring  { --cal-hero-img: url('../assets/calendar/spring.png'); }
-.cal-hero-summer  { --cal-hero-img: url('../assets/calendar/summer.png'); }
-.cal-hero-autumn  { --cal-hero-img: url('../assets/calendar/fall.png'); }
-.cal-hero-winter  { --cal-hero-img: url('../assets/calendar/winter.png'); }
+.cal-hero-spring  { --cal-hero-img: url('../assets/cozy/cozy spring.png'); }
+.cal-hero-summer  { --cal-hero-img: url('../assets/cozy/cozy summer.png'); }
+.cal-hero-autumn  { --cal-hero-img: url('../assets/cozy/cozy fall.png'); }
+.cal-hero-winter  { --cal-hero-img: url('../assets/cozy/cozy winter.png'); }
 [data-theme-family="dark"] .cal-hero { box-shadow: var(--shadow-md); }
 
 /* ── Textebene (Monat, Saison-Badge, Satz) ───────────────────── */

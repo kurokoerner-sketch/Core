@@ -45,10 +45,10 @@
     // Jahreszeiten-Definition
     // month: 0-basiert (0 = Januar)
     const ENV_SEASONS = [
-        { id: "spring", name: "Frühling", months: [2, 3, 4],  file: "spring.png" },
-        { id: "summer", name: "Sommer",   months: [5, 6, 7],  file: "summer.png" },
-        { id: "fall",   name: "Herbst",   months: [8, 9, 10], file: "fall.png"   },
-        { id: "winter", name: "Winter",   months: [11, 0, 1], file: "winter.png" }
+        { id: "spring", name: "Frühling", months: [2, 3, 4],  file: "cozy spring.png" },
+        { id: "summer", name: "Sommer",   months: [5, 6, 7],  file: "cozy summer.png" },
+        { id: "fall",   name: "Herbst",   months: [8, 9, 10], file: "cozy fall.png"   },
+        { id: "winter", name: "Winter",   months: [11, 0, 1], file: "cozy winter.png" }
     ];
 
     // Tageszeit-Definition
