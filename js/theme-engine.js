@@ -322,6 +322,20 @@ function applyCustomThemeVars(id) {
   return true;
 }
 
+// ── Kalender-Bildthema (Kalender-Hero) ──────────────────────────────────
+// Eigene Einstellung pro Theme, NICHT das allgemeine Theme-Hintergrundbild
+// (das bleibt ct.bg / applyThemeBackground). Steuert nur, welches Bilder-Set
+// der Kalender-Hero für die jeweilige Saison zieht (css/calendar.css:
+// [data-cal-image-theme] .cal-hero-<saison>). Eingebaute Themes kennen
+// dieses Feld nicht → Fallback 'cozy', identisch zum bisherigen, immer
+// fest verdrahteten Verhalten (siehe Punkt 6: kein bestehendes Theme darf
+// dadurch kaputtgehen).
+function applyCalendarImageTheme(id) {
+  const ct = getCustomTheme(id);
+  const imageTheme = (ct && ct.calendar && ct.calendar.imageTheme) || 'cozy';
+  document.documentElement.setAttribute('data-cal-image-theme', imageTheme);
+}
+
 // ── Farb-Hilfsfunktionen für den Theme-Builder ──────────────────────────
 // mixHex(a, b, t) kommt aus hub-utils.js (lädt davor), hexToRgba(hex, a)
 // aus main.js — beide hier wiederverwendet statt neu erfunden.
@@ -575,6 +589,7 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-fontsize').value = fontSize;
   document.getElementById('theme-builder-fontsize-label').textContent = fontSize + '%';
   document.getElementById('theme-builder-delete').style.display = existing ? '' : 'none';
+  document.getElementById('theme-builder-calendar-image').value = (existing && existing.calendar && existing.calendar.imageTheme) || 'cozy';
   renderFontSelect(core.font);
 
   _teBuilderPendingFile = null;
@@ -624,13 +639,14 @@ function renderThemeTemplateStrip() {
   row.innerHTML = '';
 
   const templates = THEME_REGISTRY
-    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null }))
+    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null, calendarImageTheme: 'cozy' }))
     .concat(customThemes.map(ct => ({
       name: ct.name,
       core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
       cardOpacity: ct.cardOpacity ?? 100,
       fontSize: ct.fontSize ?? 100,
       bg: ct.bg || null,
+      calendarImageTheme: (ct.calendar && ct.calendar.imageTheme) || 'cozy',
     })));
 
   templates.forEach(t => {
@@ -659,6 +675,7 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-accent').value = t.core.accent;
   document.getElementById('theme-builder-opacity').value = t.cardOpacity;
   document.getElementById('theme-builder-fontsize').value = t.fontSize;
+  document.getElementById('theme-builder-calendar-image').value = t.calendarImageTheme || 'cozy';
   renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
   // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
@@ -778,6 +795,7 @@ function saveThemeBuilder() {
   };
   const cardOpacity = parseInt(document.getElementById('theme-builder-opacity').value, 10);
   const fontSize = parseInt(document.getElementById('theme-builder-fontsize').value, 10);
+  const calendar = { imageTheme: document.getElementById('theme-builder-calendar-image').value };
   const vars = deriveThemeVars(core, cardOpacity, fontSize);
   const family = teLuminance(core.bg) < 128 ? 'dark' : 'light';
   const editId = _teBuilderEditId;
@@ -787,13 +805,13 @@ function saveThemeBuilder() {
       const ct = getCustomTheme(editId);
       if (ct) {
         ct.name = name; ct.coreColors = core; ct.vars = vars; ct.family = family;
-        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg;
+        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar;
         saveCustomThemes();
         if (theme === ct.id) setTheme(ct.id); // sofort neu anwenden, falls gerade aktiv
       }
     } else {
       const id = 'custom_' + Date.now();
-      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg });
+      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar });
       saveCustomThemes();
       setTheme(id);
       if (typeof renderThemeSettings === 'function') renderThemeSettings();
@@ -948,6 +966,7 @@ function initThemeBgControls() {
 // hier ggf. auf das echte eigene Theme + dessen Family korrigieren.
 if (getCustomTheme(theme)) applyCustomThemeVars(theme);
 applyThemeBackground(theme);
+applyCalendarImageTheme(theme);
 
 function injectThemeBuilderListeners() {
   document.getElementById('theme-builder-close').addEventListener('click', closeThemeBuilder);

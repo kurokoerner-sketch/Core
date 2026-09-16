@@ -209,6 +209,7 @@ function setTheme(name) {
   if (typeof renderCalendar === 'function') renderCalendar();
   if (typeof renderGuideShelf === 'function') renderGuideShelf();
   if (typeof applyThemeBackground === 'function') applyThemeBackground(theme);
+  if (typeof applyCalendarImageTheme === 'function') applyCalendarImageTheme(theme);
 }
 
 function applyColors() {

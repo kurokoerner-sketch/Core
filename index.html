@@ -2659,6 +2659,24 @@
         </div>
       </div>
 
+      <!-- Kalender — Modul: Theme-Engine. Wählt nur das saisonale
+           Bannerbild-Set des Kalender-Hero (assets/cozy vs. assets/images
+           sci-fi), unabhängig vom allgemeinen Theme-Hintergrundbild oben.
+           Pro Theme gespeichert (ct.calendar.imageTheme), angewendet über
+           applyCalendarImageTheme() → [data-cal-image-theme] in
+           css/calendar.css. -->
+      <div class="tb-group">
+        <span class="panel-label">Kalender</span>
+        <div class="tb-bg-opt-row">
+          <span>Bildthema</span>
+          <select class="modal-select" id="theme-builder-calendar-image" style="width:auto;">
+            <option value="none">Kein Bild</option>
+            <option value="cozy">Cozy</option>
+            <option value="scifi">Sci-Fi</option>
+          </select>
+        </div>
+      </div>
+
       <div class="modal-row">
         <label>Vorschau</label>
         <div id="theme-builder-preview" style="border-radius:var(--radius-sm);border:1px solid var(--border-strong);padding:14px 16px;font-size:15px;">

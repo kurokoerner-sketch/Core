@@ -368,10 +368,29 @@
   background: radial-gradient(ellipse at 25% 50%, color-mix(in srgb, var(--bg) 45%, transparent) 0%, transparent 72%);
 }
 
+/* Bildthema: Standard/Fallback ist Cozy (unverändertes bisheriges
+   Verhalten, auch für Themes ohne gespeicherte Kalender-Einstellung —
+   siehe applyCalendarImageTheme() in js/theme-engine.js). Die
+   [data-cal-image-theme]-Regeln darunter haben höhere Spezifität und
+   überschreiben das bei Bedarf gezielt pro Saison. */
 .cal-hero-spring  { --cal-hero-img: url('../assets/cozy/cozy spring.png'); }
 .cal-hero-summer  { --cal-hero-img: url('../assets/cozy/cozy summer.png'); }
 .cal-hero-autumn  { --cal-hero-img: url('../assets/cozy/cozy fall.png'); }
 .cal-hero-winter  { --cal-hero-img: url('../assets/cozy/cozy winter.png'); }
+
+[data-cal-image-theme="scifi"] .cal-hero-spring { --cal-hero-img: url('../assets/images sci-fi/sci-fi spring.png'); }
+[data-cal-image-theme="scifi"] .cal-hero-summer { --cal-hero-img: url('../assets/images sci-fi/sci-fi summer.png'); }
+[data-cal-image-theme="scifi"] .cal-hero-autumn { --cal-hero-img: url('../assets/images sci-fi/sci-fi fall.png'); }
+[data-cal-image-theme="scifi"] .cal-hero-winter { --cal-hero-img: url('../assets/images sci-fi/sci-fi winter.png'); }
+
+/* "Kein Bild": --cal-hero-img wird zu "none" — das ::before behält nur
+   seine erste background-image-Ebene (den theme-abhängigen Verlauf über
+   --surface/--bg), keine leere Fläche, kein zusätzlicher Sonderfall. */
+[data-cal-image-theme="none"] .cal-hero-spring,
+[data-cal-image-theme="none"] .cal-hero-summer,
+[data-cal-image-theme="none"] .cal-hero-autumn,
+[data-cal-image-theme="none"] .cal-hero-winter { --cal-hero-img: none; }
+
 [data-theme-family="dark"] .cal-hero { box-shadow: var(--shadow-md); }
 
 /* ── Textebene (Monat, Saison-Badge, Satz) ───────────────────── */
