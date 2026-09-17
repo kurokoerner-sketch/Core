@@ -406,6 +406,40 @@ ul { list-style: none; }
   line-height: 1.3;
 }
 
+/* Logo-Modus aktiv (Theme-Editor → "Logo & Icon" → "Logo verwenden"):
+   das Logo ersetzt Icon+Text vollständig und steht allein (kein Theme-
+   Name/Branding-Text daneben, siehe Anforderung).
+
+   Größe: width/height:auto + max-width/max-height statt fester Maße —
+   der Browser berechnet die größtmögliche Darstellung innerhalb dieses
+   Rahmens direkt aus dem intrinsischen Seitenverhältnis des jeweiligen
+   Logos (keine Verzerrung, kein Zuschnitt, funktioniert unverändert für
+   jedes künftige Theme-Logo unabhängig von dessen Proportionen).
+   object-fit:contain bleibt zusätzlich als Absicherung stehen.
+   max-width:100% deckelt auf die tatsächlich verfügbare Breite von
+   #sidebar-brand (dafür hier auf volle Breite von #sidebar-header
+   gesetzt, sonst wäre "100%" wegen der intrinsischen Flex-Breite
+   unbestimmt). max-height skaliert bewusst mit der Fensterhöhe
+   (clamp: 72px Boden ≈ bisherige Größe, 11vh bevorzugt, 132px Decke
+   gegen ein die Taskbar dominierendes Logo auf sehr hohen Fenstern).
+
+   Da #sidebar-header keine feste Höhe hat (nur Padding + Inhalt), schiebt
+   ein höheres Logo #nav-list rein durch normalen Flex-Fluss automatisch
+   nach unten — das etwas größere padding-bottom sorgt nur noch für einen
+   harmonischen Restabstand. Klasse wird von applyBranding() (js/theme-
+   engine.js) auf #sidebar-header gesetzt/entfernt. Icon-Modus (Toggle
+   aus) bleibt von alldem unberührt (#brand-icon-Basisregel oben). */
+#sidebar-header.branding-logo-active { padding-bottom: 28px; }
+#sidebar-header.branding-logo-active #sidebar-brand { width: 100%; }
+#sidebar-header.branding-logo-active #brand-text { display: none; }
+#sidebar-header.branding-logo-active #brand-icon {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: clamp(72px, 11vh, 132px);
+  object-fit: contain;
+}
+
 #exam-pill { display: none; }
 
 #nav-list {

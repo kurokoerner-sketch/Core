@@ -352,6 +352,59 @@ function applyStartHeaderTheme(id) {
   document.documentElement.setAttribute('data-start-header-theme', banner);
 }
 
+// ── Taskbar-/Favicon-Branding ("Logo & Icon") ───────────────────────────
+// Zwei unabhängige, pro Theme gespeicherte Werte (ct.branding):
+//   - theme:   welches Branding-Theme liefert Icon+Logo (Registry unten,
+//              KEINE Kopplung an das aktive UI-Theme/an Kalender/
+//              Start-Header — eigene, freie Auswahl).
+//   - useLogo: false = Icon in der Taskbar, true = Logo in der Taskbar
+//              (steht dann allein, ohne Text daneben). Das Favicon
+//              verwendet IMMER das Icon des gewählten Branding-Themes,
+//              unabhängig von useLogo.
+// BRANDING_THEMES ist die einzige Stelle, die für ein künftiges weiteres
+// Theme (eigenes Icon+Logo) erweitert werden muss — kein if/else pro
+// Theme-Name im restlichen Code. Fallback (fehlendes/altes ct.branding
+// ohne diese Felder, oder eingebaute Themes ohne ct): erster Registry-
+// Eintrag + useLogo aus, damit ein Reload ohne gespeicherten Wert immer
+// ein definiertes Icon zeigt statt eines kaputten Favicons.
+const BRANDING_THEMES = [
+  { id: 'cozy',  label: 'Cozy',   icon: "assets/cozy/cozy icon.svg",            iconType: 'image/svg+xml', logo: "assets/cozy/cozy logo.png" },
+  { id: 'scifi', label: 'Sci-Fi', icon: "assets/images sci-fi/sci-fi icon.png", iconType: 'image/png',      logo: "assets/images sci-fi/sci-fi logo.png" },
+];
+
+function getBrandingTheme(id) {
+  return BRANDING_THEMES.find(b => b.id === id) || BRANDING_THEMES[0];
+}
+
+// Füllt das Theme-Dropdown im Builder aus der Registry — bei einem
+// künftigen neuen Eintrag in BRANDING_THEMES taucht er hier automatisch
+// auf, ohne dass die Markup-/Options-Liste angefasst werden muss.
+function renderBrandingThemeSelect() {
+  const sel = document.getElementById('theme-builder-branding-theme');
+  if (!sel) return;
+  sel.innerHTML = BRANDING_THEMES.map(b => `<option value="${b.id}">${b.label}</option>`).join('');
+}
+
+function applyBranding(id) {
+  const ct = getCustomTheme(id);
+  const brandingId = (ct && ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id;
+  const useLogo = !!(ct && ct.branding && ct.branding.useLogo);
+  const bt = getBrandingTheme(brandingId);
+
+  const brandIconEl = document.getElementById('brand-icon');
+  const headerEl = document.getElementById('sidebar-header');
+  const faviconEl = document.querySelector('link[rel="icon"]');
+
+  // Favicon: immer das Icon des Branding-Themes, vom Toggle unberührt.
+  if (faviconEl) { faviconEl.href = bt.icon; faviconEl.type = bt.iconType; }
+
+  if (brandIconEl) {
+    brandIconEl.src = useLogo ? bt.logo : bt.icon;
+    brandIconEl.alt = bt.label + (useLogo ? ' Logo' : ' Icon');
+  }
+  if (headerEl) headerEl.classList.toggle('branding-logo-active', useLogo);
+}
+
 // ── Farb-Hilfsfunktionen für den Theme-Builder ──────────────────────────
 // mixHex(a, b, t) kommt aus hub-utils.js (lädt davor), hexToRgba(hex, a)
 // aus main.js — beide hier wiederverwendet statt neu erfunden.
@@ -607,6 +660,9 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-delete').style.display = existing ? '' : 'none';
   document.getElementById('theme-builder-calendar-image').value = (existing && existing.calendar && existing.calendar.imageTheme) || 'cozy';
   document.getElementById('theme-builder-start-header').value = (existing && existing.startHeader && existing.startHeader.banner) || 'scifi';
+  renderBrandingThemeSelect();
+  document.getElementById('theme-builder-branding-theme').value = (existing && existing.branding && existing.branding.theme) || BRANDING_THEMES[0].id;
+  document.getElementById('theme-builder-branding-logo').checked = !!(existing && existing.branding && existing.branding.useLogo);
   renderFontSelect(core.font);
 
   _teBuilderPendingFile = null;
@@ -656,7 +712,7 @@ function renderThemeTemplateStrip() {
   row.innerHTML = '';
 
   const templates = THEME_REGISTRY
-    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null, calendarImageTheme: 'cozy', startHeaderBanner: 'scifi' }))
+    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null, calendarImageTheme: 'cozy', startHeaderBanner: 'scifi', brandingTheme: BRANDING_THEMES[0].id, brandingUseLogo: false }))
     .concat(customThemes.map(ct => ({
       name: ct.name,
       core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
@@ -665,6 +721,8 @@ function renderThemeTemplateStrip() {
       bg: ct.bg || null,
       calendarImageTheme: (ct.calendar && ct.calendar.imageTheme) || 'cozy',
       startHeaderBanner: (ct.startHeader && ct.startHeader.banner) || 'scifi',
+      brandingTheme: (ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id,
+      brandingUseLogo: !!(ct.branding && ct.branding.useLogo),
     })));
 
   templates.forEach(t => {
@@ -695,6 +753,9 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-fontsize').value = t.fontSize;
   document.getElementById('theme-builder-calendar-image').value = t.calendarImageTheme || 'cozy';
   document.getElementById('theme-builder-start-header').value = t.startHeaderBanner || 'scifi';
+  renderBrandingThemeSelect();
+  document.getElementById('theme-builder-branding-theme').value = t.brandingTheme || BRANDING_THEMES[0].id;
+  document.getElementById('theme-builder-branding-logo').checked = !!t.brandingUseLogo;
   renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
   // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
@@ -816,6 +877,10 @@ function saveThemeBuilder() {
   const fontSize = parseInt(document.getElementById('theme-builder-fontsize').value, 10);
   const calendar = { imageTheme: document.getElementById('theme-builder-calendar-image').value };
   const startHeader = { banner: document.getElementById('theme-builder-start-header').value };
+  const branding = {
+    theme: document.getElementById('theme-builder-branding-theme').value,
+    useLogo: document.getElementById('theme-builder-branding-logo').checked,
+  };
   const vars = deriveThemeVars(core, cardOpacity, fontSize);
   const family = teLuminance(core.bg) < 128 ? 'dark' : 'light';
   const editId = _teBuilderEditId;
@@ -825,13 +890,13 @@ function saveThemeBuilder() {
       const ct = getCustomTheme(editId);
       if (ct) {
         ct.name = name; ct.coreColors = core; ct.vars = vars; ct.family = family;
-        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader;
+        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader; ct.branding = branding;
         saveCustomThemes();
         if (theme === ct.id) setTheme(ct.id); // sofort neu anwenden, falls gerade aktiv
       }
     } else {
       const id = 'custom_' + Date.now();
-      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader });
+      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader, branding });
       saveCustomThemes();
       setTheme(id);
       if (typeof renderThemeSettings === 'function') renderThemeSettings();
@@ -988,6 +1053,7 @@ if (getCustomTheme(theme)) applyCustomThemeVars(theme);
 applyThemeBackground(theme);
 applyCalendarImageTheme(theme);
 applyStartHeaderTheme(theme);
+applyBranding(theme);
 
 function injectThemeBuilderListeners() {
   document.getElementById('theme-builder-close').addEventListener('click', closeThemeBuilder);

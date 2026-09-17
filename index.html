@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nook</title>
-  <link rel="icon" type="image/svg+xml" href="assets/nook_icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="assets/cozy/cozy icon.svg" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#6B7F58" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,7 +169,7 @@
     <nav id="sidebar">
       <div id="sidebar-header">
         <div id="sidebar-brand">
-          <img id="brand-icon" src="assets/nook_icon.svg" alt="nook Icon" />
+          <img id="brand-icon" src="assets/cozy/cozy icon.svg" alt="CORE Icon" />
           <div id="brand-text">
             <span id="brand-name">CORE</span>
             <span id="brand-subtitle">Central Organization & Resource Engine</span>
@@ -2692,6 +2692,30 @@
             <option value="cozy">Cozy</option>
             <option value="scifi">Sci-Fi</option>
           </select>
+        </div>
+      </div>
+
+      <!-- Logo & Icon — Modul: Theme-Engine. Zwei unabhängige Werte:
+           "Theme" wählt, von welchem Branding-Theme (Registry:
+           BRANDING_THEMES in js/theme-engine.js) Icon+Logo verwendet
+           werden — KEINE Kopplung an das aktive UI-Theme oder an
+           Kalender/Start-Header. "Logo verwenden" schaltet nur um, ob in
+           der Taskbar das Icon oder das Logo des gewählten Branding-
+           Themes erscheint (Logo dann allein, ohne Text). Das Favicon
+           folgt immer dem Icon des Branding-Themes, unabhängig vom
+           Toggle. Optionen im Dropdown werden von
+           renderBrandingThemeSelect() aus der Registry befüllt, damit ein
+           künftiges drittes Theme dort automatisch erscheint. Pro Theme
+           gespeichert (ct.branding.theme / ct.branding.useLogo). -->
+      <div class="tb-group">
+        <span class="panel-label">Logo &amp; Icon</span>
+        <div class="tb-bg-opt-row">
+          <span>Theme</span>
+          <select class="modal-select" id="theme-builder-branding-theme" style="width:auto;"></select>
+        </div>
+        <div class="tb-bg-opt-row">
+          <span>Logo verwenden</span>
+          <label class="toggle"><input type="checkbox" id="theme-builder-branding-logo"/><span class="toggle-slider"></span></label>
         </div>
       </div>
 

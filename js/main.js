@@ -211,6 +211,7 @@ function setTheme(name) {
   if (typeof applyThemeBackground === 'function') applyThemeBackground(theme);
   if (typeof applyCalendarImageTheme === 'function') applyCalendarImageTheme(theme);
   if (typeof applyStartHeaderTheme === 'function') applyStartHeaderTheme(theme);
+  if (typeof applyBranding === 'function') applyBranding(theme);
 }
 
 function applyColors() {
