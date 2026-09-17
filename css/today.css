@@ -28,7 +28,15 @@
    nutzen --surface/--bg, passen sich also automatisch jedem Theme an,
    genau wie beim Kalender-Hero). Begrüßung + Wetterkarte bekommen
    position:relative, damit sie über dem absolut positionierten
-   ::before liegen (sonst würde das Overlay den Text verdecken). */
+   ::before liegen (sonst würde das Overlay den Text verdecken).
+
+   Bildquelle über --today-header-img, gesetzt via [data-start-header-
+   theme] (js/theme-engine.js: applyStartHeaderTheme()) — exakt dasselbe
+   Muster wie --cal-hero-img/[data-cal-image-theme] im Kalender, aber
+   bewusst eine eigene, unabhängige Variable/eigenes Attribut (keine
+   Kopplung an die Kalender-Auswahl oder das allgemeine Theme-
+   Hintergrundbild). Default/Fallback ist Sci-Fi — das bisherige, vor
+   dieser Einstellung fest verdrahtete Verhalten. */
 #today-main-header {
   position: relative;
   display: flex;
@@ -42,7 +50,26 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   background: var(--surface);
+  --today-header-img: url('../assets/images sci-fi/sci-fi start banner.png');
 }
+[data-start-header-theme="cozy"]  #today-main-header { --today-header-img: url('../assets/cozy/cozy start banner.png'); }
+[data-start-header-theme="scifi"] #today-main-header { --today-header-img: url('../assets/images sci-fi/sci-fi start banner.png'); }
+
+/* "Kein Banner": zurück auf den bannerlosen Ursprungszustand — keine feste
+   Höhe, kein Padding/Rahmen/Schatten/Kartenfläche, also kein reservierter
+   Platz. ::before wird zusätzlich über content:none ganz abgeschaltet
+   (sonst bliebe ein Verlaufs-Film ohne Bild dahinter sichtbar). */
+[data-start-header-theme="none"] #today-main-header {
+  height: auto;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+}
+[data-start-header-theme="none"] #today-main-header::before { content: none; }
+
 #today-main-header::before {
   content: '';
   position: absolute;
@@ -56,7 +83,7 @@
       color-mix(in srgb, var(--surface) 14%, transparent) 80%,
       color-mix(in srgb, var(--surface) 8%, transparent) 100%
     ),
-    url('../assets/images sci-fi/sci-fi start banner.png');
+    var(--today-header-img);
   background-size: auto, cover;
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;
@@ -72,7 +99,7 @@
       color-mix(in srgb, var(--bg) 14%, transparent) 80%,
       color-mix(in srgb, var(--bg) 8%, transparent) 100%
     ),
-    url('../assets/images sci-fi/sci-fi start banner.png');
+    var(--today-header-img);
 }
 #today-greeting-block { position: relative; z-index: 1; }
 

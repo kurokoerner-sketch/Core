@@ -210,6 +210,7 @@ function setTheme(name) {
   if (typeof renderGuideShelf === 'function') renderGuideShelf();
   if (typeof applyThemeBackground === 'function') applyThemeBackground(theme);
   if (typeof applyCalendarImageTheme === 'function') applyCalendarImageTheme(theme);
+  if (typeof applyStartHeaderTheme === 'function') applyStartHeaderTheme(theme);
 }
 
 function applyColors() {

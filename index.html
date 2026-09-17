@@ -1113,7 +1113,7 @@
                   <div class="settings-row-sub">Wird in der Begrüßung auf der Heuteseite angezeigt</div>
                 </div>
                 <input type="text" id="setting-username" class="modal-input"
-                  placeholder="z.B. Casey"
+                  placeholder="Name"
                   style="width:140px;padding:7px 12px;font-size:13px;"
                   autocomplete="off"/>
               </div>
@@ -2671,6 +2671,24 @@
           <span>Bildthema</span>
           <select class="modal-select" id="theme-builder-calendar-image" style="width:auto;">
             <option value="none">Kein Bild</option>
+            <option value="cozy">Cozy</option>
+            <option value="scifi">Sci-Fi</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Start Header — Modul: Theme-Engine. Exakt dasselbe Muster wie
+           „Kalender" oben, nur für das Start-Banner (css/today.css:
+           #today-main-header). Unabhängig von Kalender-Bildthema UND vom
+           allgemeinen Theme-Hintergrundbild. Pro Theme gespeichert
+           (ct.startHeader.banner), angewendet über
+           applyStartHeaderTheme() → [data-start-header-theme]. -->
+      <div class="tb-group">
+        <span class="panel-label">Start Header</span>
+        <div class="tb-bg-opt-row">
+          <span>Bildthema</span>
+          <select class="modal-select" id="theme-builder-start-header" style="width:auto;">
+            <option value="none">Kein Banner</option>
             <option value="cozy">Cozy</option>
             <option value="scifi">Sci-Fi</option>
           </select>

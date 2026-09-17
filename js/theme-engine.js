@@ -336,6 +336,22 @@ function applyCalendarImageTheme(id) {
   document.documentElement.setAttribute('data-cal-image-theme', imageTheme);
 }
 
+// ── Start-Header-Bildthema (Startseiten-Banner) ─────────────────────────
+// Gleiches Muster wie applyCalendarImageTheme() oben, komplett unabhängig
+// davon (eigenes Attribut, eigenes ThemeConfig-Feld) UND unabhängig vom
+// allgemeinen Theme-Hintergrundbild (ct.bg / applyThemeBackground). Steuert
+// nur die Bildquelle von #today-main-header (css/today.css:
+// [data-start-header-theme] #today-main-header). Fallback 'scifi': vor
+// Einführung dieser Einstellung war das Sci-Fi-Start-Banner für ALLE
+// Themes (eingebaut wie eigen) fest verdrahtet — das bleibt für Themes
+// ohne gespeicherten Wert unverändert (Punkt 10: kein bestehendes
+// Verhalten darf sich durch die neue Einstellung ändern).
+function applyStartHeaderTheme(id) {
+  const ct = getCustomTheme(id);
+  const banner = (ct && ct.startHeader && ct.startHeader.banner) || 'scifi';
+  document.documentElement.setAttribute('data-start-header-theme', banner);
+}
+
 // ── Farb-Hilfsfunktionen für den Theme-Builder ──────────────────────────
 // mixHex(a, b, t) kommt aus hub-utils.js (lädt davor), hexToRgba(hex, a)
 // aus main.js — beide hier wiederverwendet statt neu erfunden.
@@ -590,6 +606,7 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-fontsize-label').textContent = fontSize + '%';
   document.getElementById('theme-builder-delete').style.display = existing ? '' : 'none';
   document.getElementById('theme-builder-calendar-image').value = (existing && existing.calendar && existing.calendar.imageTheme) || 'cozy';
+  document.getElementById('theme-builder-start-header').value = (existing && existing.startHeader && existing.startHeader.banner) || 'scifi';
   renderFontSelect(core.font);
 
   _teBuilderPendingFile = null;
@@ -639,7 +656,7 @@ function renderThemeTemplateStrip() {
   row.innerHTML = '';
 
   const templates = THEME_REGISTRY
-    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null, calendarImageTheme: 'cozy' }))
+    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null, calendarImageTheme: 'cozy', startHeaderBanner: 'scifi' }))
     .concat(customThemes.map(ct => ({
       name: ct.name,
       core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
@@ -647,6 +664,7 @@ function renderThemeTemplateStrip() {
       fontSize: ct.fontSize ?? 100,
       bg: ct.bg || null,
       calendarImageTheme: (ct.calendar && ct.calendar.imageTheme) || 'cozy',
+      startHeaderBanner: (ct.startHeader && ct.startHeader.banner) || 'scifi',
     })));
 
   templates.forEach(t => {
@@ -676,6 +694,7 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-opacity').value = t.cardOpacity;
   document.getElementById('theme-builder-fontsize').value = t.fontSize;
   document.getElementById('theme-builder-calendar-image').value = t.calendarImageTheme || 'cozy';
+  document.getElementById('theme-builder-start-header').value = t.startHeaderBanner || 'scifi';
   renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
   // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
@@ -796,6 +815,7 @@ function saveThemeBuilder() {
   const cardOpacity = parseInt(document.getElementById('theme-builder-opacity').value, 10);
   const fontSize = parseInt(document.getElementById('theme-builder-fontsize').value, 10);
   const calendar = { imageTheme: document.getElementById('theme-builder-calendar-image').value };
+  const startHeader = { banner: document.getElementById('theme-builder-start-header').value };
   const vars = deriveThemeVars(core, cardOpacity, fontSize);
   const family = teLuminance(core.bg) < 128 ? 'dark' : 'light';
   const editId = _teBuilderEditId;
@@ -805,13 +825,13 @@ function saveThemeBuilder() {
       const ct = getCustomTheme(editId);
       if (ct) {
         ct.name = name; ct.coreColors = core; ct.vars = vars; ct.family = family;
-        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar;
+        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader;
         saveCustomThemes();
         if (theme === ct.id) setTheme(ct.id); // sofort neu anwenden, falls gerade aktiv
       }
     } else {
       const id = 'custom_' + Date.now();
-      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar });
+      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader });
       saveCustomThemes();
       setTheme(id);
       if (typeof renderThemeSettings === 'function') renderThemeSettings();
@@ -967,6 +987,7 @@ function initThemeBgControls() {
 if (getCustomTheme(theme)) applyCustomThemeVars(theme);
 applyThemeBackground(theme);
 applyCalendarImageTheme(theme);
+applyStartHeaderTheme(theme);
 
 function injectThemeBuilderListeners() {
   document.getElementById('theme-builder-close').addEventListener('click', closeThemeBuilder);
