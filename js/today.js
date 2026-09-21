@@ -113,7 +113,12 @@ function weatherCodeToSvg(code) {
 let weatherSettings = DB.get('weatherSettings', { mode: 'manual', city: 'Cologne' });
 
 async function fetchWeatherByCoords(lat, lon) {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation_probability&timezone=auto`;
+  // daily=sunrise,sunset + forecast_days=2: liefert fürs Start-Header-
+  // Banner (siehe isStartHeaderDaytime() unten) auch den morgigen
+  // Sonnenaufgang mit, ohne einen zweiten Request/Dienst zu brauchen.
+  // timezone=auto (bereits vorhanden) sorgt dafür, dass sunrise/sunset in
+  // lokaler Wanduhrzeit des Standorts geliefert werden, nicht in UTC.
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation_probability&daily=sunrise,sunset&forecast_days=2&timezone=auto`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('Weather fetch failed');
   const data = await res.json();
@@ -122,7 +127,11 @@ async function fetchWeatherByCoords(lat, lon) {
   const svgCode = weatherCodeToSvg(code);
   const temp = Math.round(wc.temperature) + '°C';
   const desc = weatherCodeToDesc(code);
-  return { svgCode, temp, desc };
+  const sunrise = data.daily?.sunrise?.[0] || null;
+  const sunset = data.daily?.sunset?.[0] || null;
+  const sunriseTomorrow = data.daily?.sunrise?.[1] || null;
+  const utcOffsetSeconds = typeof data.utc_offset_seconds === 'number' ? data.utc_offset_seconds : null;
+  return { svgCode, temp, desc, sunrise, sunset, sunriseTomorrow, utcOffsetSeconds };
 }
 
 async function fetchWeatherByCity(city) {
@@ -149,6 +158,79 @@ function weatherCodeToDesc(code) {
   return 'Unbekannt';
 }
 
+// =========================
+// START-HEADER BANNER — Day/Night
+// Nutzt ausschließlich die Sunrise-/Sunset-Werte aus fetchWeatherByCoords()
+// oben (kein zweiter Dienst, keine eigene Wetterdatenverwaltung). Die
+// Theme-Auswahl selbst (cozy/scifi/kein Banner) bleibt unverändert in
+// js/theme-engine.js (applyStartHeaderTheme, [data-start-header-theme]);
+// hier wird nur zusätzlich [data-start-header-daynight] gesetzt, das
+// css/today.css mit der Theme-Auswahl kombiniert.
+// =========================
+
+// Open-Meteo liefert bei timezone=auto lokale Wanduhrzeit ohne Offset
+// (z.B. "2026-09-21T06:42") — new Date(str) würde das fälschlich als
+// Browser-lokale Zeit interpretieren, was bei abweichender Zeitzone
+// zwischen Browser und Wetter-Standort (z.B. manuell andere Stadt
+// gewählt) zu falschen Ergebnissen führen würde. Stattdessen die Zahlen
+// direkt als Wanduhrzeit in eine vergleichbare Pseudo-UTC-Epoche packen.
+function parseOpenMeteoLocalTime(str) {
+  const [datePart, timePart] = str.split('T');
+  const [y, mo, d] = datePart.split('-').map(Number);
+  const [h, mi] = timePart.split(':').map(Number);
+  return Date.UTC(y, mo - 1, d, h, mi);
+}
+
+// true/false = Tag/Nacht, null = (noch) unbekannt — bewusst kein Rateergebnis,
+// css/today.css fällt in diesem Fall auf die Day-Variante als sicheren
+// Startzustand zurück (kein Absturz, keine erfundene Uhrzeit).
+function isStartHeaderDaytime(w) {
+  if (!w || !w.sunrise || !w.sunset || typeof w.utcOffsetSeconds !== 'number') return null;
+  const sunrise = parseOpenMeteoLocalTime(w.sunrise);
+  const sunset = parseOpenMeteoLocalTime(w.sunset);
+  // "Jetzt" am Standort des Wetterdienstes (nicht die Browser-Zeitzone) —
+  // utc_offset_seconds spiegelt bereits die aktuell gültige Sommer-/
+  // Winterzeit dieses Standorts wider.
+  const nowAtLocation = Date.now() + w.utcOffsetSeconds * 1000;
+  return nowAtLocation >= sunrise && nowAtLocation < sunset;
+}
+
+function applyStartHeaderDaynight() {
+  const w = DB.get('weatherData', null);
+  const isDay = isStartHeaderDaytime(w);
+  if (isDay === null) return; // keine Daten → Attribut unangetastet, CSS-Fallback greift
+  document.documentElement.setAttribute('data-start-header-daynight', isDay ? 'day' : 'night');
+}
+
+let _startHeaderDaynightTimer = null;
+
+// Plant den nächsten Banner-Wechsel exakt zum Sunrise-/Sunset-Zeitpunkt
+// statt zu pollen. Nach Sonnenuntergang wird der morgige Sonnenaufgang
+// eingeplant (dank forecast_days=2 bereits bekannt); ist auch der nicht
+// bekannt, wartet die App auf den nächsten Wetter-Refresh — kein neuer
+// Polling-Mechanismus.
+function scheduleStartHeaderDaynightCheck(w) {
+  if (_startHeaderDaynightTimer) { clearTimeout(_startHeaderDaynightTimer); _startHeaderDaynightTimer = null; }
+  if (!w || !w.sunrise || !w.sunset || typeof w.utcOffsetSeconds !== 'number') return;
+
+  const sunrise = parseOpenMeteoLocalTime(w.sunrise);
+  const sunset = parseOpenMeteoLocalTime(w.sunset);
+  const sunriseTomorrow = w.sunriseTomorrow ? parseOpenMeteoLocalTime(w.sunriseTomorrow) : null;
+  const nowAtLocation = Date.now() + w.utcOffsetSeconds * 1000;
+
+  let nextChangeAt = null;
+  if (nowAtLocation < sunrise) nextChangeAt = sunrise;
+  else if (nowAtLocation < sunset) nextChangeAt = sunset;
+  else if (sunriseTomorrow && nowAtLocation < sunriseTomorrow) nextChangeAt = sunriseTomorrow;
+  if (nextChangeAt === null) return;
+
+  const delay = Math.max(nextChangeAt - nowAtLocation, 0) + 250; // kleiner Puffer
+  _startHeaderDaynightTimer = setTimeout(() => {
+    applyStartHeaderDaynight();
+    scheduleStartHeaderDaynightCheck(DB.get('weatherData', null));
+  }, delay);
+}
+
 async function renderWeather() {
   const tempEl = document.getElementById('weather-temp');
   const descEl = document.getElementById('weather-desc');
@@ -170,6 +252,8 @@ async function renderWeather() {
     if (iconEl) iconEl.innerHTML = saved.svgCode;
     tempEl.textContent = saved.temp;
     descEl.textContent = saved.desc;
+    applyStartHeaderDaynight();
+    scheduleStartHeaderDaynightCheck(saved);
     return;
   }
 
@@ -184,10 +268,13 @@ async function renderWeather() {
       const city = weatherSettings.city || 'Cologne';
       data = await fetchWeatherByCity(city);
     }
-    DB.set('weatherData', { ...data, ts: Date.now(), locKey });
+    const weatherData = { ...data, ts: Date.now(), locKey };
+    DB.set('weatherData', weatherData);
     if (iconEl) iconEl.innerHTML = data.svgCode;
     tempEl.textContent = data.temp;
     descEl.textContent = data.desc;
+    applyStartHeaderDaynight();
+    scheduleStartHeaderDaynightCheck(weatherData);
   } catch (e) {
     if (iconEl) iconEl.innerHTML = WEATHER_SVGS.unknown;
     tempEl.textContent = '—';

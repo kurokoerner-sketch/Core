@@ -36,7 +36,15 @@
    bewusst eine eigene, unabhängige Variable/eigenes Attribut (keine
    Kopplung an die Kalender-Auswahl oder das allgemeine Theme-
    Hintergrundbild). Default/Fallback ist Sci-Fi — das bisherige, vor
-   dieser Einstellung fest verdrahtete Verhalten. */
+   dieser Einstellung fest verdrahtete Verhalten.
+
+   Zusätzlich Day/Night: [data-start-header-daynight] (gesetzt von
+   applyStartHeaderDaynight() in js/today.js, aus den Sunrise-/Sunset-
+   Werten des ohnehin geladenen Wetterdienstes) wählt zwischen den pro
+   Theme vorhandenen Day-/Night-Varianten. Fehlt das Attribut (z.B. vor
+   dem ersten Wetter-Ladevorgang), gilt Day als sicherer Startzustand —
+   die "night"-Regeln überschreiben das gezielt mit höherer Spezifität
+   (Theme- + Daynight-Attribut kombiniert). */
 #today-main-header {
   position: relative;
   display: flex;
@@ -50,10 +58,12 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   background: var(--surface);
-  --today-header-img: url('../assets/images sci-fi/sci-fi start banner.png');
+  --today-header-img: url('../assets/images sci-fi/sci-fi start banner day.png');
 }
-[data-start-header-theme="cozy"]  #today-main-header { --today-header-img: url('../assets/cozy/cozy start banner.png'); }
-[data-start-header-theme="scifi"] #today-main-header { --today-header-img: url('../assets/images sci-fi/sci-fi start banner.png'); }
+[data-start-header-theme="cozy"]  #today-main-header { --today-header-img: url('../assets/cozy/cozy start banner day.png'); }
+[data-start-header-theme="scifi"] #today-main-header { --today-header-img: url('../assets/images sci-fi/sci-fi start banner day.png'); }
+[data-start-header-theme="cozy"][data-start-header-daynight="night"]  #today-main-header { --today-header-img: url('../assets/cozy/cozy start banner night.png'); }
+[data-start-header-theme="scifi"][data-start-header-daynight="night"] #today-main-header { --today-header-img: url('../assets/images sci-fi/sci-fi start banner night.png'); }
 
 /* "Kein Banner": zurück auf den bannerlosen Ursprungszustand — keine feste
    Höhe, kein Padding/Rahmen/Schatten/Kartenfläche, also kein reservierter
