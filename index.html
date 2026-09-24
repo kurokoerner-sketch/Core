@@ -2629,90 +2629,137 @@
         </div>
       </div>
 
+      <!-- Grafische Elemente — Modul: Theme-Engine. Fasst Hintergrund/
+           Kalender/Start Header/Logo & Icon (unverändert weiter unten)
+           unter einem gemeinsamen Modus-Umschalter zusammen:
+           "Theme auswählen" setzt alle vier zentral über
+           applyGraphicsThemeToControls() auf dasselbe BRANDING_THEMES-
+           Theme und blendet die Einzel-Controls aus; "Individuelle
+           Anpassung" blendet sie unverändert wieder ein. Keine der vier
+           Funktionen wird hier neu gebaut, nur ein-/ausgeblendet bzw.
+           zentral vorbelegt. "Logo verwenden" bleibt in jedem Modus
+           sichtbar (siehe eigene Gruppe ganz unten), da er nicht
+           auswählt, welches Theme verwendet wird, sondern nur Icon vs.
+           Logo umschaltet. Pro Theme gespeichert (ct.graphics.mode /
+           ct.graphics.theme); bestehende Themes ohne dieses Feld werden
+           per detectGraphicsMode() aus ihren vier Einzelwerten
+           abgeleitet (stimmen alle vier bereits überein → "Theme
+           auswählen", sonst "Individuelle Anpassung"). -->
       <div class="tb-group">
-        <span class="panel-label">Hintergrund</span>
-        <div class="tb-bg-row">
-          <span id="theme-builder-bg-filename">Kein Bild ausgewählt</span>
-          <div style="display:flex;gap:6px;">
-            <button type="button" class="btn-ghost" id="theme-builder-bg-pick-btn" style="font-size:12.5px;">Bild wählen</button>
-            <button type="button" class="btn-ghost" id="theme-builder-bg-clear-btn" style="font-size:12.5px;">Entfernen</button>
-          </div>
-          <input type="file" id="theme-builder-bg-file-input" accept="image/*" style="display:none;"/>
+        <span class="panel-label">Grafische Elemente</span>
+        <div class="tb-template-row" id="theme-builder-graphics-mode">
+          <button type="button" class="clock-type-btn" id="theme-builder-graphics-mode-theme">Theme auswählen</button>
+          <button type="button" class="clock-type-btn" id="theme-builder-graphics-mode-custom">Individuelle Anpassung</button>
         </div>
-        <div class="tb-bg-options hidden" id="theme-builder-bg-options">
+        <div class="tb-bg-opt-row" id="theme-builder-graphics-theme-row">
+          <span>Theme</span>
+          <select class="modal-select" id="theme-builder-graphics-theme" style="width:auto;"></select>
+        </div>
+      </div>
+
+      <div id="theme-builder-graphics-detail">
+        <!-- Hintergrund — Modul: Theme-Engine. Dropdown wählt die Bildquelle
+             (Kein Bild / eines der Theme-Asset-Bündel aus BRANDING_THEMES,
+             z.B. Cozy/Sci-Fi / Eigenes Bild) — unabhängig vom UI-Theme.
+             Optionen werden von renderBackgroundSourceSelect() dynamisch
+             aus derselben Registry erzeugt, die bereits Logo & Icon
+             speist, damit ein künftiges weiteres Theme hier automatisch
+             erscheint. Die Datei-Zeile darunter ist nur bei "Eigenes
+             Bild" sichtbar; Größe/Overlay gelten für jede Quelle außer
+             "Kein Bild". Pro Theme gespeichert (ct.bg.source, +
+             assetId/name bei "Eigenes Bild"). -->
+        <div class="tb-group">
+          <span class="panel-label">Hintergrund</span>
           <div class="tb-bg-opt-row">
-            <span>Größe</span>
-            <select class="modal-select" id="theme-builder-bg-size" style="width:auto;">
-              <option value="cover">Ausfüllen</option>
-              <option value="contain">Einpassen</option>
-              <option value="center">Zentriert</option>
+            <span>Quelle</span>
+            <select class="modal-select" id="theme-builder-bg-source" style="width:auto;"></select>
+          </div>
+          <div class="tb-bg-row" id="theme-builder-bg-custom-row">
+            <span id="theme-builder-bg-filename">Kein Bild ausgewählt</span>
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="btn-ghost" id="theme-builder-bg-pick-btn" style="font-size:12.5px;">Bild wählen</button>
+              <button type="button" class="btn-ghost" id="theme-builder-bg-clear-btn" style="font-size:12.5px;">Entfernen</button>
+            </div>
+            <input type="file" id="theme-builder-bg-file-input" accept="image/*" style="display:none;"/>
+          </div>
+          <div class="tb-bg-options hidden" id="theme-builder-bg-options">
+            <div class="tb-bg-opt-row">
+              <span>Größe</span>
+              <select class="modal-select" id="theme-builder-bg-size" style="width:auto;">
+                <option value="cover">Ausfüllen</option>
+                <option value="contain">Einpassen</option>
+                <option value="center">Zentriert</option>
+              </select>
+            </div>
+            <div class="tb-bg-opt-row">
+              <span>Overlay: <span id="theme-builder-bg-dim-label">40%</span></span>
+              <input type="range" id="theme-builder-bg-dim" min="0" max="100" value="40"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kalender — Modul: Theme-Engine. Wählt nur das saisonale
+             Bannerbild-Set des Kalender-Hero (assets/cozy vs. assets/images
+             sci-fi), unabhängig vom allgemeinen Theme-Hintergrundbild oben.
+             Pro Theme gespeichert (ct.calendar.imageTheme), angewendet über
+             applyCalendarImageTheme() → [data-cal-image-theme] in
+             css/calendar.css. -->
+        <div class="tb-group">
+          <span class="panel-label">Kalender</span>
+          <div class="tb-bg-opt-row">
+            <span>Bildthema</span>
+            <select class="modal-select" id="theme-builder-calendar-image" style="width:auto;">
+              <option value="none">Kein Bild</option>
+              <option value="cozy">Cozy</option>
+              <option value="scifi">Sci-Fi</option>
             </select>
           </div>
+        </div>
+
+        <!-- Start Header — Modul: Theme-Engine. Exakt dasselbe Muster wie
+             „Kalender" oben, nur für das Start-Banner (css/today.css:
+             #today-main-header). Unabhängig von Kalender-Bildthema UND vom
+             allgemeinen Theme-Hintergrundbild. Pro Theme gespeichert
+             (ct.startHeader.banner), angewendet über
+             applyStartHeaderTheme() → [data-start-header-theme]. -->
+        <div class="tb-group">
+          <span class="panel-label">Start Header</span>
           <div class="tb-bg-opt-row">
-            <span>Overlay: <span id="theme-builder-bg-dim-label">40%</span></span>
-            <input type="range" id="theme-builder-bg-dim" min="0" max="100" value="40"/>
+            <span>Bildthema</span>
+            <select class="modal-select" id="theme-builder-start-header" style="width:auto;">
+              <option value="none">Kein Banner</option>
+              <option value="cozy">Cozy</option>
+              <option value="scifi">Sci-Fi</option>
+            </select>
           </div>
+        </div>
+
+        <!-- Logo & Icon (Theme-Teil) — Modul: Theme-Engine. Wählt, von
+             welchem Branding-Theme (Registry: BRANDING_THEMES in
+             js/theme-engine.js) Icon+Logo verwendet werden — KEINE
+             Kopplung an das aktive UI-Theme oder an Kalender/Start-
+             Header. Der zugehörige "Logo verwenden"-Toggle steht bewusst
+             in einer eigenen, immer sichtbaren Gruppe weiter unten (siehe
+             Kommentar dort). Optionen im Dropdown werden von
+             renderBrandingThemeSelect() aus der Registry befüllt, damit
+             ein künftiges drittes Theme dort automatisch erscheint. Pro
+             Theme gespeichert (ct.branding.theme). -->
+        <div class="tb-group">
+          <span class="panel-label">Logo &amp; Icon</span>
           <div class="tb-bg-opt-row">
-            <span>Bild aktiv</span>
-            <label class="toggle"><input type="checkbox" id="theme-builder-bg-enabled" checked/><span class="toggle-slider"></span></label>
+            <span>Theme</span>
+            <select class="modal-select" id="theme-builder-branding-theme" style="width:auto;"></select>
           </div>
         </div>
       </div>
 
-      <!-- Kalender — Modul: Theme-Engine. Wählt nur das saisonale
-           Bannerbild-Set des Kalender-Hero (assets/cozy vs. assets/images
-           sci-fi), unabhängig vom allgemeinen Theme-Hintergrundbild oben.
-           Pro Theme gespeichert (ct.calendar.imageTheme), angewendet über
-           applyCalendarImageTheme() → [data-cal-image-theme] in
-           css/calendar.css. -->
+      <!-- Logo verwenden — Modul: Theme-Engine. Bewusst außerhalb von
+           #theme-builder-graphics-detail und dadurch in JEDEM Modus
+           sichtbar: entscheidet nur, ob das oben gewählte Branding-Theme
+           als Icon oder als Logo in der Taskbar erscheint (Logo dann
+           allein, ohne Text) — das Favicon folgt davon unabhängig immer
+           dem Icon. Pro Theme gespeichert (ct.branding.useLogo). -->
       <div class="tb-group">
-        <span class="panel-label">Kalender</span>
-        <div class="tb-bg-opt-row">
-          <span>Bildthema</span>
-          <select class="modal-select" id="theme-builder-calendar-image" style="width:auto;">
-            <option value="none">Kein Bild</option>
-            <option value="cozy">Cozy</option>
-            <option value="scifi">Sci-Fi</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Start Header — Modul: Theme-Engine. Exakt dasselbe Muster wie
-           „Kalender" oben, nur für das Start-Banner (css/today.css:
-           #today-main-header). Unabhängig von Kalender-Bildthema UND vom
-           allgemeinen Theme-Hintergrundbild. Pro Theme gespeichert
-           (ct.startHeader.banner), angewendet über
-           applyStartHeaderTheme() → [data-start-header-theme]. -->
-      <div class="tb-group">
-        <span class="panel-label">Start Header</span>
-        <div class="tb-bg-opt-row">
-          <span>Bildthema</span>
-          <select class="modal-select" id="theme-builder-start-header" style="width:auto;">
-            <option value="none">Kein Banner</option>
-            <option value="cozy">Cozy</option>
-            <option value="scifi">Sci-Fi</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Logo & Icon — Modul: Theme-Engine. Zwei unabhängige Werte:
-           "Theme" wählt, von welchem Branding-Theme (Registry:
-           BRANDING_THEMES in js/theme-engine.js) Icon+Logo verwendet
-           werden — KEINE Kopplung an das aktive UI-Theme oder an
-           Kalender/Start-Header. "Logo verwenden" schaltet nur um, ob in
-           der Taskbar das Icon oder das Logo des gewählten Branding-
-           Themes erscheint (Logo dann allein, ohne Text). Das Favicon
-           folgt immer dem Icon des Branding-Themes, unabhängig vom
-           Toggle. Optionen im Dropdown werden von
-           renderBrandingThemeSelect() aus der Registry befüllt, damit ein
-           künftiges drittes Theme dort automatisch erscheint. Pro Theme
-           gespeichert (ct.branding.theme / ct.branding.useLogo). -->
-      <div class="tb-group">
-        <span class="panel-label">Logo &amp; Icon</span>
-        <div class="tb-bg-opt-row">
-          <span>Theme</span>
-          <select class="modal-select" id="theme-builder-branding-theme" style="width:auto;"></select>
-        </div>
         <div class="tb-bg-opt-row">
           <span>Logo verwenden</span>
           <label class="toggle"><input type="checkbox" id="theme-builder-branding-logo"/><span class="toggle-slider"></span></label>

@@ -118,7 +118,6 @@ const CUSTOM_FONT_FILES = [
   { family: 'Bing Boss',          source: 'assets/fonts/Bing Boss.otf', weight: '400', style: 'normal' },
   { family: 'Black North',        source: 'assets/fonts/Black North.ttf', weight: '400', style: 'normal' },
   { family: 'Blade Knight',       source: 'assets/fonts/Blade Knight Regular.otf', weight: '400', style: 'normal' },
-  { family: 'California',         source: 'assets/fonts/CALIFORNIA PERSONAL USE.ttf', weight: '400', style: 'normal' },
   { family: 'Celtic Garamond',    source: 'assets/fonts/CELTG___.TTF', weight: '400', style: 'normal' },
   { family: "Coraline's Cat",     source: "assets/fonts/Coraline's Cat.ttf", weight: '400', style: 'normal' },
   { family: 'Cubic',              source: 'assets/fonts/cubic.ttf', weight: '400', style: 'normal' },
@@ -138,13 +137,11 @@ const CUSTOM_FONT_FILES = [
   { family: 'Impact Label SWL Reversed', source: 'assets/fonts/Impact Label SWL Reversed.ttf', weight: '400', style: 'normal' },
   { family: 'JMH Typewriter',     source: 'assets/fonts/JMH Typewriter.ttf', weight: '400', style: 'normal' },
   { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' },
-  { family: 'Laugh Tales',        source: 'assets/fonts/Laugh Tales Demo.otf', weight: '400', style: 'normal' },
   { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' },
   { family: 'Minecraft PE',       source: 'assets/fonts/MINECRAFT PE.ttf', weight: '400', style: 'normal' },
   { family: 'Nasalization',       source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' },
   { family: 'Norse',              source: 'assets/fonts/Norse.otf', weight: '400', style: 'normal' },
   { family: 'Ruritania',          source: 'assets/fonts/Ruritania.ttf', weight: '400', style: 'normal' },
-  { family: 'Saluki Juice',       source: 'assets/fonts/SalukiJuice_PERSONAL_USE_ONLY.otf', weight: '400', style: 'normal' },
   { family: 'Searle',             source: 'assets/fonts/Searle.ttf', weight: '400', style: 'normal' },
   { family: 'Shanghai',           source: 'assets/fonts/shanghai.ttf', weight: '400', style: 'normal' },
   { family: 'Shizuoka Cyberpunk', source: 'assets/fonts/Shizuoka Cyberpunk.otf', weight: '400', style: 'normal' },
@@ -367,22 +364,51 @@ function applyStartHeaderTheme(id) {
 // ohne diese Felder, oder eingebaute Themes ohne ct): erster Registry-
 // Eintrag + useLogo aus, damit ein Reload ohne gespeicherten Wert immer
 // ein definiertes Icon zeigt statt eines kaputten Favicons.
+// "background" wird zusätzlich vom Hintergrund-Dropdown (weiter unten,
+// renderBackgroundSourceSelect()/applyThemeBackground()) genutzt — dieselbe
+// Registry für alle drei Theme-Asset-Arten (Icon/Logo/Hintergrund), damit
+// ein künftiges neues Theme an nur EINER Stelle ergänzt werden muss.
 const BRANDING_THEMES = [
-  { id: 'cozy',  label: 'Cozy',   icon: "assets/cozy/cozy icon.svg",            iconType: 'image/svg+xml', logo: "assets/cozy/cozy logo.png" },
-  { id: 'scifi', label: 'Sci-Fi', icon: "assets/images sci-fi/sci-fi icon.png", iconType: 'image/png',      logo: "assets/images sci-fi/sci-fi logo.png" },
+  { id: 'cozy',  label: 'Cozy',   icon: "assets/cozy/cozy icon.svg",            iconType: 'image/svg+xml', logo: "assets/cozy/cozy logo.png",            background: "assets/cozy/cozy background.png" },
+  { id: 'scifi', label: 'Sci-Fi', icon: "assets/images sci-fi/sci-fi icon.png", iconType: 'image/png',      logo: "assets/images sci-fi/sci-fi logo.png", background: "assets/images sci-fi/sci-fi background.png" },
 ];
 
 function getBrandingTheme(id) {
   return BRANDING_THEMES.find(b => b.id === id) || BRANDING_THEMES[0];
 }
 
-// Füllt das Theme-Dropdown im Builder aus der Registry — bei einem
-// künftigen neuen Eintrag in BRANDING_THEMES taucht er hier automatisch
-// auf, ohne dass die Markup-/Options-Liste angefasst werden muss.
-function renderBrandingThemeSelect() {
-  const sel = document.getElementById('theme-builder-branding-theme');
+// Strikte Variante ohne Fallback-auf-ersten-Eintrag — für die Hintergrund-
+// Auswahl darf ein unbekannter/entfernter Quellenwert nicht stillschweigend
+// durch ein anderes Theme-Bild ersetzt werden, sondern muss zu "kein Bild"
+// führen (siehe applyThemeBackground() unten).
+function findBrandingTheme(id) {
+  return BRANDING_THEMES.find(b => b.id === id) || null;
+}
+
+// Füllt ein <select> aus der Registry — bei einem künftigen neuen Eintrag
+// in BRANDING_THEMES taucht er hier automatisch auf, ohne dass die
+// Markup-/Options-Liste angefasst werden muss. Von renderBrandingThemeSelect()
+// (Logo & Icon) UND renderGraphicsThemeSelect() (gemeinsamer "Grafische
+// Elemente"-Modus) genutzt, damit beide garantiert dieselben Optionen zeigen.
+function renderBrandingThemeOptions(selectId) {
+  const sel = document.getElementById(selectId);
   if (!sel) return;
   sel.innerHTML = BRANDING_THEMES.map(b => `<option value="${b.id}">${b.label}</option>`).join('');
+}
+function renderBrandingThemeSelect() { renderBrandingThemeOptions('theme-builder-branding-theme'); }
+function renderGraphicsThemeSelect()  { renderBrandingThemeOptions('theme-builder-graphics-theme'); }
+
+// Dasselbe Prinzip für das Hintergrund-Dropdown: "Kein Bild" + jedes
+// Theme aus BRANDING_THEMES (das eigene "background" mitbringt) +
+// "Eigenes Bild" — ein künftiges Theme mit background-Eintrag erscheint
+// hier automatisch, ohne dass diese Funktion angefasst werden muss.
+function renderBackgroundSourceSelect() {
+  const sel = document.getElementById('theme-builder-bg-source');
+  if (!sel) return;
+  const options = ['<option value="none">Kein Bild</option>']
+    .concat(BRANDING_THEMES.filter(b => b.background).map(b => `<option value="${b.id}">${b.label}</option>`))
+    .concat(['<option value="custom">Eigenes Bild</option>']);
+  sel.innerHTML = options.join('');
 }
 
 function applyBranding(id) {
@@ -516,12 +542,27 @@ function deleteBackgroundAsset(assetId) {
   })).catch(e => console.warn('Theme-Engine: Hintergrundbild konnte nicht gelöscht werden', e));
 }
 
+// Migration: vor der Hintergrund-Dropdown-Erweiterung gab es nur eigene,
+// hochgeladene Bilder (identifiziert über assetId) — kein "source"-Feld.
+// Ein vorhandenes assetId bedeutet also eindeutig source:'custom' (bzw.
+// 'none', falls das Bild zuvor über die alte "Bild aktiv"-Checkbox
+// deaktiviert war — dieses Feld bleibt dabei erhalten, falls später
+// wieder auf "Eigenes Bild" zurückgeschaltet wird). Rein lesende
+// Normalisierung, nichts wird zurückgeschrieben — bestehende Themes
+// bleiben dadurch unverändert kompatibel, ohne Datenverlust.
+function migrateBgMeta(meta) {
+  if (!meta) return null;
+  if (meta.source) return meta;
+  if (meta.assetId) return Object.assign({}, meta, { source: meta.enabled === false ? 'none' : 'custom' });
+  return meta;
+}
+
 // Eingebaute Themes: Metadaten in themeBackgrounds[id]. Eigene Themes:
 // Metadaten direkt am Theme-Objekt (ct.bg) — kein zweiter Speicherort.
 function getThemeBgMeta(id) {
   const ct = getCustomTheme(id);
-  if (ct) return ct.bg || null;
-  return themeBackgrounds[id] || null;
+  const raw = ct ? (ct.bg || null) : (themeBackgrounds[id] || null);
+  return migrateBgMeta(raw);
 }
 function setThemeBgMeta(id, meta) {
   const ct = getCustomTheme(id);
@@ -564,17 +605,42 @@ function getThemeBgOverlayColor() {
   return parseColorToRgb(raw) || { r: 0, g: 0, b: 0 };
 }
 
-// Ein einziger background-image-Stack aus Abdunkelungs-Layer + Bild, statt
-// einem eigenen Overlay-Element — body-Hintergrund wird laut CSS-Spec auf
-// das Canvas propagiert (siehe main.css: body hat background, html nicht)
-// und malt daher garantiert hinter #app, unabhängig von dessen Stacking-
-// Context. Kein Risiko, versehentlich über der App-UI zu landen.
-// Das Overlay nutzt bewusst die Theme-Hintergrundfarbe (--bg) statt eines
-// neutralen Schwarz/Grau — das Bild soll wirken, als schiene es durch die
-// gewählte Farbe hindurch, nicht einfach nur dunkler werden.
-function applyBgToDom(blob, meta) {
+// Baut den zweilagigen background-image-Stack (Tint-Verlauf + Bild) als
+// {backgroundImage, backgroundSize, backgroundPosition, backgroundRepeat}
+// — gemeinsam genutzt von applyBgToDom() (echte Seite, Farbe kommt aus der
+// aktiven --bg) und der kleinen Live-Vorschau im Theme-Editor (Farbe kommt
+// dort aus dem gerade bearbeiteten Farbfeld), damit beide immer exakt
+// gleich aussehen. rgb ist das bewusst von außen übergebene {r,g,b} statt
+// hier selbst ermittelt — das Overlay nutzt bewusst die Theme-Hintergrund-
+// farbe statt eines neutralen Schwarz/Grau, das Bild soll wirken, als
+// schiene es durch die gewählte Farbe hindurch, nicht einfach nur dunkler
+// werden. url === null → kein Bild (das Overlay entfällt dann komplett,
+// nicht nur das Bild — "Kein Bild" darf keinen Grauschleier hinterlassen).
+function buildBgLayers(url, meta, rgb) {
+  if (!url) return null;
+  const dim = ((meta && meta.dim) ?? 40) / 100;
+  const { r, g, b } = rgb;
+  const size = (meta && meta.size) || 'cover';
+  const imgSize = size === 'contain' ? 'contain' : (size === 'center' ? 'auto' : 'cover');
+  return {
+    backgroundImage: `linear-gradient(rgba(${r},${g},${b},${dim.toFixed(2)}), rgba(${r},${g},${b},${dim.toFixed(2)})), url("${url}")`,
+    backgroundSize: `auto, ${imgSize}`,
+    backgroundPosition: 'center, center',
+    backgroundRepeat: 'no-repeat',
+  };
+}
+
+// body-Hintergrund wird laut CSS-Spec auf das Canvas propagiert (siehe
+// main.css: body hat background, html nicht) und malt daher garantiert
+// hinter #app, unabhängig von dessen Stacking-Context — kein eigenes
+// Overlay-Element nötig, kein Risiko, versehentlich über der App-UI zu
+// landen. url ist bereits eine fertige, direkt nutzbare Bild-URL (Object-
+// URL für ein eigenes Bild, oder ein statischer Asset-Pfad für ein Theme-
+// Hintergrundbild) — applyThemeBackground() löst das jeweils vorher auf.
+function applyBgToDom(url, meta) {
   if (_teCurrentBgObjectUrl) { URL.revokeObjectURL(_teCurrentBgObjectUrl); _teCurrentBgObjectUrl = null; }
-  if (!blob) {
+  const layers = buildBgLayers(url, meta, getThemeBgOverlayColor());
+  if (!layers) {
     document.body.style.backgroundImage = '';
     document.body.style.backgroundSize = '';
     document.body.style.backgroundPosition = '';
@@ -582,28 +648,39 @@ function applyBgToDom(blob, meta) {
     document.body.style.backgroundAttachment = '';
     return;
   }
-  const url = URL.createObjectURL(blob);
-  _teCurrentBgObjectUrl = url;
-  const dim = ((meta.dim ?? 40) / 100).toFixed(2);
-  const { r, g, b } = getThemeBgOverlayColor();
-  document.body.style.backgroundImage = `linear-gradient(rgba(${r},${g},${b},${dim}), rgba(${r},${g},${b},${dim})), url("${url}")`;
-  document.body.style.backgroundRepeat = 'no-repeat';
+  Object.assign(document.body.style, layers);
   document.body.style.backgroundAttachment = 'fixed';
-  const size = meta.size || 'cover';
-  const imgSize = size === 'contain' ? 'contain' : (size === 'center' ? 'auto' : 'cover');
-  document.body.style.backgroundSize = `auto, ${imgSize}`;
-  document.body.style.backgroundPosition = 'center, center';
 }
 
+// source: 'none' → kein Bild (Themefarbe bleibt einfach stehen, siehe main.css).
+// 'custom' → eigenes, in IndexedDB gespeichertes Bild (assetId).
+// alles andere → statischer Hintergrundpfad aus BRANDING_THEMES (Cozy/Sci-
+// Fi/künftige Themes) — komplett unabhängig vom aktiven UI-Theme, exakt wie
+// Kalender/Start-Header/Logo & Icon. Ein unbekannter/entfernter source-Wert
+// fällt bewusst auf "kein Bild" zurück statt auf ein anderes Theme-Bild.
 function applyThemeBackground(themeId) {
   const meta = getThemeBgMeta(themeId);
-  if (!meta || !meta.assetId || meta.enabled === false) { applyBgToDom(null, null); return Promise.resolve(); }
-  return getBackgroundAsset(meta.assetId)
-    .then(blob => applyBgToDom(blob, meta))
-    .catch(e => {
-      console.warn('Theme-Engine: Hintergrundbild konnte nicht geladen werden (IndexedDB evtl. nicht verfügbar, z.B. unter file://)', e);
-      applyBgToDom(null, null);
-    });
+  const source = meta ? meta.source : 'none';
+  if (!meta || !source || source === 'none') { applyBgToDom(null, null); return Promise.resolve(); }
+
+  if (source === 'custom') {
+    if (!meta.assetId) { applyBgToDom(null, null); return Promise.resolve(); }
+    return getBackgroundAsset(meta.assetId)
+      .then(blob => {
+        if (!blob) { applyBgToDom(null, null); return; }
+        const url = URL.createObjectURL(blob);
+        applyBgToDom(url, meta);
+        _teCurrentBgObjectUrl = url;
+      })
+      .catch(e => {
+        console.warn('Theme-Engine: Hintergrundbild konnte nicht geladen werden (IndexedDB evtl. nicht verfügbar, z.B. unter file://)', e);
+        applyBgToDom(null, null);
+      });
+  }
+
+  const bt = findBrandingTheme(source);
+  applyBgToDom(bt && bt.background ? bt.background : null, meta);
+  return Promise.resolve();
 }
 
 // =========================================================================
@@ -627,8 +704,70 @@ let _teBuilderEditId = null;
 // geschrieben (nicht schon bei der Dateiauswahl) — so hinterlässt ein
 // Abbrechen des Builders keine verwaisten Einträge.
 let _teBuilderPendingFile = null;   // neu gewählte/aus Vorlage übernommene, noch nicht gespeicherte Datei
-let _teBuilderExistingBg  = null;   // bg-Metadaten des bearbeiteten Themes beim Öffnen
+let _teBuilderExistingBg  = null;   // bg-Metadaten des bearbeiteten Themes beim Öffnen (bereits migriert, s. migrateBgMeta)
 let _teBuilderBgCleared   = false;  // Nutzer hat "Entfernen" geklickt
+let _teBuilderPreviewObjectUrl = null; // separate Object-URL nur für die kleine Editor-Vorschau (nicht die echte Seite)
+let _teBuilderGraphicsMode = 'theme';  // 'theme' | 'custom' — Zustand des "Grafische Elemente"-Umschalters
+
+// ── "Grafische Elemente" — gemeinsamer Modus für Hintergrund/Kalender/
+// Start-Header/Logo & Icon ───────────────────────────────────────────────
+// Ersetzt keine der vier Funktionen, setzt im Modus "theme" nur zentral
+// deren bereits vorhandene Controls (siehe applyGraphicsThemeToControls()
+// unten) — die einzige Stelle, die das tut (Punkt 21: keine doppelte
+// Zuweisungslogik).
+
+// Ermittelt Modus + Theme für ein bestehendes Theme: nutzt ein bereits
+// gespeichertes ct.graphics, falls vorhanden; sonst wird aus den vier
+// tatsächlichen Einzelwerten abgeleitet — stimmen alle vier bereits mit
+// einem gültigen BRANDING_THEMES-Eintrag überein, war es faktisch schon
+// "ein Theme für alles" (→ mode:'theme'), sonst "Individuelle Anpassung".
+// Rein lesend, wie migrateBgMeta() — nichts wird zurückgeschrieben.
+function detectGraphicsMode(explicitGraphics, bgSource, calendarTheme, startHeaderTheme, brandingTheme) {
+  if (explicitGraphics && explicitGraphics.mode) return explicitGraphics;
+  const values = [bgSource, calendarTheme, startHeaderTheme, brandingTheme];
+  const allSame = values.every(v => v && v === values[0]) && !!findBrandingTheme(values[0]);
+  return allSame ? { mode: 'theme', theme: values[0] } : { mode: 'custom' };
+}
+
+// Zentrale Zuweisung: setzt EIN Theme auf alle vier Einzel-Controls im
+// Builder — Hintergrund/Kalender/Start-Header/Logo&Icon nutzen bereits
+// exakt dieselben BRANDING_THEMES-IDs ("cozy"/"scifi"/…) als Options-
+// Werte, deshalb reicht ein einfaches Durchreichen ohne Übersetzungstabelle.
+function applyGraphicsThemeToControls(themeId) {
+  document.getElementById('theme-builder-bg-source').value = themeId;
+  document.getElementById('theme-builder-calendar-image').value = themeId;
+  document.getElementById('theme-builder-start-header').value = themeId;
+  document.getElementById('theme-builder-branding-theme').value = themeId;
+  syncThemeBuilderBgUI();
+  updateThemeBuilderBgPreview();
+}
+
+// Blendet nur um (Punkt 26: keine Werte verändern, keine Controls neu
+// erzeugen) — die eigentliche Werte-Zuweisung passiert ausschließlich in
+// applyGraphicsThemeToControls(), nicht hier.
+function setGraphicsModeUI(mode) {
+  _teBuilderGraphicsMode = mode;
+  document.getElementById('theme-builder-graphics-mode-theme').classList.toggle('active', mode === 'theme');
+  document.getElementById('theme-builder-graphics-mode-custom').classList.toggle('active', mode === 'custom');
+  document.getElementById('theme-builder-graphics-theme-row').classList.toggle('hidden', mode !== 'theme');
+  document.getElementById('theme-builder-graphics-detail').classList.toggle('hidden', mode !== 'custom');
+}
+
+function initThemeBuilderGraphicsControls() {
+  const btnTheme = document.getElementById('theme-builder-graphics-mode-theme');
+  const btnCustom = document.getElementById('theme-builder-graphics-mode-custom');
+  const themeSel = document.getElementById('theme-builder-graphics-theme');
+  if (!btnTheme) return;
+
+  btnTheme.addEventListener('click', () => {
+    setGraphicsModeUI('theme');
+    applyGraphicsThemeToControls(themeSel.value);
+  });
+  btnCustom.addEventListener('click', () => {
+    setGraphicsModeUI('custom'); // Werte bleiben unverändert (Punkt 16)
+  });
+  themeSel.addEventListener('change', () => applyGraphicsThemeToControls(themeSel.value));
+}
 
 const DEFAULT_BUILDER_CORE = {
   bg: '#1a1815', surface: '#252119', nav: '#20201e', modal: '#252119',
@@ -665,10 +804,30 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-branding-logo').checked = !!(existing && existing.branding && existing.branding.useLogo);
   renderFontSelect(core.font);
 
+  renderBackgroundSourceSelect();
   _teBuilderPendingFile = null;
-  _teBuilderExistingBg = existing ? (existing.bg || null) : null;
+  _teBuilderExistingBg = existing ? migrateBgMeta(existing.bg || null) : null;
   _teBuilderBgCleared = false;
+  document.getElementById('theme-builder-bg-source').value = (_teBuilderExistingBg && _teBuilderExistingBg.source) || 'none';
   syncThemeBuilderBgUI();
+
+  // Grafische Elemente: Modus erkennen (gespeichert oder aus den vier
+  // Einzelwerten oben abgeleitet) und Editor entsprechend zeigen. Ein
+  // brandneues Theme (kein "existing") startet bewusst im einfacheren
+  // "Theme auswählen"-Modus mit dem ersten Registry-Eintrag.
+  renderGraphicsThemeSelect();
+  const graphics = existing
+    ? detectGraphicsMode(
+        existing.graphics || null,
+        _teBuilderExistingBg ? _teBuilderExistingBg.source : null,
+        existing.calendar ? existing.calendar.imageTheme : null,
+        existing.startHeader ? existing.startHeader.banner : null,
+        existing.branding ? existing.branding.theme : null
+      )
+    : { mode: 'theme', theme: BRANDING_THEMES[0].id };
+  document.getElementById('theme-builder-graphics-theme').value = graphics.theme || BRANDING_THEMES[0].id;
+  setGraphicsModeUI(graphics.mode);
+  if (graphics.mode === 'theme') applyGraphicsThemeToControls(graphics.theme || BRANDING_THEMES[0].id);
 
   renderThemeTemplateStrip();
   updateThemeBuilderPreview();
@@ -682,6 +841,8 @@ function closeThemeBuilder() {
   _teBuilderPendingFile = null;
   _teBuilderExistingBg = null;
   _teBuilderBgCleared = false;
+  _teBuilderGraphicsMode = 'theme';
+  if (_teBuilderPreviewObjectUrl) { URL.revokeObjectURL(_teBuilderPreviewObjectUrl); _teBuilderPreviewObjectUrl = null; }
 }
 
 function updateThemeBuilderPreview() {
@@ -694,10 +855,15 @@ function updateThemeBuilderPreview() {
   document.getElementById('theme-builder-fontsize-label').textContent = fontSize + '%';
   const preview = document.getElementById('theme-builder-preview');
   if (!preview) return;
-  preview.style.background = `color-mix(in srgb, ${surface} ${opacity}%, transparent)`;
+  // backgroundColor statt der background-Kurzform: Letztere würde die von
+  // updateThemeBuilderBgPreview() gesetzten background-image-Ebenen
+  // (Hintergrundbild-Vorschau) bei jedem Tastendruck wieder auf "none"
+  // zurücksetzen, weil die Kurzform alle Teileigenschaften mit übernimmt.
+  preview.style.backgroundColor = `color-mix(in srgb, ${surface} ${opacity}%, transparent)`;
   preview.style.color = text;
   preview.style.borderColor = hexToRgba(border, 0.35);
   preview.style.fontSize = (15 * fontSize / 100).toFixed(1) + 'px';
+  updateThemeBuilderBgPreview();
 }
 
 // ── "Vorlage"-Leiste im Theme-Editor ─────────────────────────────────────
@@ -712,18 +878,30 @@ function renderThemeTemplateStrip() {
   row.innerHTML = '';
 
   const templates = THEME_REGISTRY
-    .map(reg => ({ name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg: themeBackgrounds[reg.id] || null, calendarImageTheme: 'cozy', startHeaderBanner: 'scifi', brandingTheme: BRANDING_THEMES[0].id, brandingUseLogo: false }))
-    .concat(customThemes.map(ct => ({
-      name: ct.name,
-      core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
-      cardOpacity: ct.cardOpacity ?? 100,
-      fontSize: ct.fontSize ?? 100,
-      bg: ct.bg || null,
-      calendarImageTheme: (ct.calendar && ct.calendar.imageTheme) || 'cozy',
-      startHeaderBanner: (ct.startHeader && ct.startHeader.banner) || 'scifi',
-      brandingTheme: (ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id,
-      brandingUseLogo: !!(ct.branding && ct.branding.useLogo),
-    })));
+    .map(reg => {
+      const bg = migrateBgMeta(themeBackgrounds[reg.id] || null);
+      const calendarImageTheme = 'cozy', startHeaderBanner = 'scifi', brandingTheme = BRANDING_THEMES[0].id;
+      return {
+        name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg,
+        calendarImageTheme, startHeaderBanner, brandingTheme, brandingUseLogo: false,
+        graphics: detectGraphicsMode(null, bg ? bg.source : null, calendarImageTheme, startHeaderBanner, brandingTheme),
+      };
+    })
+    .concat(customThemes.map(ct => {
+      const bg = migrateBgMeta(ct.bg || null);
+      const calendarImageTheme = (ct.calendar && ct.calendar.imageTheme) || 'cozy';
+      const startHeaderBanner = (ct.startHeader && ct.startHeader.banner) || 'scifi';
+      const brandingTheme = (ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id;
+      return {
+        name: ct.name,
+        core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
+        cardOpacity: ct.cardOpacity ?? 100,
+        fontSize: ct.fontSize ?? 100,
+        bg, calendarImageTheme, startHeaderBanner, brandingTheme,
+        brandingUseLogo: !!(ct.branding && ct.branding.useLogo),
+        graphics: detectGraphicsMode(ct.graphics || null, bg ? bg.source : null, calendarImageTheme, startHeaderBanner, brandingTheme),
+      };
+    }));
 
   templates.forEach(t => {
     const btn = document.createElement('button');
@@ -758,49 +936,130 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-branding-logo').checked = !!t.brandingUseLogo;
   renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
-  // Hintergrundbild der Vorlage übernehmen — läuft über denselben Weg wie
-  // eine manuell gewählte Datei (_teBuilderPendingFile), dadurch erzeugt
+  // Hintergrund-Quelle + Größe/Overlay der Vorlage übernehmen. Ein eigenes
+  // Bild (source:'custom') läuft dabei über denselben Weg wie eine manuell
+  // gewählte Datei (_teBuilderPendingFile), dadurch erzeugt
   // resolveThemeBuilderBg() beim Speichern automatisch einen eigenen,
-  // unabhängigen IndexedDB-Eintrag statt eine Referenz zu teilen.
+  // unabhängigen IndexedDB-Eintrag statt eine Referenz zu teilen. Ein
+  // Theme-Hintergrund (Cozy/Sci-Fi/…) braucht dafür keinen IndexedDB-
+  // Zugriff — nur der Quellenwert selbst wird übernommen.
+  renderBackgroundSourceSelect();
+  document.getElementById('theme-builder-bg-source').value = (t.bg && t.bg.source) || 'none';
+  document.getElementById('theme-builder-bg-size').value = (t.bg && t.bg.size) || 'cover';
+  document.getElementById('theme-builder-bg-dim').value = (t.bg && t.bg.dim) ?? 40;
+  document.getElementById('theme-builder-bg-dim-label').textContent = ((t.bg && t.bg.dim) ?? 40) + '%';
   _teBuilderPendingFile = null;
   _teBuilderExistingBg = null;
   _teBuilderBgCleared = false;
-  if (t.bg && t.bg.assetId && t.bg.enabled !== false) {
+  if (t.bg && t.bg.source === 'custom' && t.bg.assetId) {
     getBackgroundAsset(t.bg.assetId).then(blob => {
       if (!blob) return;
       _teBuilderPendingFile = new File([blob], t.bg.name || 'hintergrund.jpg', { type: blob.type });
       syncThemeBuilderBgUI();
+      updateThemeBuilderBgPreview();
     }).catch(() => {});
   }
 
   syncThemeBuilderBgUI();
+
+  // Grafische Elemente: Modus + gemeinsames Theme der Vorlage übernehmen.
+  // Die vier Einzelwerte oben wurden gerade bereits gesetzt — im Modus
+  // "theme" ruft applyGraphicsThemeToControls() sie hier nur nochmal
+  // konsistent auf (harmlos, da sie laut t.graphics ohnehin bereits
+  // übereinstimmen), im Modus "custom" bleiben sie unverändert stehen.
+  renderGraphicsThemeSelect();
+  const graphics = t.graphics || { mode: 'custom' };
+  document.getElementById('theme-builder-graphics-theme').value = graphics.theme || BRANDING_THEMES[0].id;
+  setGraphicsModeUI(graphics.mode);
+  if (graphics.mode === 'theme') applyGraphicsThemeToControls(graphics.theme || BRANDING_THEMES[0].id);
+
   updateThemeBuilderPreview();
 }
 
 // ── Hintergrundbild-Sektion innerhalb des Builders ──────────────────────
+// Quelle (Dropdown) bestimmt, welche Teile sichtbar sind: Datei-Zeile nur
+// bei "Eigenes Bild", Größe/Overlay bei jeder Quelle außer "Kein Bild"
+// (gilt jetzt auch für Cozy/Sci-Fi/künftige Themes, siehe applyThemeBackground()).
 function syncThemeBuilderBgUI() {
+  const sourceSel = document.getElementById('theme-builder-bg-source');
+  const customRow = document.getElementById('theme-builder-bg-custom-row');
   const filenameEl = document.getElementById('theme-builder-bg-filename');
   const optRow = document.getElementById('theme-builder-bg-options');
   const sizeSel = document.getElementById('theme-builder-bg-size');
   const dimSlider = document.getElementById('theme-builder-bg-dim');
   const dimLabel = document.getElementById('theme-builder-bg-dim-label');
-  const enabledCb = document.getElementById('theme-builder-bg-enabled');
+
+  const source = sourceSel.value;
+  customRow.classList.toggle('hidden', source !== 'custom');
+  optRow.classList.toggle('hidden', source === 'none');
 
   const pendingName = _teBuilderPendingFile ? _teBuilderPendingFile.name : null;
-  const meta = _teBuilderBgCleared ? null : (pendingName ? { name: pendingName, size: sizeSel.value, dim: parseInt(dimSlider.value, 10), enabled: enabledCb.checked } : _teBuilderExistingBg);
-  const has = !!(meta && (meta.name || meta.assetId));
+  const hasCustomFile = !_teBuilderBgCleared && !!(pendingName || (_teBuilderExistingBg && _teBuilderExistingBg.assetId));
+  filenameEl.textContent = hasCustomFile ? (pendingName || _teBuilderExistingBg.name || 'Bild geladen') : 'Kein Bild ausgewählt';
 
-  filenameEl.textContent = has ? (meta.name || 'Bild geladen') : 'Kein Bild ausgewählt';
-  optRow.classList.toggle('hidden', !has);
-  if (has && !pendingName) {
-    sizeSel.value = meta.size || 'cover';
-    dimSlider.value = meta.dim ?? 40;
-    dimLabel.textContent = (meta.dim ?? 40) + '%';
-    enabledCb.checked = meta.enabled !== false;
+  if (_teBuilderExistingBg && !pendingName) {
+    sizeSel.value = _teBuilderExistingBg.size || 'cover';
+    dimSlider.value = _teBuilderExistingBg.dim ?? 40;
+    dimLabel.textContent = (_teBuilderExistingBg.dim ?? 40) + '%';
   }
 }
 
+// Kleine Live-Vorschau direkt in #theme-builder-preview (dieselbe Box, die
+// auch Farbe/Transparenz/Schriftgröße vorschaut) — zeigt die gewählte
+// Hintergrundquelle sofort an, ohne die tatsächliche Seite zu verändern
+// (nutzt eine eigene Object-URL, unabhängig von _teCurrentBgObjectUrl der
+// echten Seite). Der Tint verwendet die im Editor gerade eingestellte
+// Hintergrundfarbe (#theme-builder-bg), nicht die des aktiven UI-Themes.
+function updateThemeBuilderBgPreview() {
+  const preview = document.getElementById('theme-builder-preview');
+  const sourceSel = document.getElementById('theme-builder-bg-source');
+  if (!preview || !sourceSel) return;
+  if (_teBuilderPreviewObjectUrl) { URL.revokeObjectURL(_teBuilderPreviewObjectUrl); _teBuilderPreviewObjectUrl = null; }
+
+  const sizeSel = document.getElementById('theme-builder-bg-size');
+  const dimSlider = document.getElementById('theme-builder-bg-dim');
+  const meta = { size: sizeSel.value, dim: parseInt(dimSlider.value, 10) };
+  const rgb = parseColorToRgb(document.getElementById('theme-builder-bg').value) || { r: 0, g: 0, b: 0 };
+
+  const setLayers = (url) => {
+    const layers = buildBgLayers(url, meta, rgb);
+    if (!layers) {
+      preview.style.backgroundImage = '';
+      preview.style.backgroundSize = '';
+      preview.style.backgroundPosition = '';
+      preview.style.backgroundRepeat = '';
+      return;
+    }
+    Object.assign(preview.style, layers);
+  };
+
+  const source = sourceSel.value;
+  if (source === 'none') { setLayers(null); return; }
+
+  if (source === 'custom') {
+    if (!_teBuilderBgCleared && _teBuilderPendingFile) {
+      const url = URL.createObjectURL(_teBuilderPendingFile);
+      _teBuilderPreviewObjectUrl = url;
+      setLayers(url);
+    } else if (!_teBuilderBgCleared && _teBuilderExistingBg && _teBuilderExistingBg.assetId) {
+      getBackgroundAsset(_teBuilderExistingBg.assetId).then(blob => {
+        if (!blob) { setLayers(null); return; }
+        const url = URL.createObjectURL(blob);
+        _teBuilderPreviewObjectUrl = url;
+        setLayers(url);
+      }).catch(() => setLayers(null));
+    } else {
+      setLayers(null);
+    }
+    return;
+  }
+
+  const bt = findBrandingTheme(source);
+  setLayers(bt && bt.background ? bt.background : null);
+}
+
 function initThemeBuilderBgControls() {
+  const sourceSel = document.getElementById('theme-builder-bg-source');
   const pickBtn = document.getElementById('theme-builder-bg-pick-btn');
   const clearBtn = document.getElementById('theme-builder-bg-clear-btn');
   const fileInput = document.getElementById('theme-builder-bg-file-input');
@@ -808,6 +1067,10 @@ function initThemeBuilderBgControls() {
   const dimSlider = document.getElementById('theme-builder-bg-dim');
   const dimLabel = document.getElementById('theme-builder-bg-dim-label');
 
+  sourceSel.addEventListener('change', () => {
+    syncThemeBuilderBgUI();
+    updateThemeBuilderBgPreview();
+  });
   pickBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
@@ -816,46 +1079,55 @@ function initThemeBuilderBgControls() {
     _teBuilderPendingFile = file;
     _teBuilderBgCleared = false;
     syncThemeBuilderBgUI();
+    updateThemeBuilderBgPreview();
   });
   clearBtn.addEventListener('click', () => {
     _teBuilderPendingFile = null;
     _teBuilderBgCleared = true;
     syncThemeBuilderBgUI();
+    updateThemeBuilderBgPreview();
   });
-  dimSlider.addEventListener('input', () => { dimLabel.textContent = dimSlider.value + '%'; });
+  sizeSel.addEventListener('change', updateThemeBuilderBgPreview);
+  dimSlider.addEventListener('input', () => {
+    dimLabel.textContent = dimSlider.value + '%';
+    updateThemeBuilderBgPreview();
+  });
 }
 
 // Löst die Hintergrundbild-Auswahl des Builders in konkrete bg-Metadaten
 // auf und schreibt die Bilddaten (falls neu) erst jetzt nach IndexedDB —
-// wird nur beim tatsächlichen Speichern des Themes aufgerufen.
+// wird nur beim tatsächlichen Speichern des Themes aufgerufen. assetId/
+// name eines bereits vorhandenen eigenen Bildes bleiben auch dann
+// erhalten, wenn die Quelle gerade auf "Kein Bild"/ein Theme-Hintergrund
+// steht — nur "Entfernen" oder ein neu gewähltes Bild ändern das wirklich
+// (siehe Kommentar in syncThemeBuilderBgUI). Dadurch geht ein eigenes
+// Bild nicht verloren, nur weil kurz eine andere Quelle ausprobiert wurde.
 function resolveThemeBuilderBg() {
+  const source = document.getElementById('theme-builder-bg-source').value;
   const sizeSel = document.getElementById('theme-builder-bg-size');
   const dimSlider = document.getElementById('theme-builder-bg-dim');
-  const enabledCb = document.getElementById('theme-builder-bg-enabled');
+  const size = sizeSel.value;
+  const dim = parseInt(dimSlider.value, 10);
 
   if (_teBuilderBgCleared) {
     if (_teBuilderExistingBg && _teBuilderExistingBg.assetId) deleteBackgroundAsset(_teBuilderExistingBg.assetId);
-    return Promise.resolve(null);
+    return Promise.resolve({ source, size, dim });
   }
   if (_teBuilderPendingFile) {
     const assetId = 'bg_' + Date.now();
     return putBackgroundAsset(assetId, _teBuilderPendingFile).then(() => {
       if (_teBuilderExistingBg && _teBuilderExistingBg.assetId) deleteBackgroundAsset(_teBuilderExistingBg.assetId);
-      return { assetId, name: _teBuilderPendingFile.name, size: sizeSel.value, dim: parseInt(dimSlider.value, 10), enabled: enabledCb.checked };
+      return { source, assetId, name: _teBuilderPendingFile.name, size, dim };
     }).catch(e => {
       console.warn('Theme-Engine: Hintergrundbild konnte nicht gespeichert werden', e);
       alert('Hintergrundbild konnte nicht gespeichert werden — dieser Browser unterstützt hier evtl. kein IndexedDB (kommt z.B. vor, wenn Nook als lokale Datei geöffnet wird). Das Theme wird ohne Hintergrundbild gespeichert.');
-      return _teBuilderExistingBg || null;
+      return Object.assign({}, _teBuilderExistingBg, { source: 'none', size, dim });
     });
   }
-  // Kein neues Bild gewählt, keine Löschung — bestehende Metadaten ggf.
-  // nur in Größe/Abdunkelung/aktiv aktualisieren.
-  if (_teBuilderExistingBg) {
-    return Promise.resolve(Object.assign({}, _teBuilderExistingBg, {
-      size: sizeSel.value, dim: parseInt(dimSlider.value, 10), enabled: enabledCb.checked,
-    }));
-  }
-  return Promise.resolve(null);
+  // Kein neues Bild gewählt, keine Löschung — bestehende Metadaten (falls
+  // vorhanden) bleiben für ein mögliches späteres Zurückschalten auf
+  // "Eigenes Bild" erhalten; nur Quelle/Größe/Abdunkelung werden aktualisiert.
+  return Promise.resolve(Object.assign({}, _teBuilderExistingBg, { source, size, dim }));
 }
 
 function saveThemeBuilder() {
@@ -881,6 +1153,15 @@ function saveThemeBuilder() {
     theme: document.getElementById('theme-builder-branding-theme').value,
     useLogo: document.getElementById('theme-builder-branding-logo').checked,
   };
+  // Grafische Elemente: nur Modus + gewähltes gemeinsames Theme werden
+  // gespeichert (Punkt 20) — die vier tatsächlichen Werte oben
+  // (calendar/startHeader/branding.theme/bg.source) sind im Modus "theme"
+  // durch applyGraphicsThemeToControls() bereits live konsistent gehalten
+  // worden, hier also keine zusätzliche Zuweisung nötig.
+  const graphics = {
+    mode: _teBuilderGraphicsMode,
+    theme: document.getElementById('theme-builder-graphics-theme').value,
+  };
   const vars = deriveThemeVars(core, cardOpacity, fontSize);
   const family = teLuminance(core.bg) < 128 ? 'dark' : 'light';
   const editId = _teBuilderEditId;
@@ -890,13 +1171,13 @@ function saveThemeBuilder() {
       const ct = getCustomTheme(editId);
       if (ct) {
         ct.name = name; ct.coreColors = core; ct.vars = vars; ct.family = family;
-        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader; ct.branding = branding;
+        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader; ct.branding = branding; ct.graphics = graphics;
         saveCustomThemes();
         if (theme === ct.id) setTheme(ct.id); // sofort neu anwenden, falls gerade aktiv
       }
     } else {
       const id = 'custom_' + Date.now();
-      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader, branding });
+      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader, branding, graphics });
       saveCustomThemes();
       setTheme(id);
       if (typeof renderThemeSettings === 'function') renderThemeSettings();
@@ -1096,4 +1377,5 @@ function injectThemeBuilderListeners() {
 injectCustomFontFaces();
 injectThemeBuilderListeners();
 initThemeBuilderBgControls();
+initThemeBuilderGraphicsControls();
 initThemeBgControls();
