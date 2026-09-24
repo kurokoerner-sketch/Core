@@ -383,6 +383,16 @@
 [data-cal-image-theme="scifi"] .cal-hero-autumn { --cal-hero-img: url('../assets/images sci-fi/sci-fi fall.png'); }
 [data-cal-image-theme="scifi"] .cal-hero-winter { --cal-hero-img: url('../assets/images sci-fi/sci-fi winter.png'); }
 
+[data-cal-image-theme="forest"] .cal-hero-spring { --cal-hero-img: url('../assets/forest/forest spring.png'); }
+[data-cal-image-theme="forest"] .cal-hero-summer { --cal-hero-img: url('../assets/forest/forest summer.png'); }
+[data-cal-image-theme="forest"] .cal-hero-autumn { --cal-hero-img: url('../assets/forest/forest fall.png'); }
+[data-cal-image-theme="forest"] .cal-hero-winter { --cal-hero-img: url('../assets/forest/forest winter.png'); }
+
+[data-cal-image-theme="royal"] .cal-hero-spring { --cal-hero-img: url('../assets/royal/royal spring.png'); }
+[data-cal-image-theme="royal"] .cal-hero-summer { --cal-hero-img: url('../assets/royal/royal summer.png'); }
+[data-cal-image-theme="royal"] .cal-hero-autumn { --cal-hero-img: url('../assets/royal/royal fall.png'); }
+[data-cal-image-theme="royal"] .cal-hero-winter { --cal-hero-img: url('../assets/royal/royal winter.png'); }
+
 /* "Kein Bild": --cal-hero-img wird zu "none" — das ::before behält nur
    seine erste background-image-Ebene (den theme-abhängigen Verlauf über
    --surface/--bg), keine leere Fläche, kein zusätzlicher Sonderfall. */

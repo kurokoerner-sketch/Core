@@ -368,9 +368,26 @@ function applyStartHeaderTheme(id) {
 // renderBackgroundSourceSelect()/applyThemeBackground()) genutzt — dieselbe
 // Registry für alle drei Theme-Asset-Arten (Icon/Logo/Hintergrund), damit
 // ein künftiges neues Theme an nur EINER Stelle ergänzt werden muss.
+// calendar/startHeader sind hier nur für die Dropdown-Verfügbarkeit
+// hinterlegt (renderCalendarThemeSelect()/renderStartHeaderThemeSelect()
+// unten blenden ein Theme ohne diese Felder automatisch aus, statt einen
+// kaputten Pfad zu zeigen) — die tatsächliche Bildauswahl für Kalender/
+// Start-Header läuft weiterhin rein über CSS-Attributselektoren
+// (css/calendar.css [data-cal-image-theme], css/today.css
+// [data-start-header-theme]), exakt wie bei Cozy/Sci-Fi schon bisher.
 const BRANDING_THEMES = [
-  { id: 'cozy',  label: 'Cozy',   icon: "assets/cozy/cozy icon.svg",            iconType: 'image/svg+xml', logo: "assets/cozy/cozy logo.png",            background: "assets/cozy/cozy background.png" },
-  { id: 'scifi', label: 'Sci-Fi', icon: "assets/images sci-fi/sci-fi icon.png", iconType: 'image/png',      logo: "assets/images sci-fi/sci-fi logo.png", background: "assets/images sci-fi/sci-fi background.png" },
+  { id: 'cozy',  label: 'Cozy',   icon: "assets/cozy/cozy icon.svg",            iconType: 'image/svg+xml', logo: "assets/cozy/cozy logo.png",            background: "assets/cozy/cozy background.png",
+    calendar: { spring: "assets/cozy/cozy spring.png", summer: "assets/cozy/cozy summer.png", fall: "assets/cozy/cozy fall.png", winter: "assets/cozy/cozy winter.png" },
+    startHeader: { day: "assets/cozy/cozy start banner day.png", night: "assets/cozy/cozy start banner night.png" } },
+  { id: 'scifi', label: 'Sci-Fi', icon: "assets/images sci-fi/sci-fi icon.png", iconType: 'image/png',      logo: "assets/images sci-fi/sci-fi logo.png", background: "assets/images sci-fi/sci-fi background.png",
+    calendar: { spring: "assets/images sci-fi/sci-fi spring.png", summer: "assets/images sci-fi/sci-fi summer.png", fall: "assets/images sci-fi/sci-fi fall.png", winter: "assets/images sci-fi/sci-fi winter.png" },
+    startHeader: { day: "assets/images sci-fi/sci-fi start banner day.png", night: "assets/images sci-fi/sci-fi start banner night.png" } },
+  { id: 'forest', label: 'Forest', icon: "assets/forest/forest icon.png", iconType: 'image/png', logo: "assets/forest/forest logo.png", background: "assets/forest/forest background.png",
+    calendar: { spring: "assets/forest/forest spring.png", summer: "assets/forest/forest summer.png", fall: "assets/forest/forest fall.png", winter: "assets/forest/forest winter.png" },
+    startHeader: { day: "assets/forest/forest start banner day.png", night: "assets/forest/forest start banner night.png" } },
+  { id: 'royal', label: 'Royal', icon: "assets/royal/royal icon.png", iconType: 'image/png', logo: "assets/royal/royal logo.png", background: "assets/royal/royal background.png",
+    calendar: { spring: "assets/royal/royal spring.png", summer: "assets/royal/royal summer.png", fall: "assets/royal/royal fall.png", winter: "assets/royal/royal winter.png" },
+    startHeader: { day: "assets/royal/royal start banner day.png", night: "assets/royal/royal start banner night.png" } },
 ];
 
 function getBrandingTheme(id) {
@@ -409,6 +426,26 @@ function renderBackgroundSourceSelect() {
     .concat(BRANDING_THEMES.filter(b => b.background).map(b => `<option value="${b.id}">${b.label}</option>`))
     .concat(['<option value="custom">Eigenes Bild</option>']);
   sel.innerHTML = options.join('');
+}
+
+// Dasselbe Prinzip für Kalender- und Start-Header-Dropdown — "Kein Bild"/
+// "Kein Banner" + jedes Theme aus BRANDING_THEMES, das die jeweiligen
+// Assets besitzt (.calendar bzw. .startHeader). Ein künftiges Theme ohne
+// vollständige Kalender-/Start-Header-Bilder taucht dort dadurch
+// automatisch nicht auf, statt eine kaputte Option anzubieten.
+function renderCalendarThemeSelect() {
+  const sel = document.getElementById('theme-builder-calendar-image');
+  if (!sel) return;
+  sel.innerHTML = ['<option value="none">Kein Bild</option>']
+    .concat(BRANDING_THEMES.filter(b => b.calendar).map(b => `<option value="${b.id}">${b.label}</option>`))
+    .join('');
+}
+function renderStartHeaderThemeSelect() {
+  const sel = document.getElementById('theme-builder-start-header');
+  if (!sel) return;
+  sel.innerHTML = ['<option value="none">Kein Banner</option>']
+    .concat(BRANDING_THEMES.filter(b => b.startHeader).map(b => `<option value="${b.id}">${b.label}</option>`))
+    .join('');
 }
 
 function applyBranding(id) {
@@ -797,7 +834,9 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-fontsize').value = fontSize;
   document.getElementById('theme-builder-fontsize-label').textContent = fontSize + '%';
   document.getElementById('theme-builder-delete').style.display = existing ? '' : 'none';
+  renderCalendarThemeSelect();
   document.getElementById('theme-builder-calendar-image').value = (existing && existing.calendar && existing.calendar.imageTheme) || 'cozy';
+  renderStartHeaderThemeSelect();
   document.getElementById('theme-builder-start-header').value = (existing && existing.startHeader && existing.startHeader.banner) || 'scifi';
   renderBrandingThemeSelect();
   document.getElementById('theme-builder-branding-theme').value = (existing && existing.branding && existing.branding.theme) || BRANDING_THEMES[0].id;
@@ -929,7 +968,9 @@ function applyThemeTemplate(t) {
   document.getElementById('theme-builder-accent').value = t.core.accent;
   document.getElementById('theme-builder-opacity').value = t.cardOpacity;
   document.getElementById('theme-builder-fontsize').value = t.fontSize;
+  renderCalendarThemeSelect();
   document.getElementById('theme-builder-calendar-image').value = t.calendarImageTheme || 'cozy';
+  renderStartHeaderThemeSelect();
   document.getElementById('theme-builder-start-header').value = t.startHeaderBanner || 'scifi';
   renderBrandingThemeSelect();
   document.getElementById('theme-builder-branding-theme').value = t.brandingTheme || BRANDING_THEMES[0].id;

@@ -2699,38 +2699,34 @@
         </div>
 
         <!-- Kalender — Modul: Theme-Engine. Wählt nur das saisonale
-             Bannerbild-Set des Kalender-Hero (assets/cozy vs. assets/images
-             sci-fi), unabhängig vom allgemeinen Theme-Hintergrundbild oben.
-             Pro Theme gespeichert (ct.calendar.imageTheme), angewendet über
+             Bannerbild-Set des Kalender-Hero, unabhängig vom allgemeinen
+             Theme-Hintergrundbild oben. Optionen werden von
+             renderCalendarThemeSelect() aus BRANDING_THEMES erzeugt
+             (nur Themes mit vollständigem Kalender-Bildersatz), damit ein
+             künftiges weiteres Theme hier automatisch erscheint. Pro
+             Theme gespeichert (ct.calendar.imageTheme), angewendet über
              applyCalendarImageTheme() → [data-cal-image-theme] in
              css/calendar.css. -->
         <div class="tb-group">
           <span class="panel-label">Kalender</span>
           <div class="tb-bg-opt-row">
             <span>Bildthema</span>
-            <select class="modal-select" id="theme-builder-calendar-image" style="width:auto;">
-              <option value="none">Kein Bild</option>
-              <option value="cozy">Cozy</option>
-              <option value="scifi">Sci-Fi</option>
-            </select>
+            <select class="modal-select" id="theme-builder-calendar-image" style="width:auto;"></select>
           </div>
         </div>
 
         <!-- Start Header — Modul: Theme-Engine. Exakt dasselbe Muster wie
              „Kalender" oben, nur für das Start-Banner (css/today.css:
              #today-main-header). Unabhängig von Kalender-Bildthema UND vom
-             allgemeinen Theme-Hintergrundbild. Pro Theme gespeichert
-             (ct.startHeader.banner), angewendet über
+             allgemeinen Theme-Hintergrundbild. Optionen werden von
+             renderStartHeaderThemeSelect() aus BRANDING_THEMES erzeugt.
+             Pro Theme gespeichert (ct.startHeader.banner), angewendet über
              applyStartHeaderTheme() → [data-start-header-theme]. -->
         <div class="tb-group">
           <span class="panel-label">Start Header</span>
           <div class="tb-bg-opt-row">
             <span>Bildthema</span>
-            <select class="modal-select" id="theme-builder-start-header" style="width:auto;">
-              <option value="none">Kein Banner</option>
-              <option value="cozy">Cozy</option>
-              <option value="scifi">Sci-Fi</option>
-            </select>
+            <select class="modal-select" id="theme-builder-start-header" style="width:auto;"></select>
           </div>
         </div>
 
