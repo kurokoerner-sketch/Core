@@ -48,7 +48,7 @@ const THEME_REGISTRY = [
 // einstellbar. Prio-/Budget-/Code-Panel-Farben bleiben bewusst invariant
 // (main.css-Kommentar) und sind hier nicht enthalten.
 const CUSTOM_THEME_VARS = [
-  '--bg', '--bg-2', '--surface', '--surface-2', '--surface-3',
+  '--bg', '--bg-2', '--surface', '--surface-2', '--surface-3', '--surface-solid',
   '--border', '--border-strong',
   '--text', '--text-2', '--text-3', '--accent-soft',
   '--sage', '--sage-dark', '--sage-light', '--sage-bg', '--sage-border',
@@ -327,9 +327,14 @@ function applyCustomThemeVars(id) {
 // dieses Feld nicht → Fallback 'cozy', identisch zum bisherigen, immer
 // fest verdrahteten Verhalten (siehe Punkt 6: kein bestehendes Theme darf
 // dadurch kaputtgehen).
-function applyCalendarImageTheme(id) {
+// override (optional): explizit übergebener Wert statt aus ct gelesen —
+// von previewGraphicsLive() genutzt, um den noch ungespeicherten Formular-
+// wert des Theme-Editors live auf der echten Seite zu zeigen, ohne die
+// gespeicherten ct-Daten anzufassen. Alle bisherigen Aufrufe (main.js,
+// Init unten) übergeben kein override und verhalten sich unverändert.
+function applyCalendarImageTheme(id, override) {
   const ct = getCustomTheme(id);
-  const imageTheme = (ct && ct.calendar && ct.calendar.imageTheme) || 'cozy';
+  const imageTheme = override !== undefined ? override : ((ct && ct.calendar && ct.calendar.imageTheme) || 'cozy');
   document.documentElement.setAttribute('data-cal-image-theme', imageTheme);
 }
 
@@ -343,9 +348,10 @@ function applyCalendarImageTheme(id) {
 // Themes (eingebaut wie eigen) fest verdrahtet — das bleibt für Themes
 // ohne gespeicherten Wert unverändert (Punkt 10: kein bestehendes
 // Verhalten darf sich durch die neue Einstellung ändern).
-function applyStartHeaderTheme(id) {
+// override: siehe applyCalendarImageTheme() oben — dasselbe Prinzip.
+function applyStartHeaderTheme(id, override) {
   const ct = getCustomTheme(id);
-  const banner = (ct && ct.startHeader && ct.startHeader.banner) || 'scifi';
+  const banner = override !== undefined ? override : ((ct && ct.startHeader && ct.startHeader.banner) || 'scifi');
   document.documentElement.setAttribute('data-start-header-theme', banner);
 }
 
@@ -388,7 +394,28 @@ const BRANDING_THEMES = [
   { id: 'royal', label: 'Royal', icon: "assets/royal/royal icon.png", iconType: 'image/png', logo: "assets/royal/royal logo.png", background: "assets/royal/royal background.png",
     calendar: { spring: "assets/royal/royal spring.png", summer: "assets/royal/royal summer.png", fall: "assets/royal/royal fall.png", winter: "assets/royal/royal winter.png" },
     startHeader: { day: "assets/royal/royal start banner day.png", night: "assets/royal/royal start banner night.png" } },
+  { id: 'cyberpunk', label: 'Cyberpunk', icon: "assets/cyber-punk/cyber-punk icon.png", iconType: 'image/png', logo: "assets/cyber-punk/cyber-punk logo.png", background: "assets/cyber-punk/cyber-punk background.png",
+    calendar: { spring: "assets/cyber-punk/cyber-punk spring.png", summer: "assets/cyber-punk/cyber-punk summer.png", fall: "assets/cyber-punk/cyber-punk fall.png", winter: "assets/cyber-punk/cyber-punk winter.png" },
+    startHeader: { day: "assets/cyber-punk/cyber-punk start banner day.png", night: "assets/cyber-punk/cyber-punk start banner night.png" } },
+  // "Kein Theme" — bewusst als Registry-Eintrag OHNE icon/logo/background/
+  // calendar/startHeader, ganz am Ende (NICHT an Index 0 — mehrere Stellen
+  // im Code nutzen BRANDING_THEMES[0] als sicheren Standard-Theme-
+  // Fallback, siehe applyBranding()/openThemeBuilder() etc., und dürften
+  // dadurch nie "Kein Theme" als Default bekommen). Weil renderCalendar-
+  // ThemeSelect()/renderStartHeaderThemeSelect()/renderBackgroundSource-
+  // Select() ihre Optionen nach dem jeweiligen Asset-Feld filtern, taucht
+  // dieser Eintrag dort automatisch NICHT auf ("Kein Bild"/"Kein Banner"
+  // decken das dort bereits ab) — er erscheint nur in den ungefilterten
+  // renderBrandingThemeSelect() (Logo & Icon) und renderGraphicsThemeSelect()
+  // (gemeinsames "Theme auswählen"), wo er tatsächlich gebraucht wird.
+  { id: 'none', label: 'Kein Theme' },
 ];
+
+// Neutrales, bereits vorhandenes CORE-Icon (nicht theme-spezifisch) für
+// Favicon + Taskbar, solange Logo & Icon auf "Kein Theme" steht — verhindert
+// einen kaputten Asset-Pfad, ohne ungefragt auf Cozy/Sci-Fi/Forest/Royal
+// zurückzufallen. Bislang an keiner Stelle im Projekt referenziert.
+const NEUTRAL_BRANDING_ICON = "assets/nook_icon.png";
 
 function getBrandingTheme(id) {
   return BRANDING_THEMES.find(b => b.id === id) || BRANDING_THEMES[0];
@@ -448,24 +475,41 @@ function renderStartHeaderThemeSelect() {
     .join('');
 }
 
-function applyBranding(id) {
+// override (optional): {theme, useLogo} — siehe applyCalendarImageTheme()
+// oben, hier zusätzlich für den Logo-Toggle. Nur von previewGraphicsLive()
+// verwendet; ohne override unverändertes bisheriges Verhalten.
+function applyBranding(id, override) {
   const ct = getCustomTheme(id);
-  const brandingId = (ct && ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id;
-  const useLogo = !!(ct && ct.branding && ct.branding.useLogo);
+  const brandingId = override ? override.theme : ((ct && ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id);
+  // Default AN gilt nur innerhalb eines tatsächlich eigenen Themes (Punkt
+  // 13/14) — eingebaute Themes (kein ct) haben nie ein Logo/Icon-Toggle
+  // gehabt und zeigen wie bisher ihr Icon, damit sich für sie durch diese
+  // Änderung nichts ändert.
+  const useLogo = override ? !!override.useLogo : (ct ? resolveUseLogo(ct.branding) : false);
   const bt = getBrandingTheme(brandingId);
+  // "Kein Theme": bt ist der neutrale Registry-Eintrag ohne icon/logo (oder
+  // — falls id mal ungültig/entfernt wäre — getBrandingTheme()s Fallback
+  // fehlt ebenfalls ein icon). In beiden Fällen NICHT auf Cozy/Sci-Fi/
+  // Forest/Royal zurückfallen, sondern das neutrale CORE-Icon verwenden —
+  // verhindert einen kaputten Favicon-/Taskbar-Pfad.
+  const isNoTheme = brandingId === 'none' || !bt.icon;
 
   const brandIconEl = document.getElementById('brand-icon');
   const headerEl = document.getElementById('sidebar-header');
   const faviconEl = document.querySelector('link[rel="icon"]');
+  const iconSrc = isNoTheme ? NEUTRAL_BRANDING_ICON : bt.icon;
+  const iconType = isNoTheme ? 'image/png' : bt.iconType;
+  const showLogo = useLogo && !isNoTheme; // kein Theme-Logo ohne Theme
 
-  // Favicon: immer das Icon des Branding-Themes, vom Toggle unberührt.
-  if (faviconEl) { faviconEl.href = bt.icon; faviconEl.type = bt.iconType; }
+  // Favicon: immer das Icon des Branding-Themes (bzw. neutral bei "Kein
+  // Theme"), vom Toggle unberührt.
+  if (faviconEl) { faviconEl.href = iconSrc; faviconEl.type = iconType; }
 
   if (brandIconEl) {
-    brandIconEl.src = useLogo ? bt.logo : bt.icon;
-    brandIconEl.alt = bt.label + (useLogo ? ' Logo' : ' Icon');
+    brandIconEl.src = showLogo ? bt.logo : iconSrc;
+    brandIconEl.alt = isNoTheme ? 'CORE Icon' : (bt.label + (showLogo ? ' Logo' : ' Icon'));
   }
-  if (headerEl) headerEl.classList.toggle('branding-logo-active', useLogo);
+  if (headerEl) headerEl.classList.toggle('branding-logo-active', showLogo);
 }
 
 // ── Farb-Hilfsfunktionen für den Theme-Builder ──────────────────────────
@@ -496,6 +540,11 @@ function deriveThemeVars(core, cardOpacityPct, fontSizePct) {
   return {
     '--bg':            core.bg,
     '--bg-2':          mixHex(core.bg, tint, 0.05),
+    // Roh-/Vollton-Wert VOR der Kartendurchlässigkeit — Pendant zu
+    // --surface-solid der eingebauten Themes (main.css). Wird u.a. von der
+    // Schnellnotiz (css/today.css: --quicknote-bg) verwendet, die dieselbe
+    // Kartenfarbe zeigen, aber nie transparent werden soll.
+    '--surface-solid': core.surface,
     '--surface':       mix(core.surface),
     '--surface-2':     mix(mixHex(core.surface, tint, 0.06)),
     '--surface-3':     mix(mixHex(core.surface, tint, 0.12)),
@@ -746,37 +795,68 @@ let _teBuilderBgCleared   = false;  // Nutzer hat "Entfernen" geklickt
 let _teBuilderPreviewObjectUrl = null; // separate Object-URL nur für die kleine Editor-Vorschau (nicht die echte Seite)
 let _teBuilderGraphicsMode = 'theme';  // 'theme' | 'custom' — Zustand des "Grafische Elemente"-Umschalters
 
-// ── "Grafische Elemente" — gemeinsamer Modus für Hintergrund/Kalender/
-// Start-Header/Logo & Icon ───────────────────────────────────────────────
-// Ersetzt keine der vier Funktionen, setzt im Modus "theme" nur zentral
-// deren bereits vorhandene Controls (siehe applyGraphicsThemeToControls()
-// unten) — die einzige Stelle, die das tut (Punkt 21: keine doppelte
-// Zuweisungslogik).
+// ── "Grafische Elemente" — gemeinsamer Modus für Kalender/Start-Header/
+// Logo & Icon ─────────────────────────────────────────────────────────────
+// Der Hintergrund ist bewusst NICHT Teil dieser Kategorie (eigenständige
+// Einstellung, siehe #theme-builder-bg-source weiter oben im Markup) —
+// "Theme auswählen" darf ihn nie verändern. Ersetzt keine der drei
+// Funktionen, setzt im Modus "theme" nur zentral deren bereits vorhandene
+// Controls (siehe applyGraphicsThemeToControls() unten) — die einzige
+// Stelle, die das tut (Punkt 21: keine doppelte Zuweisungslogik).
 
 // Ermittelt Modus + Theme für ein bestehendes Theme: nutzt ein bereits
-// gespeichertes ct.graphics, falls vorhanden; sonst wird aus den vier
-// tatsächlichen Einzelwerten abgeleitet — stimmen alle vier bereits mit
-// einem gültigen BRANDING_THEMES-Eintrag überein, war es faktisch schon
-// "ein Theme für alles" (→ mode:'theme'), sonst "Individuelle Anpassung".
-// Rein lesend, wie migrateBgMeta() — nichts wird zurückgeschrieben.
-function detectGraphicsMode(explicitGraphics, bgSource, calendarTheme, startHeaderTheme, brandingTheme) {
+// gespeichertes ct.graphics, falls vorhanden; sonst wird aus den drei
+// tatsächlichen Einzelwerten (Kalender/Start-Header/Logo&Icon-Theme —
+// der Hintergrund fließt hier NICHT ein) abgeleitet — stimmen alle drei
+// bereits mit einem gültigen BRANDING_THEMES-Eintrag überein, war es
+// faktisch schon "ein Theme für alles" (→ mode:'theme'), sonst
+// "Individuelle Anpassung". Rein lesend, wie migrateBgMeta() — nichts
+// wird zurückgeschrieben.
+function detectGraphicsMode(explicitGraphics, calendarTheme, startHeaderTheme, brandingTheme) {
   if (explicitGraphics && explicitGraphics.mode) return explicitGraphics;
-  const values = [bgSource, calendarTheme, startHeaderTheme, brandingTheme];
+  const values = [calendarTheme, startHeaderTheme, brandingTheme];
   const allSame = values.every(v => v && v === values[0]) && !!findBrandingTheme(values[0]);
   return allSame ? { mode: 'theme', theme: values[0] } : { mode: 'custom' };
 }
 
-// Zentrale Zuweisung: setzt EIN Theme auf alle vier Einzel-Controls im
-// Builder — Hintergrund/Kalender/Start-Header/Logo&Icon nutzen bereits
-// exakt dieselben BRANDING_THEMES-IDs ("cozy"/"scifi"/…) als Options-
-// Werte, deshalb reicht ein einfaches Durchreichen ohne Übersetzungstabelle.
+// Zentrale Zuweisung: setzt EIN Theme auf die drei Einzel-Controls im
+// Builder (Hintergrund bewusst ausgenommen) — Kalender/Start-Header/
+// Logo&Icon nutzen bereits exakt dieselben BRANDING_THEMES-IDs
+// ("cozy"/"scifi"/…) als Options-Werte, deshalb reicht ein einfaches
+// Durchreichen ohne Übersetzungstabelle.
 function applyGraphicsThemeToControls(themeId) {
-  document.getElementById('theme-builder-bg-source').value = themeId;
   document.getElementById('theme-builder-calendar-image').value = themeId;
   document.getElementById('theme-builder-start-header').value = themeId;
   document.getElementById('theme-builder-branding-theme').value = themeId;
-  syncThemeBuilderBgUI();
-  updateThemeBuilderBgPreview();
+  previewGraphicsLive();
+}
+
+// Live-Vorschau der drei Grafikelemente (Kalender/Start-Header/Logo & Icon
+// + Toggle) auf der ECHTEN Seite — bewusst NUR, wenn das gerade im Editor
+// geöffnete Theme auch das aktuell AKTIVE Theme ist. Sonst würde das
+// Bearbeiten eines anderen (inaktiven) Themes fälschlich den gerade
+// sichtbaren Kalender/Start-Header/Favicon verändern. Liest bewusst die
+// aktuellen, noch NICHT gespeicherten Formularwerte (nicht ct) und
+// übergibt sie als override an die bereits vorhandenen Apply-Funktionen —
+// keine zweite Preview-Implementierung. closeThemeBuilder() stellt beim
+// Schließen ohne Speichern den echten gespeicherten Zustand wieder her.
+function previewGraphicsLive() {
+  if (!_teBuilderEditId || _teBuilderEditId !== theme) return;
+  const calVal = document.getElementById('theme-builder-calendar-image').value;
+  const startVal = document.getElementById('theme-builder-start-header').value;
+  const brandVal = document.getElementById('theme-builder-branding-theme').value;
+  const useLogoVal = document.getElementById('theme-builder-branding-logo').checked;
+  applyCalendarImageTheme(theme, calVal);
+  applyStartHeaderTheme(theme, startVal);
+  applyBranding(theme, { theme: brandVal, useLogo: useLogoVal });
+}
+
+// "Logo verwenden": Standard AN, außer ein gespeicherter Wert sagt
+// ausdrücklich AUS (Punkt 13/14/21) — nimmt das branding-Teilobjekt eines
+// Themes/einer Vorlage entgegen (oder undefined/null, falls noch keins
+// existiert bzw. kein eigenes Theme aktiv ist).
+function resolveUseLogo(brandingObj) {
+  return !brandingObj || brandingObj.useLogo !== false;
 }
 
 // Blendet nur um (Punkt 26: keine Werte verändern, keine Controls neu
@@ -804,6 +884,17 @@ function initThemeBuilderGraphicsControls() {
     setGraphicsModeUI('custom'); // Werte bleiben unverändert (Punkt 16)
   });
   themeSel.addEventListener('change', () => applyGraphicsThemeToControls(themeSel.value));
+
+  // Individuelle Anpassung: bislang hatten diese vier Controls (anders als
+  // Farbe/Transparenz/Schriftgröße oben, die bereits 'input'-Listener auf
+  // updateThemeBuilderPreview() haben) GAR KEINEN Listener — eine Änderung
+  // blieb bis zum Speichern unsichtbar. Jetzt konsistent: jede Änderung
+  // läuft sofort durch dieselbe previewGraphicsLive() wie der gemeinsame
+  // Modus oben.
+  document.getElementById('theme-builder-calendar-image').addEventListener('change', previewGraphicsLive);
+  document.getElementById('theme-builder-start-header').addEventListener('change', previewGraphicsLive);
+  document.getElementById('theme-builder-branding-theme').addEventListener('change', previewGraphicsLive);
+  document.getElementById('theme-builder-branding-logo').addEventListener('change', previewGraphicsLive);
 }
 
 const DEFAULT_BUILDER_CORE = {
@@ -840,9 +931,11 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-start-header').value = (existing && existing.startHeader && existing.startHeader.banner) || 'scifi';
   renderBrandingThemeSelect();
   document.getElementById('theme-builder-branding-theme').value = (existing && existing.branding && existing.branding.theme) || BRANDING_THEMES[0].id;
-  document.getElementById('theme-builder-branding-logo').checked = !!(existing && existing.branding && existing.branding.useLogo);
+  document.getElementById('theme-builder-branding-logo').checked = resolveUseLogo(existing && existing.branding);
   renderFontSelect(core.font);
 
+  // Hintergrund: eigenständig, NICHT Teil der gemeinsamen Grafik-Kategorie
+  // unten — bleibt beim Theme-Wechsel/Moduswechsel dort immer unangetastet.
   renderBackgroundSourceSelect();
   _teBuilderPendingFile = null;
   _teBuilderExistingBg = existing ? migrateBgMeta(existing.bg || null) : null;
@@ -850,15 +943,16 @@ function openThemeBuilder(editId) {
   document.getElementById('theme-builder-bg-source').value = (_teBuilderExistingBg && _teBuilderExistingBg.source) || 'none';
   syncThemeBuilderBgUI();
 
-  // Grafische Elemente: Modus erkennen (gespeichert oder aus den vier
-  // Einzelwerten oben abgeleitet) und Editor entsprechend zeigen. Ein
-  // brandneues Theme (kein "existing") startet bewusst im einfacheren
-  // "Theme auswählen"-Modus mit dem ersten Registry-Eintrag.
+  // Grafische Elemente (Kalender/Start-Header/Logo&Icon-Theme): Modus
+  // erkennen (gespeichert oder aus den drei Einzelwerten oben abgeleitet
+  // — der Hintergrund fließt bewusst NICHT mehr in diese Erkennung ein)
+  // und Editor entsprechend zeigen. Ein brandneues Theme (kein "existing")
+  // startet bewusst im einfacheren "Theme auswählen"-Modus mit dem ersten
+  // Registry-Eintrag.
   renderGraphicsThemeSelect();
   const graphics = existing
     ? detectGraphicsMode(
         existing.graphics || null,
-        _teBuilderExistingBg ? _teBuilderExistingBg.source : null,
         existing.calendar ? existing.calendar.imageTheme : null,
         existing.startHeader ? existing.startHeader.banner : null,
         existing.branding ? existing.branding.theme : null
@@ -875,6 +969,19 @@ function openThemeBuilder(editId) {
 }
 
 function closeThemeBuilder() {
+  // Falls previewGraphicsLive() (s.o.) während der Bearbeitung des
+  // AKTIVEN Themes ungespeicherte Formularwerte live auf die echte Seite
+  // angewendet hat: beim Schließen ohne Speichern zurück auf den
+  // tatsächlich gespeicherten Zustand — sonst bliebe eine nie gespeicherte
+  // Vorschau sichtbar. saveThemeBuilder() ruft bei aktivem Theme bereits
+  // setTheme() (volle Neuanwendung mit den frisch gespeicherten Werten)
+  // VOR closeThemeBuilder() auf — dieser Aufruf hier ist dann ein
+  // harmloses, redundantes Re-Apply derselben (jetzt aktuellen) Daten.
+  if (_teBuilderEditId && _teBuilderEditId === theme) {
+    applyCalendarImageTheme(theme);
+    applyStartHeaderTheme(theme);
+    applyBranding(theme);
+  }
   document.getElementById('theme-builder-modal-overlay').classList.add('hidden');
   _teBuilderEditId = null;
   _teBuilderPendingFile = null;
@@ -922,8 +1029,8 @@ function renderThemeTemplateStrip() {
       const calendarImageTheme = 'cozy', startHeaderBanner = 'scifi', brandingTheme = BRANDING_THEMES[0].id;
       return {
         name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg,
-        calendarImageTheme, startHeaderBanner, brandingTheme, brandingUseLogo: false,
-        graphics: detectGraphicsMode(null, bg ? bg.source : null, calendarImageTheme, startHeaderBanner, brandingTheme),
+        calendarImageTheme, startHeaderBanner, brandingTheme, brandingUseLogo: resolveUseLogo(),
+        graphics: detectGraphicsMode(null, calendarImageTheme, startHeaderBanner, brandingTheme),
       };
     })
     .concat(customThemes.map(ct => {
@@ -937,8 +1044,8 @@ function renderThemeTemplateStrip() {
         cardOpacity: ct.cardOpacity ?? 100,
         fontSize: ct.fontSize ?? 100,
         bg, calendarImageTheme, startHeaderBanner, brandingTheme,
-        brandingUseLogo: !!(ct.branding && ct.branding.useLogo),
-        graphics: detectGraphicsMode(ct.graphics || null, bg ? bg.source : null, calendarImageTheme, startHeaderBanner, brandingTheme),
+        brandingUseLogo: resolveUseLogo(ct.branding),
+        graphics: detectGraphicsMode(ct.graphics || null, calendarImageTheme, startHeaderBanner, brandingTheme),
       };
     }));
 
@@ -1003,11 +1110,13 @@ function applyThemeTemplate(t) {
 
   syncThemeBuilderBgUI();
 
-  // Grafische Elemente: Modus + gemeinsames Theme der Vorlage übernehmen.
-  // Die vier Einzelwerte oben wurden gerade bereits gesetzt — im Modus
-  // "theme" ruft applyGraphicsThemeToControls() sie hier nur nochmal
-  // konsistent auf (harmlos, da sie laut t.graphics ohnehin bereits
-  // übereinstimmen), im Modus "custom" bleiben sie unverändert stehen.
+  // Grafische Elemente (Kalender/Start-Header/Logo&Icon-Theme): Modus +
+  // gemeinsames Theme der Vorlage übernehmen — der Hintergrund oben ist
+  // davon unabhängig und bereits fertig gesetzt. Die drei Einzelwerte
+  // wurden gerade bereits gesetzt — im Modus "theme" ruft
+  // applyGraphicsThemeToControls() sie hier nur nochmal konsistent auf
+  // (harmlos, da sie laut t.graphics ohnehin bereits übereinstimmen), im
+  // Modus "custom" bleiben sie unverändert stehen.
   renderGraphicsThemeSelect();
   const graphics = t.graphics || { mode: 'custom' };
   document.getElementById('theme-builder-graphics-theme').value = graphics.theme || BRANDING_THEMES[0].id;
@@ -1195,10 +1304,12 @@ function saveThemeBuilder() {
     useLogo: document.getElementById('theme-builder-branding-logo').checked,
   };
   // Grafische Elemente: nur Modus + gewähltes gemeinsames Theme werden
-  // gespeichert (Punkt 20) — die vier tatsächlichen Werte oben
-  // (calendar/startHeader/branding.theme/bg.source) sind im Modus "theme"
-  // durch applyGraphicsThemeToControls() bereits live konsistent gehalten
-  // worden, hier also keine zusätzliche Zuweisung nötig.
+  // gespeichert — die drei tatsächlichen Werte oben (calendar/startHeader/
+  // branding.theme) sind im Modus "theme" durch
+  // applyGraphicsThemeToControls() bereits live konsistent gehalten
+  // worden, hier also keine zusätzliche Zuweisung nötig. bg (Hintergrund)
+  // ist bewusst NICHT Teil davon — eigenständig, unten unverändert über
+  // resolveThemeBuilderBg() gespeichert.
   const graphics = {
     mode: _teBuilderGraphicsMode,
     theme: document.getElementById('theme-builder-graphics-theme').value,
