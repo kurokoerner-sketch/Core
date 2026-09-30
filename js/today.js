@@ -198,7 +198,14 @@ function isStartHeaderDaytime(w) {
 function applyStartHeaderDaynight() {
   const w = DB.get('weatherData', null);
   const isDay = isStartHeaderDaytime(w);
-  if (isDay === null) return; // keine Daten → Attribut unangetastet, CSS-Fallback greift
+  // Keine (mehr) gültigen Daten: Attribut aktiv ENTFERNEN statt stehen zu
+  // lassen. Ein zuvor gesetzter Wert (z.B. "night" von einer früheren,
+  // inzwischen ungültig gewordenen Berechnung) würde sonst unbegrenzt
+  // hängen bleiben, obwohl gerade keine verlässliche Grundlage mehr dafür
+  // besteht — genau das "toter Zustand bleibt stehen"-Muster, das laut
+  // Vorgabe vermieden werden soll. Erst mit entferntem Attribut greift der
+  // CSS-Fallback (Day) wie vorgesehen.
+  if (isDay === null) { document.documentElement.removeAttribute('data-start-header-daynight'); return; }
   document.documentElement.setAttribute('data-start-header-daynight', isDay ? 'day' : 'night');
 }
 
@@ -1074,3 +1081,14 @@ renderTodayHeader();
 renderWeather();
 startSidebarClock();
 renderMiniCal();
+
+// Falls der geplante Sunrise-/Sunset-Timer (scheduleStartHeaderDaynightCheck)
+// durch Rechner-/Tab-Schlaf verspätet oder gar nicht ausgeführt wurde: beim
+// Zurückkehren in den Tab den Day/Night-Zustand über den bereits
+// vorhandenen renderWeather()-Weg neu aus der tatsächlichen aktuellen Zeit
+// bestimmen (kein zweiter Polling-Mechanismus, kein blindes Umdrehen des
+// letzten Zustands — renderWeather() ruft ohnehin bei jedem Cache-Treffer
+// oder Refetch applyStartHeaderDaynight() frisch auf).
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') renderWeather();
+});
