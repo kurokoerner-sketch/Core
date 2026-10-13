@@ -134,7 +134,7 @@ const CUSTOM_FONT_FILES = [
   { family: 'Harry P',            source: 'assets/fonts/HARRYP__.TTF', weight: '400', style: 'normal' },
   { family: 'Help Me',            source: 'assets/fonts/HelpMe.ttf', weight: '400', style: 'normal' },
   { family: 'Hoshiko Satsuki',    source: 'assets/fonts/Hoshiko Satsuki.ttf', weight: '400', style: 'normal' },
-  { family: 'Impact Label SWL Reversed', source: 'assets/fonts/Impact Label SWL Reversed.ttf', weight: '400', style: 'normal' },
+  { family: 'Impact Label SWL',   source: 'assets/fonts/Impact Label SWL Reversed.ttf', weight: '400', style: 'normal' },
   { family: 'JMH Typewriter',     source: 'assets/fonts/JMH Typewriter.ttf', weight: '400', style: 'normal' },
   { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' },
   { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' },
@@ -149,6 +149,10 @@ const CUSTOM_FONT_FILES = [
   { family: 'Smashed Graffiti',   source: 'assets/fonts/SmashedGraffiti.otf', weight: '400', style: 'normal' },
   { family: 'Tempting',           source: 'assets/fonts/Tempting - PERSONAL USE ONLY.ttf', weight: '400', style: 'normal' },
   { family: 'Vengeance at Sea',   source: 'assets/fonts/Vengeance at Sea.otf', weight: '400', style: 'normal' },
+  { family: 'TechnicalStencilVP', source: 'assets/fonts/TechnicalStencilVP.otf', weight: '400', style: 'normal' },
+  { family: 'Unown',              source: 'assets/fonts/unown.ttf', weight: '400', style: 'normal' },
+  { family: 'Go around the books',source: 'assets/fonts/Go around the books.ttf', weight: '400', style: 'normal' },
+  { family: 'BlackBoard',         source: 'assets/fonts/BlackBoard.ttf', weight: '400', style: 'normal' },
 ];
 
 function fontFormatFromPath(path) {
