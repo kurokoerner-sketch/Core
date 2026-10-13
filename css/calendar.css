@@ -398,6 +398,11 @@
 [data-cal-image-theme="cyberpunk"] .cal-hero-autumn { --cal-hero-img: url('../assets/cyber-punk/cyber-punk fall.png'); }
 [data-cal-image-theme="cyberpunk"] .cal-hero-winter { --cal-hero-img: url('../assets/cyber-punk/cyber-punk winter.png'); }
 
+[data-cal-image-theme="lab"] .cal-hero-spring { --cal-hero-img: url('../assets/lab/lab spring.png'); }
+[data-cal-image-theme="lab"] .cal-hero-summer { --cal-hero-img: url('../assets/lab/lab summer.png'); }
+[data-cal-image-theme="lab"] .cal-hero-autumn { --cal-hero-img: url('../assets/lab/lab fall.png'); }
+[data-cal-image-theme="lab"] .cal-hero-winter { --cal-hero-img: url('../assets/lab/lab winter.png'); }
+
 /* "Kein Bild": --cal-hero-img wird zu "none" — das ::before behält nur
    seine erste background-image-Ebene (den theme-abhängigen Verlauf über
    --surface/--bg), keine leere Fläche, kein zusätzlicher Sonderfall. */

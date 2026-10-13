@@ -397,6 +397,9 @@ const BRANDING_THEMES = [
   { id: 'cyberpunk', label: 'Cyberpunk', icon: "assets/cyber-punk/cyber-punk icon.png", iconType: 'image/png', logo: "assets/cyber-punk/cyber-punk logo.png", background: "assets/cyber-punk/cyber-punk background.png",
     calendar: { spring: "assets/cyber-punk/cyber-punk spring.png", summer: "assets/cyber-punk/cyber-punk summer.png", fall: "assets/cyber-punk/cyber-punk fall.png", winter: "assets/cyber-punk/cyber-punk winter.png" },
     startHeader: { day: "assets/cyber-punk/cyber-punk start banner day.png", night: "assets/cyber-punk/cyber-punk start banner night.png" } },
+  { id: 'lab', label: 'Lab', icon: "assets/lab/lab icon.png", iconType: 'image/png', logo: "assets/lab/lab logo.png", background: "assets/lab/lab background.png",
+    calendar: { spring: "assets/lab/lab spring.png", summer: "assets/lab/lab summer.png", fall: "assets/lab/lab fall.png", winter: "assets/lab/lab winter.png" },
+    startHeader: { day: "assets/lab/lab start banner day.png", night: "assets/lab/lab start banner night.png" } },
   // "Kein Theme" — bewusst als Registry-Eintrag OHNE icon/logo/background/
   // calendar/startHeader, ganz am Ende (NICHT an Index 0 — mehrere Stellen
   // im Code nutzen BRANDING_THEMES[0] als sicheren Standard-Theme-
