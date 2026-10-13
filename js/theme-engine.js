@@ -153,6 +153,7 @@ const CUSTOM_FONT_FILES = [
   { family: 'Unown',              source: 'assets/fonts/unown.ttf', weight: '400', style: 'normal' },
   { family: 'Go around the books',source: 'assets/fonts/Go around the books.ttf', weight: '400', style: 'normal' },
   { family: 'BlackBoard',         source: 'assets/fonts/BlackBoard.ttf', weight: '400', style: 'normal' },
+  { family: 'Blackwood Castle',              source: 'assets/fonts/Blackwood Castle.ttf', weight: '400', style: 'normal' },
 ];
 
 function fontFormatFromPath(path) {
