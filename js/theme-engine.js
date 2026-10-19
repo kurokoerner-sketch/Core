@@ -139,7 +139,6 @@ const CUSTOM_FONT_FILES = [
   { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' },
   { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' },
   { family: 'Minecraft PE',       source: 'assets/fonts/MINECRAFT PE.ttf', weight: '400', style: 'normal' },
-  { family: 'Nasalization',       source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' },
   { family: 'Norse',              source: 'assets/fonts/Norse.otf', weight: '400', style: 'normal' },
   { family: 'Ruritania',          source: 'assets/fonts/Ruritania.ttf', weight: '400', style: 'normal' },
   { family: 'Searle',             source: 'assets/fonts/Searle.ttf', weight: '400', style: 'normal' },
@@ -153,7 +152,13 @@ const CUSTOM_FONT_FILES = [
   { family: 'Unown',              source: 'assets/fonts/unown.ttf', weight: '400', style: 'normal' },
   { family: 'Go around the books',source: 'assets/fonts/Go around the books.ttf', weight: '400', style: 'normal' },
   { family: 'BlackBoard',         source: 'assets/fonts/BlackBoard.ttf', weight: '400', style: 'normal' },
-  { family: 'Blackwood Castle',              source: 'assets/fonts/Blackwood Castle.ttf', weight: '400', style: 'normal' },
+  { family: 'Blackwood Castle',   source: 'assets/fonts/Blackwood Castle.ttf', weight: '400', style: 'normal' },
+  { family: 'SAIBA-45',           source: 'assets/fonts/SAIBA-45.ttf', weight: '400', style: 'normal' },
+  { family: 'Electroharmonix',    source: 'assets/fonts/Electroharmonix.otf', weight: '400', style: 'normal' },
+  { family: 'Minicomputer Lt',    source: 'assets/fonts/Minicomputer Lt.otf', weight: '400', style: 'normal' },
+  { family: 'Nasalization Rg',    source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' },
+  { family: 'Capture it',         source: 'assets/fonts/Capture it.ttf', weight: '400', style: 'normal' },
+  { family: 'Rafika',             source: 'assets/fonts/Rafika.otf', weight: '400', style: 'normal' },
 ];
 
 function fontFormatFromPath(path) {
