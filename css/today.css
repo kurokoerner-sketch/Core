@@ -72,12 +72,14 @@
 [data-start-header-theme="royal"]     #today-main-header { --today-header-img: url('../assets/royal/royal start banner day.png'); }
 [data-start-header-theme="cyberpunk"] #today-main-header { --today-header-img: url('../assets/cyber-punk/cyber-punk start banner day.png'); }
 [data-start-header-theme="lab"]       #today-main-header { --today-header-img: url('../assets/lab/lab start banner day.png'); }
+[data-start-header-theme="zombie"]    #today-main-header { --today-header-img: url('../assets/zombie/zombie day.png'); }
 [data-start-header-theme="cozy"][data-start-header-daynight="night"]      #today-main-header { --today-header-img: url('../assets/cozy/cozy start banner night.png'); }
 [data-start-header-theme="scifi"][data-start-header-daynight="night"]     #today-main-header { --today-header-img: url('../assets/images sci-fi/sci-fi start banner night.png'); }
 [data-start-header-theme="forest"][data-start-header-daynight="night"]    #today-main-header { --today-header-img: url('../assets/forest/forest start banner night.png'); }
 [data-start-header-theme="royal"][data-start-header-daynight="night"]     #today-main-header { --today-header-img: url('../assets/royal/royal start banner night.png'); }
 [data-start-header-theme="cyberpunk"][data-start-header-daynight="night"] #today-main-header { --today-header-img: url('../assets/cyber-punk/cyber-punk start banner night.png'); }
 [data-start-header-theme="lab"][data-start-header-daynight="night"]       #today-main-header { --today-header-img: url('../assets/lab/lab start banner night.png'); }
+[data-start-header-theme="zombie"][data-start-header-daynight="night"]    #today-main-header { --today-header-img: url('../assets/zombie/zombie night.png'); }
 
 /* "Kein Banner": zurück auf den bannerlosen Ursprungszustand — keine feste
    Höhe, kein Padding/Rahmen/Schatten/Kartenfläche, also kein reservierter

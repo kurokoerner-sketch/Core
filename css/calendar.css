@@ -403,6 +403,11 @@
 [data-cal-image-theme="lab"] .cal-hero-autumn { --cal-hero-img: url('../assets/lab/lab fall.png'); }
 [data-cal-image-theme="lab"] .cal-hero-winter { --cal-hero-img: url('../assets/lab/lab winter.png'); }
 
+[data-cal-image-theme="zombie"] .cal-hero-spring { --cal-hero-img: url('../assets/zombie/zombie spring.png'); }
+[data-cal-image-theme="zombie"] .cal-hero-summer { --cal-hero-img: url('../assets/zombie/zombie summer.png'); }
+[data-cal-image-theme="zombie"] .cal-hero-autumn { --cal-hero-img: url('../assets/zombie/zombie fall.png'); }
+[data-cal-image-theme="zombie"] .cal-hero-winter { --cal-hero-img: url('../assets/zombie/zombie winter.png'); }
+
 /* "Kein Bild": --cal-hero-img wird zu "none" — das ::before behält nur
    seine erste background-image-Ebene (den theme-abhängigen Verlauf über
    --surface/--bg), keine leere Fläche, kein zusätzlicher Sonderfall. */

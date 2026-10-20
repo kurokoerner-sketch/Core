@@ -111,54 +111,55 @@ const DEFAULT_FONT_STACK = FONT_CATEGORIES[0].fonts[0].stack;
 // Nachbearbeitung, wo die Metadaten Rauschen enthalten (z.B. eingebettete
 // Lizenztexte oder "PERSONAL USE"-Zusätze im Namen selbst).
 const CUSTOM_FONT_FILES = [
-  { family: 'Shock Rumble',       source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' },
-  { family: 'Another Tag',        source: 'assets/fonts/aAnotherTag.ttf', weight: '400', style: 'normal' },
-  { family: 'Alice in Wonderland', source: 'assets/fonts/Alice_in_Wonderland_3.ttf', weight: '400', style: 'normal' },
+  { family: 'Shock Rumble',       source: 'assets/fonts/Shock Rumble Demo.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Another Tag',        source: 'assets/fonts/aAnotherTag.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Alice in Wonderland', source: 'assets/fonts/Alice_in_Wonderland_3.ttf', weight: '400', style: 'normal' }, //Private Use Only
   { family: 'Ancient Greek',      source: 'assets/fonts/Ancient Greek.ttf', weight: '400', style: 'normal' },
-  { family: 'Bing Boss',          source: 'assets/fonts/Bing Boss.otf', weight: '400', style: 'normal' },
-  { family: 'Black North',        source: 'assets/fonts/Black North.ttf', weight: '400', style: 'normal' },
-  { family: 'Blade Knight',       source: 'assets/fonts/Blade Knight Regular.otf', weight: '400', style: 'normal' },
+  { family: 'Bing Boss',          source: 'assets/fonts/Bing Boss.otf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Black North',        source: 'assets/fonts/Black North.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Blade Knight',       source: 'assets/fonts/Blade Knight Regular.otf', weight: '400', style: 'normal' }, //Private Use Only
   { family: 'Celtic Garamond',    source: 'assets/fonts/CELTG___.TTF', weight: '400', style: 'normal' },
-  { family: "Coraline's Cat",     source: "assets/fonts/Coraline's Cat.ttf", weight: '400', style: 'normal' },
-  { family: 'Cubic',              source: 'assets/fonts/cubic.ttf', weight: '400', style: 'normal' },
-  { family: 'Cyber Digital',      source: 'assets/fonts/CyberDigital.ttf', weight: '400', style: 'normal' },
-  { family: 'Darling Letter',     source: 'assets/fonts/Darling Letter.otf', weight: '400', style: 'normal' },
-  { family: 'Diogenes',           source: 'assets/fonts/DIOGENES.ttf', weight: '400', style: 'normal' },
-  { family: 'Dune Rise',          source: 'assets/fonts/Dune_Rise.ttf', weight: '400', style: 'normal' },
-  { family: 'Evanescent',         source: 'assets/fonts/evanescent_p.ttf', weight: '400', style: 'normal' },
-  { family: 'Father Galaxy',      source: 'assets/fonts/FatherGalaxy-Regular.otf', weight: '400', style: 'normal' },
-  { family: 'First Order',        source: 'assets/fonts/firstorder.ttf', weight: '400', style: 'normal' },
-  { family: 'Game Of Squids',     source: 'assets/fonts/Game Of Squids.ttf', weight: '400', style: 'normal' },
-  { family: 'Gang of Three',      source: 'assets/fonts/go3v2.ttf', weight: '400', style: 'normal' },
-  { family: 'Greek Freak',        source: 'assets/fonts/Greek-Freak.ttf', weight: '400', style: 'normal' },
-  { family: 'Harry P',            source: 'assets/fonts/HARRYP__.TTF', weight: '400', style: 'normal' },
-  { family: 'Help Me',            source: 'assets/fonts/HelpMe.ttf', weight: '400', style: 'normal' },
-  { family: 'Hoshiko Satsuki',    source: 'assets/fonts/Hoshiko Satsuki.ttf', weight: '400', style: 'normal' },
-  { family: 'Impact Label SWL',   source: 'assets/fonts/Impact Label SWL Reversed.ttf', weight: '400', style: 'normal' },
-  { family: 'JMH Typewriter',     source: 'assets/fonts/JMH Typewriter.ttf', weight: '400', style: 'normal' },
-  { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' },
-  { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' },
-  { family: 'Minecraft PE',       source: 'assets/fonts/MINECRAFT PE.ttf', weight: '400', style: 'normal' },
-  { family: 'Norse',              source: 'assets/fonts/Norse.otf', weight: '400', style: 'normal' },
-  { family: 'Ruritania',          source: 'assets/fonts/Ruritania.ttf', weight: '400', style: 'normal' },
-  { family: 'Searle',             source: 'assets/fonts/Searle.ttf', weight: '400', style: 'normal' },
-  { family: 'Shanghai',           source: 'assets/fonts/shanghai.ttf', weight: '400', style: 'normal' },
-  { family: 'Shizuoka Cyberpunk', source: 'assets/fonts/Shizuoka Cyberpunk.otf', weight: '400', style: 'normal' },
-  { family: 'Slacker Devil',      source: 'assets/fonts/SlackerDevil.ttf', weight: '400', style: 'normal' },
-  { family: 'Smashed Graffiti',   source: 'assets/fonts/SmashedGraffiti.otf', weight: '400', style: 'normal' },
-  { family: 'Tempting',           source: 'assets/fonts/Tempting - PERSONAL USE ONLY.ttf', weight: '400', style: 'normal' },
-  { family: 'Vengeance at Sea',   source: 'assets/fonts/Vengeance at Sea.otf', weight: '400', style: 'normal' },
-  { family: 'TechnicalStencilVP', source: 'assets/fonts/TechnicalStencilVP.otf', weight: '400', style: 'normal' },
-  { family: 'Unown',              source: 'assets/fonts/unown.ttf', weight: '400', style: 'normal' },
-  { family: 'Go around the books',source: 'assets/fonts/Go around the books.ttf', weight: '400', style: 'normal' },
-  { family: 'BlackBoard',         source: 'assets/fonts/BlackBoard.ttf', weight: '400', style: 'normal' },
-  { family: 'Blackwood Castle',   source: 'assets/fonts/Blackwood Castle.ttf', weight: '400', style: 'normal' },
-  { family: 'SAIBA-45',           source: 'assets/fonts/SAIBA-45.ttf', weight: '400', style: 'normal' },
-  { family: 'Electroharmonix',    source: 'assets/fonts/Electroharmonix.otf', weight: '400', style: 'normal' },
-  { family: 'Minicomputer Lt',    source: 'assets/fonts/Minicomputer Lt.otf', weight: '400', style: 'normal' },
-  { family: 'Nasalization Rg',    source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' },
-  { family: 'Capture it',         source: 'assets/fonts/Capture it.ttf', weight: '400', style: 'normal' },
-  { family: 'Rafika',             source: 'assets/fonts/Rafika.otf', weight: '400', style: 'normal' },
+  { family: "Coraline's Cat",     source: "assets/fonts/Coraline's Cat.ttf", weight: '400', style: 'normal' }, //Free
+  { family: 'Cubic',              source: 'assets/fonts/cubic.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Cyber Digital',      source: 'assets/fonts/CyberDigital.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Darling Letter',     source: 'assets/fonts/Darling Letter.otf', weight: '400', style: 'normal' },//Private Use Only
+  { family: 'Diogenes',           source: 'assets/fonts/DIOGENES.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Dune Rise',          source: 'assets/fonts/Dune_Rise.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Evanescent',         source: 'assets/fonts/evanescent_p.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Father Galaxy',      source: 'assets/fonts/FatherGalaxy-Regular.otf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'First Order',        source: 'assets/fonts/firstorder.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Game Of Squids',     source: 'assets/fonts/Game Of Squids.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Gang of Three',      source: 'assets/fonts/go3v2.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Greek Freak',        source: 'assets/fonts/Greek-Freak.ttf', weight: '400', style: 'normal' },//Private Use Only
+  { family: 'Harry P',            source: 'assets/fonts/HARRYP__.TTF', weight: '400', style: 'normal' }, //Free
+  { family: 'Help Me',            source: 'assets/fonts/HelpMe.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Hoshiko Satsuki',    source: 'assets/fonts/Hoshiko Satsuki.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Impact Label SWL',   source: 'assets/fonts/Impact Label SWL Reversed.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'JMH Typewriter',     source: 'assets/fonts/JMH Typewriter.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Klaxon Crunchy',     source: 'assets/fonts/Klaxon-Crunchy.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Mayan',              source: 'assets/fonts/Mayan.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Minecraft PE',       source: 'assets/fonts/MINECRAFT PE.ttf', weight: '400', style: 'normal' }, //Free 
+  { family: 'Norse',              source: 'assets/fonts/Norse.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Ruritania',          source: 'assets/fonts/Ruritania.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Searle',             source: 'assets/fonts/Searle.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Shanghai',           source: 'assets/fonts/shanghai.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Shizuoka Cyberpunk', source: 'assets/fonts/Shizuoka Cyberpunk.otf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Slacker Devil',      source: 'assets/fonts/SlackerDevil.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Smashed Graffiti',   source: 'assets/fonts/SmashedGraffiti.otf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Tempting',           source: 'assets/fonts/Tempting - PERSONAL USE ONLY.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Vengeance at Sea',   source: 'assets/fonts/Vengeance at Sea.otf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'TechnicalStencilVP', source: 'assets/fonts/TechnicalStencilVP.otf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Unown',              source: 'assets/fonts/unown.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Go around the books',source: 'assets/fonts/Go around the books.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'BlackBoard',         source: 'assets/fonts/BlackBoard.ttf', weight: '400', style: 'normal' }, //Private Use Only
+  { family: 'Blackwood Castle',   source: 'assets/fonts/Blackwood Castle.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'SAIBA-45',           source: 'assets/fonts/SAIBA-45.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Electroharmonix',    source: 'assets/fonts/Electroharmonix.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Minicomputer Lt',    source: 'assets/fonts/Minicomputer Lt.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Nasalization Rg',    source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Capture it',         source: 'assets/fonts/Capture it.ttf', weight: '400', style: 'normal' }, //Free
+  { family: 'Rafika',             source: 'assets/fonts/Rafika.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Breath of the wild', source: 'assets/fonts/The Wild Breath of Zelda.otf', weight: '400', style: 'normal' }, //Free
 ];
 
 function fontFormatFromPath(path) {
@@ -410,6 +411,9 @@ const BRANDING_THEMES = [
   { id: 'lab', label: 'Lab', icon: "assets/lab/lab icon.png", iconType: 'image/png', logo: "assets/lab/lab logo.png", background: "assets/lab/lab background.png",
     calendar: { spring: "assets/lab/lab spring.png", summer: "assets/lab/lab summer.png", fall: "assets/lab/lab fall.png", winter: "assets/lab/lab winter.png" },
     startHeader: { day: "assets/lab/lab start banner day.png", night: "assets/lab/lab start banner night.png" } },
+  { id: 'zombie', label: 'Zombie', icon: "assets/zombie/zombie icon.png", iconType: 'image/png', logo: "assets/zombie/zombie logo.png", background: "assets/zombie/zombie background.png",
+    calendar: { spring: "assets/zombie/zombie spring.png", summer: "assets/zombie/zombie summer.png", fall: "assets/zombie/zombie fall.png", winter: "assets/zombie/zombie winter.png" },
+    startHeader: { day: "assets/zombie/zombie day.png", night: "assets/zombie/zombie night.png" } },
   // "Kein Theme" — bewusst als Registry-Eintrag OHNE icon/logo/background/
   // calendar/startHeader, ganz am Ende (NICHT an Index 0 — mehrere Stellen
   // im Code nutzen BRANDING_THEMES[0] als sicheren Standard-Theme-
