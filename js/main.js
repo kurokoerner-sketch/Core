@@ -141,23 +141,34 @@ let berichtsheft     = DB.get('berichtsheft', { betrieb: '', schule: '' });
 let blocks           = DB.get('blocks', DEFAULT_BLOCKS);
 let countdownVisible = DB.get('countdownVisible', {});
 // ── Theme-Engine (Phase 2) ───────────────────────────────────────────────
-// THEME_FAMILY ordnet jedem Theme-Namen seine Farbfamilie zu. Neue Themes
-// (Midnight, Forest, Espresso, OLED) nutzen in Phase 2 bewusst dieselbe
-// "dark"-Familie wie der bisherige Dark Mode — sie bekommen erst in Phase 3
-// eigene Farbwerte. Neue Themes werden hier einfach ergänzt.
+// THEME_FAMILY ordnet jedem Theme-Namen seine Farbfamilie zu. Nur noch die
+// beiden reinen CSS-Standardthemes (Light/Classic Dark) stehen hier — die
+// sieben grafischen Standardvorlagen (Cozy/Space/Forest/Royal/Cyberpunk/
+// Laboratory/Zombie) laufen stattdessen über dieselbe Theme-Engine-
+// Infrastruktur wie eigene Themes (siehe BUILTIN_DESIGN_THEMES in
+// js/theme-engine.js) und werden deshalb oben in setTheme() bereits über
+// getCustomTheme() erkannt, nicht über diese Tabelle.
 const THEME_FAMILY = {
-  light:    'light',
-  dark:     'dark',
-  midnight: 'dark',
-  forest:   'dark',
-  espresso: 'dark',
-  oled:     'dark',
+  light: 'light',
+  dark:  'dark',
 };
 // Migration: altes darkMode-Boolean → theme-String (einmalig, dann bleibt
 // nur noch der 'theme'-Key maßgeblich).
 let theme = DB.get('theme', null);
 if (theme === null) {
   theme = DB.get('darkMode', false) ? 'dark' : 'light';
+  DB.set('theme', theme);
+}
+// Migration: die bisherigen Standard-Themes Midnight/Espresso/OLED entfallen
+// vollständig, Forest wird durch die neue grafische Forest-Vorlage ersetzt
+// (eigene ID 'builtin_forest' statt des alten reinen CSS-Themes 'forest') —
+// ein noch gespeicherter alter Wert würde sonst weder in THEME_FAMILY noch
+// (später) in getCustomTheme() ein Treffer sein und stillschweigend auf
+// 'light' statt des gewünschten 'dark' fallen. Andere Daten (Custom-Themes,
+// Aufgaben, Kalender, …) bleiben davon unberührt — nur der theme-Key selbst
+// wird korrigiert.
+if (theme === 'midnight' || theme === 'espresso' || theme === 'oled' || theme === 'forest') {
+  theme = 'dark';
   DB.set('theme', theme);
 }
 // darkMode bleibt als abgeleiteter Boolean bestehen — für bestehende

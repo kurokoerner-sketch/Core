@@ -23,23 +23,20 @@
 //    erst der normale "Speichern"-Klick erzeugt/ändert ein Theme.
 // =============================================================
 
-// ── Eingebaute Themes: Anzeige-Metadaten, NICHT die CSS-Kaskade selbst
-//    (die bleibt vollständig in main.css). `core` dupliziert absichtlich
-//    die literalen Werte aus main.css (:root + [data-theme="x"]) — nötig,
-//    weil eingebaute Themes reines CSS sind und kein JS-Objekt haben, aus
-//    dem sich Werte für die Vorlagen-Leiste im Theme-Editor lesen ließen.
-//    Nav/Modal entsprechen bei den eingebauten Themes --surface (siehe
-//    main.css: --core-nav-bg/-modal-bg leiten sich dort von
-//    --surface-solid ab). Akzent hat im ganzen main.css nur zwei echte
-//    Werte (Light vs. gemeinsame Dark-Familie — keine der 5 benannten
-//    Dark-Varianten überschreibt --sage einzeln).
+// ── Eingebaute reine CSS-Themes (Light/Classic Dark): Anzeige-Metadaten,
+//    NICHT die CSS-Kaskade selbst (die bleibt vollständig in main.css).
+//    `core` dupliziert absichtlich die literalen Werte aus main.css (:root +
+//    [data-theme="x"]) — nötig, weil diese beiden Themes reines CSS sind
+//    und kein JS-Objekt haben, aus dem sich Werte für die Vorlagen-Leiste
+//    im Theme-Editor lesen ließen. Die sieben grafischen Standardvorlagen
+//    (Cozy…Zombie) stehen NICHT mehr hier — sie besitzen über
+//    BUILTIN_DESIGN_THEMES bereits ein vollständiges Objekt (inkl. Font/
+//    Transparenz/Grafiken, nicht nur Farben); renderThemeTemplateStrip()
+//    liest sie von dort, um Farb-Dopplung und Drift zwischen zwei Quellen
+//    zu vermeiden.
 const THEME_REGISTRY = [
-  { id: 'light',    label: 'Light',        core: { bg: '#EFEBe3', surface: '#FDFAF5', nav: '#FDFAF5', modal: '#FDFAF5', text: '#24211C', border: '#786541', accent: '#6B7F58' } },
-  { id: 'dark',     label: 'Classic Dark', core: { bg: '#181817', surface: '#20201e', nav: '#20201e', modal: '#20201e', text: '#e6e3df', border: '#CBC8C2', accent: '#728460' } },
-  { id: 'midnight', label: 'Midnight',     core: { bg: '#121419', surface: '#141925', nav: '#141925', modal: '#141925', text: '#dde0e8', border: '#B0BEDD', accent: '#728460' } },
-  { id: 'forest',   label: 'Forest',       core: { bg: '#131915', surface: '#16251b', nav: '#16251b', modal: '#16251b', text: '#dee7e1', border: '#B5D9C2', accent: '#728460' } },
-  { id: 'espresso', label: 'Espresso',     core: { bg: '#1a1815', surface: '#252019', nav: '#252019', modal: '#252019', text: '#ede3d8', border: '#E6C9A8', accent: '#728460' } },
-  { id: 'oled',     label: 'OLED',         core: { bg: '#070707', surface: '#090909', nav: '#090909', modal: '#090909', text: '#e3e3e2', border: '#C7C7C7', accent: '#728460' } },
+  { id: 'light', label: 'Light',        core: { bg: '#EFEBe3', surface: '#FDFAF5', nav: '#FDFAF5', modal: '#FDFAF5', text: '#24211C', border: '#786541', accent: '#6B7F58' } },
+  { id: 'dark',  label: 'Classic Dark', core: { bg: '#181817', surface: '#20201e', nav: '#20201e', modal: '#20201e', text: '#e6e3df', border: '#CBC8C2', accent: '#728460' } },
 ];
 
 // Tokens, die ein eigenes Theme inline überschreibt. --dash-bg/-border
@@ -159,7 +156,7 @@ const CUSTOM_FONT_FILES = [
   { family: 'Nasalization Rg',    source: 'assets/fonts/Nasalization Rg.otf', weight: '400', style: 'normal' }, //Free
   { family: 'Capture it',         source: 'assets/fonts/Capture it.ttf', weight: '400', style: 'normal' }, //Free
   { family: 'Rafika',             source: 'assets/fonts/Rafika.otf', weight: '400', style: 'normal' }, //Free
-  { family: 'Breath of the wild', source: 'assets/fonts/The Wild Breath of Zelda.otf', weight: '400', style: 'normal' }, //Free
+  { family: 'Breath of the Wild', source: 'assets/fonts/The Wild Breath of Zelda.otf', weight: '400', style: 'normal' }, //Free
 ];
 
 function fontFormatFromPath(path) {
@@ -293,7 +290,82 @@ let themeBackgrounds = DB.get('themeBackgrounds', {});
 function saveCustomThemes()     { DB.set('customThemes', customThemes); }
 function saveThemeBackgrounds() { DB.set('themeBackgrounds', themeBackgrounds); }
 
-function getCustomTheme(id)  { return customThemes.find(t => t.id === id) || null; }
+// ── Fest eingebaute grafische Standardvorlagen (Cozy/Space/Forest/Royal/
+// Cyberpunk/Laboratory/Zombie) ──────────────────────────────────────────
+// Vollständige Designvorlagen, die dieselbe Theme-Engine wie eigene Themen
+// nutzen (siehe getCustomTheme() unten) — bewusst NICHT in customThemes[]
+// abgelegt, damit sie (a) für jeden Nutzer ohne jede Sicherung/jeden Import
+// sofort verfügbar sind, (b) nicht über die normale "Löschen"-Funktion
+// verschwinden können, und (c) niemals mit einem gleichnamigen, selbst
+// angelegten Custom-Theme kollidieren — die IDs tragen dafür durchgehend
+// das Präfix "builtin_", während eigene Themes immer "custom_<timestamp>"
+// lauten (siehe saveThemeBuilder()). Farben exakt wie vorgegeben, Branding/
+// Kalender/Start-Header referenzieren die bereits vorhandenen Einträge in
+// BRANDING_THEMES (unten) rein über deren ID-String — keine Abhängigkeit
+// von deren Position/Definition nötig. `vars` wird bewusst NICHT mitgeführt
+// (siehe applyCustomThemeVars(): die leitet --Variablen seit einem früheren
+// Fix ohnehin live aus coreColors/cardOpacity/fontSize ab, nie aus einer
+// eingefrorenen vars-Momentaufnahme).
+const BUILTIN_DESIGN_THEMES = [
+  { id: 'builtin_cozy', name: 'Cozy', family: 'dark',
+    coreColors: { bg: '#1D1A15', surface: '#30291F', nav: '#272219', modal: '#342C21', text: '#F0E5D2', border: '#A58A64', accent: '#78835C', font: '"Darling Letter"' },
+    cardOpacity: 90, fontSize: 125,
+    bg: { source: 'cozy', size: 'cover', dim: 30 },
+    calendar: { imageTheme: 'cozy' }, startHeader: { banner: 'cozy' },
+    branding: { theme: 'cozy', useLogo: true }, graphics: { mode: 'theme', theme: 'cozy' } },
+  { id: 'builtin_space', name: 'Space', family: 'dark',
+    coreColors: { bg: '#07101B', surface: '#0C1928', nav: '#091522', modal: '#101E2E', text: '#DCE9F3', border: '#547896', accent: '#397FB5', font: "'Orbitron', sans-serif" },
+    cardOpacity: 90, fontSize: 100,
+    bg: { source: 'scifi', size: 'cover', dim: 30 },
+    calendar: { imageTheme: 'scifi' }, startHeader: { banner: 'scifi' },
+    branding: { theme: 'scifi', useLogo: true }, graphics: { mode: 'theme', theme: 'scifi' } },
+  { id: 'builtin_forest', name: 'Forest', family: 'dark',
+    coreColors: { bg: '#101511', surface: '#1B231B', nav: '#161D17', modal: '#202920', text: '#DDD9C7', border: '#66745D', accent: '#71845A', font: "'Cinzel', serif" },
+    cardOpacity: 85, fontSize: 105,
+    bg: { source: 'forest', size: 'cover', dim: 45 },
+    calendar: { imageTheme: 'forest' }, startHeader: { banner: 'forest' },
+    branding: { theme: 'forest', useLogo: true }, graphics: { mode: 'theme', theme: 'forest' } },
+  { id: 'builtin_royal', name: 'Royal', family: 'dark',
+    coreColors: { bg: '#180D0B', surface: '#291512', nav: '#21100E', modal: '#301815', text: '#E9DCC5', border: '#947354', accent: '#9A7650', font: '"Blackwood Castle"' },
+    cardOpacity: 85, fontSize: 125,
+    bg: { source: 'royal', size: 'cover', dim: 40 },
+    calendar: { imageTheme: 'royal' }, startHeader: { banner: 'royal' },
+    branding: { theme: 'royal', useLogo: true }, graphics: { mode: 'theme', theme: 'royal' } },
+  { id: 'builtin_cyberpunk', name: 'Cyberpunk', family: 'dark',
+    coreColors: { bg: '#080A13', surface: '#111323', nav: '#0C0E19', modal: '#15172A', text: '#E5E2F2', border: '#55456E', accent: '#B92DAF', font: '"Shizuoka Cyberpunk"' },
+    cardOpacity: 85, fontSize: 105,
+    bg: { source: 'cyberpunk', size: 'cover', dim: 40 },
+    calendar: { imageTheme: 'cyberpunk' }, startHeader: { banner: 'cyberpunk' },
+    branding: { theme: 'cyberpunk', useLogo: true }, graphics: { mode: 'theme', theme: 'cyberpunk' } },
+  { id: 'builtin_lab', name: 'Laboratory', family: 'dark',
+    coreColors: { bg: '#0E1211', surface: '#181D1B', nav: '#121715', modal: '#1C2220', text: '#D8DBD5', border: '#53635C', accent: '#477867', font: '"TechnicalStencilVP"' },
+    cardOpacity: 85, fontSize: 140,
+    bg: { source: 'lab', size: 'cover', dim: 40 },
+    calendar: { imageTheme: 'lab' }, startHeader: { banner: 'lab' },
+    branding: { theme: 'lab', useLogo: true }, graphics: { mode: 'theme', theme: 'lab' } },
+  { id: 'builtin_zombie', name: 'Zombie', family: 'dark',
+    coreColors: { bg: '#141310', surface: '#211F1A', nav: '#191814', modal: '#27241E', text: '#DDD8CB', border: '#665E50', accent: '#756F4D', font: '"Capture it"' },
+    cardOpacity: 85, fontSize: 100,
+    bg: { source: 'zombie', size: 'cover', dim: 30 },
+    calendar: { imageTheme: 'zombie' }, startHeader: { banner: 'zombie' },
+    branding: { theme: 'zombie', useLogo: true }, graphics: { mode: 'theme', theme: 'zombie' } },
+];
+
+// Eingebaute Standardvorlagen sind unveränderbar — kein Override-/Patch-
+// Mechanismus mehr (eine frühere Fassung erlaubte das versehentlich; siehe
+// die harten Sperren in openThemeBuilder()/saveThemeBuilder()/
+// deleteCustomTheme() unten). getBuiltinDesignTheme() liefert deshalb immer
+// exakt die feste Definition aus BUILTIN_DESIGN_THEMES zurück.
+function getBuiltinDesignTheme(id) { return BUILTIN_DESIGN_THEMES.find(t => t.id === id) || null; }
+
+// Sucht zuerst unter den echten eigenen Themes, dann unter den eingebauten
+// Standardvorlagen — beide laufen für jeden Aufrufer (setTheme(),
+// applyThemeBackground(), applyCalendarImageTheme(), applyStartHeaderTheme(),
+// applyBranding() …) über denselben, bereits vorhandenen Pfad. Fürs Lesen/
+// Anwenden macht das keinen Unterschied zwischen Standard- und Custom-
+// Theme — die Schreibpfade (s.u.) unterscheiden sehr wohl und verweigern
+// bei einer Standardvorlage jede Änderung.
+function getCustomTheme(id)  { return customThemes.find(t => t.id === id) || getBuiltinDesignTheme(id); }
 function isCustomThemeId(id) { return !!getCustomTheme(id); }
 
 // ── Eigene Theme-Farben anwenden/entfernen ──────────────────────────────
@@ -791,6 +863,9 @@ function applyThemeBackground(themeId) {
 // =========================================================================
 
 function deleteCustomTheme(id) {
+  // Logikseitige Absicherung (Punkt 4): eingebaute Standardvorlagen dürfen
+  // nie gelöscht werden, unabhängig vom aufrufenden UI-Weg.
+  if (getBuiltinDesignTheme(id)) return;
   const ct = getCustomTheme(id);
   if (!ct) return;
   const wasActive = theme === id;
@@ -920,6 +995,16 @@ const DEFAULT_BUILDER_CORE = {
 };
 
 function openThemeBuilder(editId) {
+  // Eingebaute Standardvorlagen sind nicht bearbeitbar — der Editor öffnet
+  // sich für sie gar nicht erst. Dies ist die logikseitige Absicherung
+  // (Punkt 4 des Auftrags), unabhängig davon, dass die Oberfläche ohnehin
+  // keinen Bearbeiten-Weg zu ihnen mehr anbietet (index.html: die neun
+  // Standard-Theme-Buttons besitzen keinen Stift). Vorlagen für neue Themes
+  // funktionieren weiterhin über die separate "Vorlage"-Leiste
+  // (renderThemeTemplateStrip()/applyThemeTemplate() unten) — die erzeugt
+  // eine unabhängige Kopie der Werte in den gerade geöffneten
+  // Erstellen-Formular, ohne diese Funktion hier aufzurufen.
+  if (editId && getBuiltinDesignTheme(editId)) return;
   _teBuilderEditId = editId || null;
   const existing = editId ? getCustomTheme(editId) : null;
   // Fallbacks für Themes, die noch mit einem älteren Builder erstellt
@@ -1042,6 +1127,9 @@ function renderThemeTemplateStrip() {
 
   const templates = THEME_REGISTRY
     .map(reg => {
+      // Light/Classic Dark: reine CSS-Themes ohne eigene Grafik-/Font-
+      // Einstellungen — unverändertes bisheriges Verhalten (generischer
+      // Cozy/Sci-Fi-Platzhalter, wie zuvor).
       const bg = migrateBgMeta(themeBackgrounds[reg.id] || null);
       const calendarImageTheme = 'cozy', startHeaderBanner = 'scifi', brandingTheme = BRANDING_THEMES[0].id;
       return {
@@ -1050,6 +1138,27 @@ function renderThemeTemplateStrip() {
         graphics: detectGraphicsMode(null, calendarImageTheme, startHeaderBanner, brandingTheme),
       };
     })
+    // Die sieben eingebauten grafischen Standardvorlagen: vollständige
+    // Werte direkt aus BUILTIN_DESIGN_THEMES (dieselbe Quelle, die auch
+    // beim tatsächlichen Auswählen dieser Themes verwendet wird) — dadurch
+    // übernimmt "Als Vorlage verwenden" wirklich Font/Transparenz/
+    // Abdunklung/Hintergrund/Kalender/Start-Header/Branding, nicht nur
+    // Farben. Liefert lesend eine Kopie der jeweiligen Vorlage; die
+    // Standardvorlage selbst bleibt dabei unangetastet (siehe
+    // applyThemeTemplate(): schreibt nur in die Editor-Formularfelder,
+    // nicht in BUILTIN_DESIGN_THEMES).
+    .concat(BUILTIN_DESIGN_THEMES.map(bt => ({
+      name: bt.name,
+      core: bt.coreColors,
+      cardOpacity: bt.cardOpacity,
+      fontSize: bt.fontSize,
+      bg: bt.bg,
+      calendarImageTheme: bt.calendar.imageTheme,
+      startHeaderBanner: bt.startHeader.banner,
+      brandingTheme: bt.branding.theme,
+      brandingUseLogo: resolveUseLogo(bt.branding),
+      graphics: bt.graphics,
+    })))
     .concat(customThemes.map(ct => {
       const bg = migrateBgMeta(ct.bg || null);
       const calendarImageTheme = (ct.calendar && ct.calendar.imageTheme) || 'cozy';
@@ -1298,6 +1407,13 @@ function resolveThemeBuilderBg() {
 }
 
 function saveThemeBuilder() {
+  // Logikseitige Absicherung (Punkt 4): eine Standardvorlage darf niemals
+  // gespeichert/überschrieben werden, selbst wenn dieser Pfad aus
+  // irgendeinem Grund mit ihrer ID erreicht würde — openThemeBuilder()
+  // öffnet den Editor für sie zwar bereits gar nicht erst, dieser Guard
+  // greift aber unabhängig davon.
+  if (_teBuilderEditId && getBuiltinDesignTheme(_teBuilderEditId)) return;
+
   const nameInput = document.getElementById('theme-builder-name');
   const name = nameInput.value.trim();
   if (!name) { nameInput.focus(); return; }
@@ -1401,6 +1517,11 @@ function renderThemeGallery() {
   }
 
   syncThemeBgUI();
+  // Aktualisiert u.a. den Vorschau-Punkt der sieben eingebauten
+  // Standardvorlagen (js/settings.js: renderThemeSettings()) — nötig,
+  // damit eine gerade gespeicherte Anpassung (builtinThemeOverrides) direkt
+  // sichtbar wird, nicht erst beim nächsten Tab-Wechsel.
+  if (typeof renderThemeSettings === 'function') renderThemeSettings();
 }
 
 // =========================================================================
@@ -1510,7 +1631,10 @@ function injectThemeBuilderListeners() {
   document.getElementById('theme-builder-cancel').addEventListener('click', closeThemeBuilder);
   document.getElementById('theme-builder-save').addEventListener('click', saveThemeBuilder);
   document.getElementById('theme-builder-delete').addEventListener('click', () => {
-    if (!_teBuilderEditId) return;
+    // Zusätzliche Absicherung neben dem bereits versteckten Button (siehe
+    // openThemeBuilder()) — eingebaute Standardvorlagen dürfen nie gelöscht
+    // werden.
+    if (!_teBuilderEditId || getBuiltinDesignTheme(_teBuilderEditId)) return;
     const id = _teBuilderEditId;
     const ct = getCustomTheme(id);
     closeThemeBuilder();
