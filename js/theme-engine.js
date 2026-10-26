@@ -286,9 +286,15 @@ function updateThemeBuilderFontPreview() {
 
 let customThemes     = DB.get('customThemes', []);
 let themeBackgrounds = DB.get('themeBackgrounds', {});
+// Globale Übersteuerung, welches Grafik-Set der Projekte-Tab verwendet,
+// unabhängig vom aktiven Theme — 'auto' (Standard) bedeutet "wie Theme"
+// (siehe getActiveProjectGraphics() unten). Gilt themeübergreifend, für
+// eingebaute wie eigene Themes.
+let projectGraphics = DB.get('projectGraphics', 'auto');
 
 function saveCustomThemes()     { DB.set('customThemes', customThemes); }
 function saveThemeBackgrounds() { DB.set('themeBackgrounds', themeBackgrounds); }
+function saveProjectGraphics()  { DB.set('projectGraphics', projectGraphics); }
 
 // ── Fest eingebaute grafische Standardvorlagen (Cozy/Space/Forest/Royal/
 // Cyberpunk/Laboratory/Zombie) ──────────────────────────────────────────
@@ -312,7 +318,8 @@ const BUILTIN_DESIGN_THEMES = [
     cardOpacity: 90, fontSize: 125,
     bg: { source: 'cozy', size: 'cover', dim: 30 },
     calendar: { imageTheme: 'cozy' }, startHeader: { banner: 'cozy' },
-    branding: { theme: 'cozy', useLogo: true }, graphics: { mode: 'theme', theme: 'cozy' } },
+    branding: { theme: 'cozy', useLogo: true }, graphics: { mode: 'theme', theme: 'cozy' },
+    projects: { imageTheme: 'cozy' } },
   { id: 'builtin_space', name: 'Space', family: 'dark',
     coreColors: { bg: '#07101B', surface: '#0C1928', nav: '#091522', modal: '#101E2E', text: '#DCE9F3', border: '#547896', accent: '#397FB5', font: "'Orbitron', sans-serif" },
     cardOpacity: 90, fontSize: 100,
@@ -324,7 +331,8 @@ const BUILTIN_DESIGN_THEMES = [
     cardOpacity: 85, fontSize: 105,
     bg: { source: 'forest', size: 'cover', dim: 45 },
     calendar: { imageTheme: 'forest' }, startHeader: { banner: 'forest' },
-    branding: { theme: 'forest', useLogo: true }, graphics: { mode: 'theme', theme: 'forest' } },
+    branding: { theme: 'forest', useLogo: true }, graphics: { mode: 'theme', theme: 'forest' },
+    projects: { imageTheme: 'forest' } },
   { id: 'builtin_royal', name: 'Royal', family: 'dark',
     coreColors: { bg: '#180D0B', surface: '#291512', nav: '#21100E', modal: '#301815', text: '#E9DCC5', border: '#947354', accent: '#9A7650', font: '"Blackwood Castle"' },
     cardOpacity: 85, fontSize: 125,
@@ -438,6 +446,54 @@ function applyStartHeaderTheme(id, override) {
   document.documentElement.setAttribute('data-start-header-theme', banner);
 }
 
+// ── Projekt-Grafiken (Projektwald + Detailbaum) ─────────────────────────
+// Anders als Kalender/Start-Header gibt es hier kein CSS-Attribut, das die
+// Bildauswahl automatisch trägt — der Projekte-Tab wird komplett aus JS
+// gerendert (js/forest.js, js/project-tree.js), deshalb liefert diese
+// Funktion direkt das zu verwendende `projects`-Objekt aus BRANDING_THEMES
+// zurück, statt (wie applyCalendarImageTheme) nur ein Attribut zu setzen.
+// Reihenfolge der Auflösung (Punkt 2 des Auftrags):
+//   1. globale Einstellung "Projekt-Grafiken" (projectGraphics), wenn nicht 'auto'
+//   2. sonst ct.projects.imageTheme des aktiven Themes
+//   3. sonst 'cozy' (bisheriges, einziges Verhalten vor dieser Funktion —
+//      ändert sich für niemanden, der die neue Einstellung nie anfasst)
+// Ein Theme ohne eigene Projektgrafiken (kein `projects`-Feld in seinem
+// BRANDING_THEMES-Eintrag) fällt an jeder Stelle hier auf Cozy zurück,
+// nie auf irgendein anderes Theme — kein stiller Fallback auf ein
+// falsches Grafik-Set.
+let _projectGraphicsPreviewOverride = null; // nur während Live-Vorschau im Theme-Editor (previewGraphicsLive())
+
+function getActiveProjectGraphics() {
+  const cozyProjects = findBrandingTheme('cozy').projects;
+  if (_projectGraphicsPreviewOverride !== null) {
+    const bt = findBrandingTheme(_projectGraphicsPreviewOverride);
+    return (bt && bt.projects) || cozyProjects;
+  }
+  const globalSetting = typeof projectGraphics !== 'undefined' ? projectGraphics : 'auto';
+  if (globalSetting && globalSetting !== 'auto') {
+    const bt = findBrandingTheme(globalSetting);
+    if (bt && bt.projects) return bt.projects;
+  }
+  const ct = getCustomTheme(theme);
+  const imageTheme = (ct && ct.projects && ct.projects.imageTheme) || 'cozy';
+  const bt = findBrandingTheme(imageTheme);
+  return (bt && bt.projects) || cozyProjects;
+}
+
+// Rendert den Projekte-Tab neu, falls er gerade tatsächlich angezeigt wird
+// (Theme-Wechsel/Einstellungsänderung sollen ihn nicht unnötig im
+// Hintergrund neu aufbauen) — von setTheme() (main.js, typeof-Guard) und
+// vom Einstellungs-Klick sowie der Live-Vorschau im Theme-Editor aufgerufen.
+function refreshProjectGraphics() {
+  if (typeof currentView === 'undefined' || currentView !== 'projects') return;
+  if (typeof currentDetailProject !== 'undefined' && currentDetailProject) {
+    if (typeof renderProjectDetail === 'function') renderProjectDetail();
+    return;
+  }
+  const wrap = document.getElementById('project-forest-wrap');
+  if (wrap && wrap.style.display !== 'none' && typeof renderForest === 'function') renderForest();
+}
+
 // ── Taskbar-/Favicon-Branding ("Logo & Icon") ───────────────────────────
 // Zwei unabhängige, pro Theme gespeicherte Werte (ct.branding):
 //   - theme:   welches Branding-Theme liefert Icon+Logo (Registry unten,
@@ -464,16 +520,56 @@ function applyStartHeaderTheme(id, override) {
 // Start-Header läuft weiterhin rein über CSS-Attributselektoren
 // (css/calendar.css [data-cal-image-theme], css/today.css
 // [data-start-header-theme]), exakt wie bei Cozy/Sci-Fi schon bisher.
+// `projects` (optional): Grafik-Set für den Projekte-Tab (Projektwald +
+// Detailbaum, siehe js/project-tree.js/js/forest.js und
+// getActiveProjectGraphics() unten). Nur Themes mit eigenen Projektbäumen
+// tragen dieses Feld ein — ein Theme ohne `projects` fällt automatisch auf
+// Cozy zurück (siehe getActiveProjectGraphics()), taucht deshalb auch nicht
+// in renderProjectsThemeSelect()/der "Projekt-Grafiken"-Einstellung auf.
+//   treeCount:   Anzahl vorhandener Baumvarianten (Speicherbereich bleibt
+//                bei allen Themes 1..TREE_PNG_COUNT, siehe project-tree.js —
+//                nur die ANZEIGE wird auf treeCount abgebildet).
+//   treePrefix:  gemeinsamer Pfad-Anfang; voller Pfad = `${treePrefix}${n}${doneSuffix wenn abgeschlossen}.png`.
+//   doneSuffix:  Namensanhang für ein abgeschlossenes/archiviertes Projekt.
+//   mainDecor:   Deko für erledigte KERN-/Hauptaufgaben (isExtra:false).
+//   extraDecor:  Deko für erledigte EXTRA-Aufgaben (isExtra:true).
+//   ellipse je Deko-Typ: Streubereich in % der Baumbildfläche, siehe
+//     generateCanopySlots() in project-tree.js — Cozy nutzt eine Ellipse in
+//     der Krone für beide; Forest nutzt für die Feen (Kern) eine schmalere/
+//     höhere Kronen-Ellipse (Nadelbäume sind schmaler als Cozys Laubbäume)
+//     und für die Pilzwesen (Extra) eine flache Ellipse am Stammfuß.
 const BRANDING_THEMES = [
   { id: 'cozy',  label: 'Cozy',   icon: "assets/cozy/cozy icon.svg",            iconType: 'image/svg+xml', logo: "assets/cozy/cozy logo.png",            background: "assets/cozy/cozy background.png",
     calendar: { spring: "assets/cozy/cozy spring.png", summer: "assets/cozy/cozy summer.png", fall: "assets/cozy/cozy fall.png", winter: "assets/cozy/cozy winter.png" },
-    startHeader: { day: "assets/cozy/cozy start banner day.png", night: "assets/cozy/cozy start banner night.png" } },
+    startHeader: { day: "assets/cozy/cozy start banner day.png", night: "assets/cozy/cozy start banner night.png" },
+    projects: {
+      setId: 'cozy',
+      background: "assets/cozy/cozy prj forest.png",
+      treeCount: 5, treePrefix: "assets/cozy/cozy prj tree_", doneSuffix: "_fall",
+      mainDecor:  { src: "assets/cozy/cozy prj apple.png",  alt: "Apfel",       cls: 'pdt-tree-decor-apple',  ellipse: { cx: 50, cy: 34, rx: 38, ry: 28 } },
+      extraDecor: { src: "assets/cozy/cozy prj flower.png", alt: "Apfelblüte", cls: 'pdt-tree-decor-flower', ellipse: { cx: 50, cy: 34, rx: 38, ry: 28 } },
+    } },
   { id: 'scifi', label: 'Sci-Fi', icon: "assets/images sci-fi/sci-fi icon.png", iconType: 'image/png',      logo: "assets/images sci-fi/sci-fi logo.png", background: "assets/images sci-fi/sci-fi background.png",
     calendar: { spring: "assets/images sci-fi/sci-fi spring.png", summer: "assets/images sci-fi/sci-fi summer.png", fall: "assets/images sci-fi/sci-fi fall.png", winter: "assets/images sci-fi/sci-fi winter.png" },
     startHeader: { day: "assets/images sci-fi/sci-fi start banner day.png", night: "assets/images sci-fi/sci-fi start banner night.png" } },
   { id: 'forest', label: 'Forest', icon: "assets/forest/forest icon.png", iconType: 'image/png', logo: "assets/forest/forest logo.png", background: "assets/forest/forest background.png",
     calendar: { spring: "assets/forest/forest spring.png", summer: "assets/forest/forest summer.png", fall: "assets/forest/forest fall.png", winter: "assets/forest/forest winter.png" },
-    startHeader: { day: "assets/forest/forest start banner day.png", night: "assets/forest/forest start banner night.png" } },
+    startHeader: { day: "assets/forest/forest start banner day.png", night: "assets/forest/forest start banner night.png" },
+    projects: {
+      setId: 'forest',
+      background: "assets/forest/forest prj forest.png",
+      treeCount: 3, treePrefix: "assets/forest/forest prj tree_", doneSuffix: "_done",
+      // Ellipse etwas enger als zuvor (rx/ry reduziert) — die Feen sind jetzt
+      // größer (~1.5×, siehe .pdt-tree-decor-fairy in css/project-tree.css),
+      // der Streubereich wird deshalb verkleinert, damit der äußerste Rand
+      // (Ellipsenradius + halbe Bildbreite) nicht über die Baumkrone
+      // hinausreicht.
+      mainDecor:  { src: "assets/forest/forest prj fairy.png",    alt: "Fee",       cls: 'pdt-tree-decor-fairy',    ellipse: { cx: 50, cy: 36, rx: 17, ry: 22 } },
+      // Boden-Ellipse etwas breiter (rx 26→32) — die größeren Pilzwesen
+      // würden sich sonst bei mehreren erledigten Extraaufgaben stärker
+      // überdecken.
+      extraDecor: { src: "assets/forest/forest prj mushroom.png", alt: "Pilzwesen", cls: 'pdt-tree-decor-mushroom', ellipse: { cx: 50, cy: 88, rx: 32, ry: 6 } },
+    } },
   { id: 'royal', label: 'Royal', icon: "assets/royal/royal icon.png", iconType: 'image/png', logo: "assets/royal/royal logo.png", background: "assets/royal/royal background.png",
     calendar: { spring: "assets/royal/royal spring.png", summer: "assets/royal/royal summer.png", fall: "assets/royal/royal fall.png", winter: "assets/royal/royal winter.png" },
     startHeader: { day: "assets/royal/royal start banner day.png", night: "assets/royal/royal start banner night.png" } },
@@ -562,6 +658,15 @@ function renderStartHeaderThemeSelect() {
   sel.innerHTML = ['<option value="none">Kein Banner</option>']
     .concat(BRANDING_THEMES.filter(b => b.startHeader).map(b => `<option value="${b.id}">${b.label}</option>`))
     .join('');
+}
+// Gleiches Prinzip, aber ohne "Kein Bild"-Option — der Projekte-Tab
+// braucht immer ein Baum-Set zum Rendern (getActiveProjectGraphics()
+// fällt ohne gültige Auswahl ohnehin auf Cozy zurück), "keine Grafik"
+// ist hier also kein sinnvoller Zustand.
+function renderProjectsThemeSelect() {
+  const sel = document.getElementById('theme-builder-projects-image');
+  if (!sel) return;
+  sel.innerHTML = BRANDING_THEMES.filter(b => b.projects).map(b => `<option value="${b.id}">${b.label}</option>`).join('');
 }
 
 // override (optional): {theme, useLogo} — siehe applyCalendarImageTheme()
@@ -911,36 +1016,47 @@ function detectGraphicsMode(explicitGraphics, calendarTheme, startHeaderTheme, b
   return allSame ? { mode: 'theme', theme: values[0] } : { mode: 'custom' };
 }
 
-// Zentrale Zuweisung: setzt EIN Theme auf die drei Einzel-Controls im
+// Zentrale Zuweisung: setzt EIN Theme auf die vier Einzel-Controls im
 // Builder (Hintergrund bewusst ausgenommen) — Kalender/Start-Header/
 // Logo&Icon nutzen bereits exakt dieselben BRANDING_THEMES-IDs
 // ("cozy"/"scifi"/…) als Options-Werte, deshalb reicht ein einfaches
-// Durchreichen ohne Übersetzungstabelle.
+// Durchreichen ohne Übersetzungstabelle. Projekte: nur setzen, wenn das
+// gewählte Theme tatsächlich ein `projects`-Set besitzt, sonst 'cozy' (Punkt
+// 4b) — ein Theme ohne eigene Projektgrafiken darf hier keine kaputte
+// Auswahl erzwingen.
 function applyGraphicsThemeToControls(themeId) {
   document.getElementById('theme-builder-calendar-image').value = themeId;
   document.getElementById('theme-builder-start-header').value = themeId;
   document.getElementById('theme-builder-branding-theme').value = themeId;
+  const projSel = document.getElementById('theme-builder-projects-image');
+  if (projSel) { const bt = findBrandingTheme(themeId); projSel.value = (bt && bt.projects) ? themeId : 'cozy'; }
   previewGraphicsLive();
 }
 
-// Live-Vorschau der drei Grafikelemente (Kalender/Start-Header/Logo & Icon
-// + Toggle) auf der ECHTEN Seite — bewusst NUR, wenn das gerade im Editor
-// geöffnete Theme auch das aktuell AKTIVE Theme ist. Sonst würde das
+// Live-Vorschau der Grafikelemente (Kalender/Start-Header/Logo & Icon +
+// Toggle/Projekte) auf der ECHTEN Seite — bewusst NUR, wenn das gerade im
+// Editor geöffnete Theme auch das aktuell AKTIVE Theme ist. Sonst würde das
 // Bearbeiten eines anderen (inaktiven) Themes fälschlich den gerade
-// sichtbaren Kalender/Start-Header/Favicon verändern. Liest bewusst die
-// aktuellen, noch NICHT gespeicherten Formularwerte (nicht ct) und
-// übergibt sie als override an die bereits vorhandenen Apply-Funktionen —
-// keine zweite Preview-Implementierung. closeThemeBuilder() stellt beim
-// Schließen ohne Speichern den echten gespeicherten Zustand wieder her.
+// sichtbaren Kalender/Start-Header/Favicon/Projekte-Tab verändern. Liest
+// bewusst die aktuellen, noch NICHT gespeicherten Formularwerte (nicht ct)
+// und übergibt sie als override an die bereits vorhandenen Apply-Funktionen
+// — keine zweite Preview-Implementierung. Projekte haben kein CSS-Attribut
+// wie Kalender/Start-Header, deshalb hier über _projectGraphicsPreviewOverride
+// (siehe getActiveProjectGraphics()) statt eines direkten override-Parameters.
+// closeThemeBuilder() stellt beim Schließen ohne Speichern den echten
+// gespeicherten Zustand wieder her.
 function previewGraphicsLive() {
   if (!_teBuilderEditId || _teBuilderEditId !== theme) return;
   const calVal = document.getElementById('theme-builder-calendar-image').value;
   const startVal = document.getElementById('theme-builder-start-header').value;
   const brandVal = document.getElementById('theme-builder-branding-theme').value;
   const useLogoVal = document.getElementById('theme-builder-branding-logo').checked;
+  const projVal = document.getElementById('theme-builder-projects-image')?.value;
   applyCalendarImageTheme(theme, calVal);
   applyStartHeaderTheme(theme, startVal);
   applyBranding(theme, { theme: brandVal, useLogo: useLogoVal });
+  _projectGraphicsPreviewOverride = projVal || null;
+  if (typeof refreshProjectGraphics === 'function') refreshProjectGraphics();
 }
 
 // "Logo verwenden": Standard AN, außer ein gespeicherter Wert sagt
@@ -987,6 +1103,7 @@ function initThemeBuilderGraphicsControls() {
   document.getElementById('theme-builder-start-header').addEventListener('change', previewGraphicsLive);
   document.getElementById('theme-builder-branding-theme').addEventListener('change', previewGraphicsLive);
   document.getElementById('theme-builder-branding-logo').addEventListener('change', previewGraphicsLive);
+  document.getElementById('theme-builder-projects-image').addEventListener('change', previewGraphicsLive);
 }
 
 const DEFAULT_BUILDER_CORE = {
@@ -1034,6 +1151,8 @@ function openThemeBuilder(editId) {
   renderBrandingThemeSelect();
   document.getElementById('theme-builder-branding-theme').value = (existing && existing.branding && existing.branding.theme) || BRANDING_THEMES[0].id;
   document.getElementById('theme-builder-branding-logo').checked = resolveUseLogo(existing && existing.branding);
+  renderProjectsThemeSelect();
+  document.getElementById('theme-builder-projects-image').value = (existing && existing.projects && existing.projects.imageTheme) || 'cozy';
   renderFontSelect(core.font);
 
   // Hintergrund: eigenständig, NICHT Teil der gemeinsamen Grafik-Kategorie
@@ -1042,6 +1161,7 @@ function openThemeBuilder(editId) {
   _teBuilderPendingFile = null;
   _teBuilderExistingBg = existing ? migrateBgMeta(existing.bg || null) : null;
   _teBuilderBgCleared = false;
+  _projectGraphicsPreviewOverride = null; // defensiv — sollte beim Öffnen ohnehin bereits null sein (siehe closeThemeBuilder())
   document.getElementById('theme-builder-bg-source').value = (_teBuilderExistingBg && _teBuilderExistingBg.source) || 'none';
   syncThemeBuilderBgUI();
 
@@ -1084,6 +1204,8 @@ function closeThemeBuilder() {
     applyStartHeaderTheme(theme);
     applyBranding(theme);
   }
+  _projectGraphicsPreviewOverride = null;
+  if (typeof refreshProjectGraphics === 'function') refreshProjectGraphics();
   document.getElementById('theme-builder-modal-overlay').classList.add('hidden');
   _teBuilderEditId = null;
   _teBuilderPendingFile = null;
@@ -1131,10 +1253,10 @@ function renderThemeTemplateStrip() {
       // Einstellungen — unverändertes bisheriges Verhalten (generischer
       // Cozy/Sci-Fi-Platzhalter, wie zuvor).
       const bg = migrateBgMeta(themeBackgrounds[reg.id] || null);
-      const calendarImageTheme = 'cozy', startHeaderBanner = 'scifi', brandingTheme = BRANDING_THEMES[0].id;
+      const calendarImageTheme = 'cozy', startHeaderBanner = 'scifi', brandingTheme = BRANDING_THEMES[0].id, projectsTheme = 'cozy';
       return {
         name: reg.label, core: reg.core, cardOpacity: 100, fontSize: 100, bg,
-        calendarImageTheme, startHeaderBanner, brandingTheme, brandingUseLogo: resolveUseLogo(),
+        calendarImageTheme, startHeaderBanner, brandingTheme, projectsTheme, brandingUseLogo: resolveUseLogo(),
         graphics: detectGraphicsMode(null, calendarImageTheme, startHeaderBanner, brandingTheme),
       };
     })
@@ -1156,6 +1278,7 @@ function renderThemeTemplateStrip() {
       calendarImageTheme: bt.calendar.imageTheme,
       startHeaderBanner: bt.startHeader.banner,
       brandingTheme: bt.branding.theme,
+      projectsTheme: (bt.projects && bt.projects.imageTheme) || 'cozy',
       brandingUseLogo: resolveUseLogo(bt.branding),
       graphics: bt.graphics,
     })))
@@ -1164,12 +1287,13 @@ function renderThemeTemplateStrip() {
       const calendarImageTheme = (ct.calendar && ct.calendar.imageTheme) || 'cozy';
       const startHeaderBanner = (ct.startHeader && ct.startHeader.banner) || 'scifi';
       const brandingTheme = (ct.branding && ct.branding.theme) || BRANDING_THEMES[0].id;
+      const projectsTheme = (ct.projects && ct.projects.imageTheme) || 'cozy';
       return {
         name: ct.name,
         core: Object.assign({}, DEFAULT_BUILDER_CORE, ct.coreColors),
         cardOpacity: ct.cardOpacity ?? 100,
         fontSize: ct.fontSize ?? 100,
-        bg, calendarImageTheme, startHeaderBanner, brandingTheme,
+        bg, calendarImageTheme, startHeaderBanner, brandingTheme, projectsTheme,
         brandingUseLogo: resolveUseLogo(ct.branding),
         graphics: detectGraphicsMode(ct.graphics || null, calendarImageTheme, startHeaderBanner, brandingTheme),
       };
@@ -1208,6 +1332,8 @@ function applyThemeTemplate(t) {
   renderBrandingThemeSelect();
   document.getElementById('theme-builder-branding-theme').value = t.brandingTheme || BRANDING_THEMES[0].id;
   document.getElementById('theme-builder-branding-logo').checked = !!t.brandingUseLogo;
+  renderProjectsThemeSelect();
+  document.getElementById('theme-builder-projects-image').value = t.projectsTheme || 'cozy';
   renderFontSelect(t.core.font || DEFAULT_FONT_STACK);
 
   // Hintergrund-Quelle + Größe/Overlay der Vorlage übernehmen. Ein eigenes
@@ -1436,6 +1562,7 @@ function saveThemeBuilder() {
     theme: document.getElementById('theme-builder-branding-theme').value,
     useLogo: document.getElementById('theme-builder-branding-logo').checked,
   };
+  const projects = { imageTheme: document.getElementById('theme-builder-projects-image').value };
   // Grafische Elemente: nur Modus + gewähltes gemeinsames Theme werden
   // gespeichert — die drei tatsächlichen Werte oben (calendar/startHeader/
   // branding.theme) sind im Modus "theme" durch
@@ -1456,13 +1583,13 @@ function saveThemeBuilder() {
       const ct = getCustomTheme(editId);
       if (ct) {
         ct.name = name; ct.coreColors = core; ct.vars = vars; ct.family = family;
-        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader; ct.branding = branding; ct.graphics = graphics;
+        ct.cardOpacity = cardOpacity; ct.fontSize = fontSize; ct.bg = bg; ct.calendar = calendar; ct.startHeader = startHeader; ct.branding = branding; ct.projects = projects; ct.graphics = graphics;
         saveCustomThemes();
         if (theme === ct.id) setTheme(ct.id); // sofort neu anwenden, falls gerade aktiv
       }
     } else {
       const id = 'custom_' + Date.now();
-      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader, branding, graphics });
+      customThemes.push({ id, name, family, coreColors: core, vars, cardOpacity, fontSize, bg, calendar, startHeader, branding, projects, graphics });
       saveCustomThemes();
       setTheme(id);
       if (typeof renderThemeSettings === 'function') renderThemeSettings();

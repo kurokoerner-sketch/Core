@@ -180,9 +180,13 @@
   filter: drop-shadow(0 16px 16px rgba(30,25,10,0.25));
 }
 
-/* Äpfel/Blüten-Deko — rein dekorativ, oben auf der Baumkrone platziert
-   (Positionen: APPLE_SLOTS/BLOSSOM_SLOTS in project-tree.js). Die eigentliche
-   Interaktion (abhaken, Details) läuft über die Äste-Kacheln darunter. */
+/* Deko für erledigte Haupt-/Extra-Aufgaben — rein dekorativ, Positionen
+   kommen aus generateCanopySlots() (project-tree.js), welches Bild+Platzierung
+   aus dem aktiven Grafik-Set liest (getActiveProjectGraphics(), siehe
+   BRANDING_THEMES[x].projects in js/theme-engine.js: Cozy = Äpfel/Blüten in
+   der Krone, Forest = Feen in der Krone / Pilzwesen am Stammfuß). Die
+   eigentliche Interaktion (abhaken, Details) läuft über die Äste-Kacheln
+   darunter. */
 .pdt-tree-decor { position: absolute; inset: 0; pointer-events: none; }
 .pdt-tree-decor-item {
   position: absolute;
@@ -193,3 +197,45 @@
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
 .pdt-tree-decor-flower { width: 20px; height: 20px; }
+
+/* Forest — Feen (erledigte Hauptaufgaben): dezentes Schweben + Glühen,
+   animation-delay kommt pro Instanz als Inline-Style (project-tree.js),
+   damit mehrere Feen nicht synchron schwirren. Die Keyframes müssen
+   translate(-50%,-50%) aus der Basisregel oben selbst mitführen — eine
+   CSS-Animation ersetzt den gesamten transform-Wert, statt ihn zu addieren,
+   sonst würde die Fee beim Animieren aus ihrer Zentrierung springen.
+   Größe bewusst in % statt fixer px (Basisregel .pdt-tree-decor-item oben
+   nutzt px, das NICHT verändert werden soll — Cozys Äpfel/Blüten bleiben
+   dadurch exakt wie zuvor) — % bezieht sich auf die Box von
+   .pdt-tree-decor, die über inset:0 exakt der Breite/Höhe von
+   .pdt-tree-wrap entspricht, also der tatsächlich gerenderten
+   Baumbildgröße. Skaliert dadurch mit der Fenster-/Hero-Größe mit, statt
+   bei größeren Bildschirmen relativ zu schrumpfen. ~1.5× so groß wie die
+   bisherigen 22px. */
+.pdt-tree-decor-fairy {
+  width: 8.5%;
+  height: 8.5%;
+  animation: pdt-fairy-float 3.4s ease-in-out infinite;
+}
+@keyframes pdt-fairy-float {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) scale(1); filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)) brightness(1); }
+  50%      { transform: translate(-50%, -50%) translateY(-4px) scale(1.06); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)) brightness(1.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdt-tree-decor-fairy { animation: none; }
+}
+
+/* Forest — Pilzwesen (erledigte Extraaufgaben): etwas kleiner als die Fee,
+   statisch, und über dem Stammfuß platziert (eigene, verbreiterte flache
+   Ellipse, siehe BRANDING_THEMES.forest.projects.extraDecor.ellipse) statt
+   in der Krone. translate(-50%,-100%) statt der Basisregel -50%,-50%:
+   dadurch sitzt die Bild-UNTERKANTE (die Füße des Pilzwesens) auf der
+   Slot-Position, nicht die Bildmitte — sonst würde es mittig "im Boden
+   versunken" wirken. Größe wie bei der Fee in % (siehe dortiger
+   Kommentar), im selben Verhältnis zur Fee wie zuvor (16px/22px ≈ 0.73)
+   beibehalten — ~1.5× so groß wie die bisherigen 16px. */
+.pdt-tree-decor-mushroom {
+  width: 6.2%;
+  height: 6.2%;
+  transform: translate(-50%, -100%);
+}

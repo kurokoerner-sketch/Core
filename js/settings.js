@@ -5,6 +5,7 @@
 function renderSettings(){
   document.getElementById('setting-username').value = userName || '';
   renderThemeSettings();
+  renderProjectGraphicsSettings();
   renderBlockSettings();
   renderWeatherSettings();
   renderColorSettings();
@@ -20,6 +21,30 @@ function renderThemeSettings(){
     btn.classList.toggle('active', btn.dataset.themeValue === theme);
   });
 }
+
+// ── Projekt-Grafiken (eigenständig von der Theme-Auswahl oben) ──────────
+// Buttons automatisch aus BRANDING_THEMES erzeugt (nur Einträge mit eigenem
+// `projects`-Set) + fester "Wie Theme"-Button (= 'auto', Standard). Gilt
+// themeübergreifend — siehe getActiveProjectGraphics() in js/theme-engine.js.
+function renderProjectGraphicsSettings(){
+  const picker = document.getElementById('project-graphics-picker');
+  if (!picker || typeof BRANDING_THEMES === 'undefined') return;
+  const current = typeof projectGraphics !== 'undefined' ? projectGraphics : 'auto';
+  const options = [{ id: 'auto', label: 'Wie Theme' }]
+    .concat(BRANDING_THEMES.filter(b => b.projects).map(b => ({ id: b.id, label: b.label })));
+  picker.innerHTML = options.map(o =>
+    `<button type="button" class="clock-type-btn theme-picker-btn${o.id === current ? ' active' : ''}" data-project-graphics="${o.id}">${escHtml(o.label)}</button>`
+  ).join('');
+}
+
+document.getElementById('project-graphics-picker')?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-project-graphics]');
+  if (!btn) return;
+  projectGraphics = btn.dataset.projectGraphics;
+  saveProjectGraphics();
+  renderProjectGraphicsSettings();
+  if (typeof refreshProjectGraphics === 'function') refreshProjectGraphics();
+});
 
 // =========================
 // PERSÖNLICHE FARBEN VERWALTEN

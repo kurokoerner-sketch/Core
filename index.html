@@ -1142,6 +1142,23 @@
                   <button class="clock-type-btn theme-picker-btn" data-theme-value="builtin_zombie">Zombie</button>
                 </div>
               </div>
+              <!-- Projekt-Grafiken — Modul: Theme-Engine (js/theme-engine.js:
+                   getActiveProjectGraphics()). Eigenständig von der Theme-
+                   Auswahl oben: steuert NUR, welches Baum-/Deko-Set der
+                   Projekte-Tab zeigt, unabhängig vom aktiven Farbschema.
+                   "Wie Theme" (= 'auto', Standard) liest ct.projects.imageTheme
+                   des aktiven Themes; jede andere Auswahl gilt fest für ALLE
+                   Themes (eingebaut wie eigen), bis wieder auf "Wie Theme"
+                   zurückgestellt wird. Buttons werden von
+                   renderProjectGraphicsSettings() (js/settings.js) aus
+                   BRANDING_THEMES erzeugt — nur Themes mit eigenem
+                   `projects`-Set (aktuell Cozy, Forest) erscheinen. -->
+              <div class="settings-row">
+                <div><div class="settings-row-title">Projekt-Grafiken</div><div class="settings-row-sub">Welche Bäume und Landschaft der Projekte-Tab zeigt</div></div>
+              </div>
+              <div class="settings-row">
+                <div id="project-graphics-picker" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+              </div>
               <!-- Hintergrundbild — Modul: Theme-Engine (js/theme-engine.js).
                    Nur für die 6 eingebauten Themes (feste CSS, kein eigenes
                    Theme-Objekt zum Speichern). Eigene Themes bringen ihr
@@ -2743,6 +2760,23 @@
           <div class="tb-bg-opt-row">
             <span>Logo &amp; Icon</span>
             <select class="modal-select" id="theme-builder-branding-theme" style="width:auto;"></select>
+          </div>
+
+          <!-- Projekte — wählt, welches Baum-/Deko-Grafik-Set der
+               Projekte-Tab (Projektwald + Detailbaum) verwendet. Optionen
+               von renderProjectsThemeSelect() aus BRANDING_THEMES (nur
+               Einträge mit eigenem `projects`-Set, aktuell Cozy/Forest).
+               Pro Theme gespeichert (ct.projects.imageTheme), angewendet
+               über getActiveProjectGraphics()/refreshProjectGraphics() in
+               js/theme-engine.js — eigenständige Funktion ohne CSS-
+               Attribut, da der Projekte-Tab komplett aus JS gerendert wird
+               (js/forest.js, js/project-tree.js). Wird von der globalen
+               Einstellung "Projekt-Grafiken" (siehe #project-graphics-
+               picker weiter oben in den Einstellungen) überstimmt, solange
+               diese nicht auf "Wie Theme" steht. -->
+          <div class="tb-bg-opt-row">
+            <span>Projekte</span>
+            <select class="modal-select" id="theme-builder-projects-image" style="width:auto;"></select>
           </div>
         </div>
 

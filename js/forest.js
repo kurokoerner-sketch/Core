@@ -16,13 +16,21 @@ let forestPage = 0;
 // =================================================
 // BAUMRENDERING -> ausgelagert in project-tree.js
 // Verfuegbare Funktionen:
-//   updateDetailTreeElements(project)  -> rendert den PNG-Baum + Äpfel/Blüten
-//                                          in #proj-detail-tree
+//   updateDetailTreeElements(project)  -> rendert den PNG-Baum + Deko in
+//                                          #proj-detail-tree
 //   getOrAssignTreeVariant(project)    -> 1..TREE_PNG_COUNT, dieselbe Variante
 //                                          wie im Projektwald (buildForestTree())
-// Sowohl der kleine Waldbaum als auch der große Detailbaum sind PNGs
-// (assets/cozy/cozy prj tree_<n>.png / cozy prj tree_<n>_fall.png) — keine
-// generierte SVG-Baumstruktur mehr.
+//   resolveTreeDisplayNumber(project, graphics) -> liefert die anzuzeigende
+//                                          Baumnummer für das aktive Set
+//                                          (Cozy: direkt project.treeVariant;
+//                                          andere Baumanzahl: eigene,
+//                                          deterministische Verteilung aus
+//                                          Projekt-ID + Set-ID, nicht
+//                                          gespeichert)
+// Sowohl der kleine Waldbaum als auch der große Detailbaum sind PNGs aus dem
+// jeweils aktiven Grafik-Set (getActiveProjectGraphics(), js/theme-engine.js
+// — Cozy/Forest/künftige Themes) — keine generierte SVG-Baumstruktur mehr,
+// keine festen Pfade mehr in dieser Datei.
 // =================================================
 
 
@@ -151,16 +159,17 @@ document.querySelectorAll('#forest-filter-panel [data-prio]').forEach(btn => {
 // =========================
 // WALDBAUM-KARTE (PNG-Baum + Projektkarte)
 // =========================
-function buildForestTree(project, slot, containerWidth) {
+function buildForestTree(project, slot, containerWidth, graphics) {
   const stats      = getProjectStats(project);
   const totalTasks = stats.coreTasks.length + stats.subTotal;
   const doneTasks  = stats.coreDone + stats.subDone;
   const pct        = totalTasks === 0 ? 0 : Math.round(doneTasks / totalTasks * 100);
   const isDone     = !!project.archived;
-  const variant    = getOrAssignTreeVariant(project);
-  const season     = isDone ? '_fall' : '';
-  const primarySrc  = `assets/cozy/cozy prj tree_${variant}${season}.png`;
-  const fallbackSrc = `assets/cozy/cozy prj tree_1${season}.png`;
+  getOrAssignTreeVariant(project);
+  const displayNum = resolveTreeDisplayNumber(project, graphics);
+  const season     = isDone ? graphics.doneSuffix : '';
+  const primarySrc  = `${graphics.treePrefix}${displayNum}${season}.png`;
+  const fallbackSrc = `${graphics.treePrefix}1${season}.png`;
 
   const wrap = document.createElement('div');
   wrap.className = 'forest-tree-wrap' + (isDone ? ' archived' : '');
@@ -238,6 +247,15 @@ function renderForest() {
   if (!container || !layer) return;
   layer.innerHTML = '';
 
+  // Aktives Grafik-Set (Cozy/Forest/…) — Hintergrund hier direkt setzen
+  // (statisches <img> in index.html, bleibt über renderForest()-Aufrufe
+  // hinweg bestehen), Bäume unten über buildForestTree() mit demselben
+  // Set-Objekt, damit innerhalb eines Render-Durchgangs kein Mix aus altem/
+  // neuem Set entstehen kann.
+  const graphics = getActiveProjectGraphics();
+  const bgImg = document.querySelector('.forest-bg-img');
+  if (bgImg && bgImg.getAttribute('src') !== graphics.background) bgImg.src = graphics.background;
+
   updateForestTabCounts();
 
   if (projects.length === 0) {
@@ -273,7 +291,7 @@ function renderForest() {
   const pageItems = filtered.slice(forestPage * pageSize, forestPage * pageSize + pageSize);
   const containerWidth = container.clientWidth || 1200;
   pageItems.forEach((project, i) => {
-    layer.appendChild(buildForestTree(project, FOREST_SLOTS[i], containerWidth));
+    layer.appendChild(buildForestTree(project, FOREST_SLOTS[i], containerWidth, graphics));
   });
 
   renderForestPager(totalPages);
