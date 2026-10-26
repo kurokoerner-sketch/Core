@@ -41,7 +41,7 @@
 
 /* =========================
    PROJEKTWALD CONTAINER — Vollbild-Landschaft
-   Das Hintergrundbild (img/forest.png) füllt die gesamte verfügbare Fläche
+   Das Hintergrundbild (assets/cozy/cozy prj forest.png) füllt die gesamte verfügbare Fläche
    (object-fit:cover) — Titel, Tabs, Suche, Filter und Legende liegen als
    Overlays direkt darauf. Der Projektwald ist die einzige Übersicht,
    .forest-active ist daher dauerhaft aktiv (siehe forest.js).
@@ -676,7 +676,7 @@
 
 /* ── WALD ── */
 /* #project-forest-Größe -> aspect-ratio-Regel weiter oben in dieser Datei
-   (hält das Seitenverhältnis von img/forest.png ein, siehe Kommentar dort) */
+   (hält das Seitenverhältnis von assets/cozy/cozy prj forest.png ein, siehe Kommentar dort) */
 
 /* .forest-tree-img/.forest-tree-card, PNG-Detailbaum + Deko -> project-tree.css */
 

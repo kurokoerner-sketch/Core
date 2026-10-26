@@ -35,8 +35,9 @@ function escapeXml(s) {
 // =========================
 // BAUM-VARIANTE (PNG)
 // Jedes Projekt bekommt bei der ersten Anzeige dauerhaft eine von
-// TREE_PNG_COUNT PNG-Baumvarianten (img/tree_<n>.png / tree_<n>_fall.png)
-// zugewiesen und in project.treeVariant gespeichert — einmalig ausgewürfelt,
+// TREE_PNG_COUNT PNG-Baumvarianten (assets/cozy/cozy prj tree_<n>.png /
+// cozy prj tree_<n>_fall.png) zugewiesen und in project.treeVariant
+// gespeichert — einmalig ausgewürfelt,
 // nie neu. Dieselbe Variante wird sowohl im Projektwald (buildForestTree() in
 // forest.js) als auch in der Detailansicht (updateDetailTreeElements() unten)
 // verwendet, damit ein Projekt überall denselben Baum zeigt. Fehlt eine
@@ -96,16 +97,16 @@ function updateDetailTreeElements(p) {
 
   const variant     = getOrAssignTreeVariant(p);
   const season      = p.archived ? '_fall' : '';
-  const primarySrc  = `img/tree_${variant}${season}.png`;
-  const fallbackSrc = `img/tree_1${season}.png`;
+  const primarySrc  = `assets/cozy/cozy prj tree_${variant}${season}.png`;
+  const fallbackSrc = `assets/cozy/cozy prj tree_1${season}.png`;
 
   const allTasks  = [...(p.tasks || []), ...(p.subprojects || []).flatMap(sp => sp.tasks || [])];
   const coreDone   = Math.min(allTasks.filter(t => t.done && !t.isExtra).length, DECOR_MAX);
   const extraDone  = Math.min(allTasks.filter(t => t.done &&  t.isExtra).length, DECOR_MAX);
 
   const decor = [
-    ...generateCanopySlots(p, 401, coreDone).map(s => ({ ...s, cls: 'pdt-tree-decor-apple', src: 'img/apple.png', alt: 'Apfel' })),
-    ...generateCanopySlots(p, 907, extraDone).map(s => ({ ...s, cls: 'pdt-tree-decor-flower', src: 'img/flower.png', alt: 'Apfelblüte' })),
+    ...generateCanopySlots(p, 401, coreDone).map(s => ({ ...s, cls: 'pdt-tree-decor-apple', src: 'assets/cozy/cozy prj apple.png', alt: 'Apfel' })),
+    ...generateCanopySlots(p, 907, extraDone).map(s => ({ ...s, cls: 'pdt-tree-decor-flower', src: 'assets/cozy/cozy prj flower.png', alt: 'Apfelblüte' })),
   ].map(s => `<img class="pdt-tree-decor-item ${s.cls}" src="${s.src}" alt="${s.alt}" draggable="false" style="left:${s.x}%;top:${s.y}%;" />`).join('');
 
   treeContainer.innerHTML = `

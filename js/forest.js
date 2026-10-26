@@ -21,8 +21,8 @@ let forestPage = 0;
 //   getOrAssignTreeVariant(project)    -> 1..TREE_PNG_COUNT, dieselbe Variante
 //                                          wie im Projektwald (buildForestTree())
 // Sowohl der kleine Waldbaum als auch der große Detailbaum sind PNGs
-// (img/tree_<n>.png / tree_<n>_fall.png) — keine generierte SVG-Baumstruktur
-// mehr.
+// (assets/cozy/cozy prj tree_<n>.png / cozy prj tree_<n>_fall.png) — keine
+// generierte SVG-Baumstruktur mehr.
 // =================================================
 
 
@@ -159,8 +159,8 @@ function buildForestTree(project, slot, containerWidth) {
   const isDone     = !!project.archived;
   const variant    = getOrAssignTreeVariant(project);
   const season     = isDone ? '_fall' : '';
-  const primarySrc  = `img/tree_${variant}${season}.png`;
-  const fallbackSrc = `img/tree_1${season}.png`;
+  const primarySrc  = `assets/cozy/cozy prj tree_${variant}${season}.png`;
+  const fallbackSrc = `assets/cozy/cozy prj tree_1${season}.png`;
 
   const wrap = document.createElement('div');
   wrap.className = 'forest-tree-wrap' + (isDone ? ' archived' : '');
